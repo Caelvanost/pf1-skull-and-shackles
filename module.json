@@ -2,7 +2,7 @@
   "id": "pf1-skull-and-shackles",
   "title": "PF1 — Skull & Shackles",
   "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, vie à bord, cycle journalier et journal de bord, abordages et pertes, progression d’équipage, registre, relations PNJ, quarts et fatigue, loyauté, mutinerie, HUD compact et multijoueur robuste.",
-  "version": "1.21.0",
+  "version": "1.21.1",
   "authors": [
     {
       "name": "Module local Skull & Shackles"
@@ -39,7 +39,7 @@
   ],
   "url": "https://github.com/Caelvanost/pf1-skull-and-shackles",
   "manifest": "https://raw.githubusercontent.com/Caelvanost/pf1-skull-and-shackles/main/module.json",
-  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.21.0/pf1-skull-and-shackles-v1.21.0.zip",
+  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.21.1/pf1-skull-and-shackles-v1.21.1.zip",
   "readme": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/README.md",
   "changelog": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/CHANGELOG.md",
   "bugs": "https://github.com/Caelvanost/pf1-skull-and-shackles/issues"
