@@ -113,6 +113,12 @@ const WORLD_MACROS = Object.freeze([
     command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedCrewWatch();'
   },
   {
+    key: "daily-cycle",
+    name: "S&S — Cycle journalier",
+    icon: "icons/svg/d20-black.svg",
+    command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedDailyCycle();'
+  },
+  {
     key: "boarding",
     name: "S&S — Abordage",
     icon: "icons/svg/d20-black.svg",
@@ -329,6 +335,19 @@ function quickReferencePages() {
         <li>Le bouton <strong>Publier</strong> envoie au chat un résumé des personnages importants, officiers, blessés et relations suivies.</li>
       </ul>
       <p>Le registre est un outil d’organisation : il n’ajoute pas de bonus mécanique automatique.</p>
+    `),
+    page("Cycle journalier", `
+      <h1>Cycle journalier &amp; journal de bord</h1>
+      <p>Le contrôleur <strong>Cycle journalier</strong> orchestre les outils existants sans ajouter de nouvelle règle PF1.</p>
+      <ul>
+        <li>Six phases : aube/affectations, travail de jour, heure du sang, soirée, actions nocturnes et repos/relève.</li>
+        <li>Suivi centralisé de l’avancement Tâche / Jour / Nuit / Rhum pour tous les personnages de Vie à bord.</li>
+        <li>Détection des compteurs de jour désynchronisés entre Vie à bord, Quarts &amp; fatigue et le cycle journalier.</li>
+        <li>Journal de bord persistant avec notes libres et publication d’un résumé dans le chat.</li>
+        <li>La clôture normale refuse d’avancer tant qu’il reste des éléments non résolus ; le MJ peut forcer la clôture si nécessaire.</li>
+        <li>La clôture reprend la logique de Nouvelle journée de Vie à bord : report de la fatigue nocturne, remise à zéro des actions et jet quotidien de Kroop.</li>
+      </ul>
+      <p>Le contrôleur ne fait pas avancer automatiquement un calendrier externe et ne crée aucun bonus ou malus PF1 supplémentaire.</p>
     `),
     page("Quarts & fatigue", `
       <h1>Quarts, relève et fatigue</h1>
