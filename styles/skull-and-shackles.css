@@ -1781,3 +1781,65 @@
     text-align: left;
   }
 }
+
+
+/* -------------------------------------------------------------------------
+ * v1.21 — Cycle journalier & journal de bord
+ * ---------------------------------------------------------------------- */
+.pf1-ss-daily-cycle .window-content { overflow:auto; }
+.pf1-ss-daily-root { display:grid; gap:.7rem; }
+.pf1-ss-daily-phases {
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:.45rem;
+  margin:.55rem 0;
+}
+.pf1-ss-daily-phases button {
+  min-height:4.2rem;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:.3rem;
+  text-align:center;
+}
+.pf1-ss-daily-phases button.active {
+  font-weight:700;
+  border-color:rgba(145,94,18,.85);
+  box-shadow:inset 0 0 0 2px rgba(201,156,63,.28);
+  background:rgba(201,156,63,.10);
+}
+.pf1-ss-daily-progress { display:grid; gap:.25rem; }
+.pf1-ss-daily-progress-row {
+  display:grid;
+  grid-template-columns:minmax(180px,1fr) repeat(4,70px);
+  gap:.35rem;
+  align-items:center;
+  padding:.35rem .45rem;
+  border:1px solid var(--ss-border);
+  border-radius:4px;
+}
+.pf1-ss-daily-progress-row.header {
+  font-size:.86em;
+  opacity:.8;
+  background:rgba(0,0,0,.06);
+}
+.pf1-ss-daily-progress-row.done { background:rgba(50,130,70,.08); }
+.pf1-ss-daily-progress-row > span { text-align:center; }
+.pf1-ss-daily-note { display:grid; gap:.45rem; }
+.pf1-ss-daily-note textarea { width:100%; resize:vertical; }
+.pf1-ss-daily-note button { width:auto; justify-self:start; }
+.pf1-ss-daily-history { display:grid; gap:.35rem; max-height:250px; overflow:auto; }
+.pf1-ss-daily-history > div {
+  display:grid;
+  gap:.1rem;
+  padding:.4rem .5rem;
+  border-left:3px solid rgba(145,94,18,.65);
+  background:rgba(0,0,0,.04);
+}
+.pf1-ss-daily-history small { opacity:.7; }
+.pf1-ss-daily-close .danger { border-color:var(--color-level-error,#a61b1b); }
+@media (max-width:760px) {
+  .pf1-ss-daily-phases { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .pf1-ss-daily-progress-row { grid-template-columns:minmax(130px,1fr) repeat(4,46px); font-size:.9em; }
+}
