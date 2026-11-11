@@ -1,3 +1,7 @@
+# 1.22.1 — Métadonnées du module
+
+- Auteur du module changé en **Gélik** dans le manifeste Foundry.
+
 # 1.22.0 — Rotation libre des navires
 
 - Réactivation des secteurs visuels **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire.
