@@ -1,0 +1,122 @@
+<div class="pf1-ss-daily-root">
+  <header class="pf1-ss-titlebar compact">
+    <div>
+      <span class="pf1-ss-kicker">CYCLE JOURNALIER</span>
+      <h2><i class="fa-solid fa-calendar-day"></i> {{actor.name}}</h2>
+      <p>Jour {{daily.day}} · {{phase.label}} · quart {{currentWatchLabel}}</p>
+    </div>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" data-action="postSummary"><i class="fa-solid fa-message"></i> Publier</button>
+      <button type="button" data-action="openLife"><i class="fa-solid fa-bottle-droplet"></i> Vie à bord</button>
+      <button type="button" data-action="openWatch"><i class="fa-solid fa-clock"></i> Quarts</button>
+      <button type="button" data-action="openRoster"><i class="fa-solid fa-address-book"></i> Registre</button>
+    </div>
+  </header>
+
+  {{#if dayMismatch}}
+    <section class="pf1-ss-dashboard-alert warning">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div>
+        <strong>Compteurs désynchronisés.</strong>
+        <span>Cycle {{daily.day}} · Vie à bord {{lifeDay}} · Quarts {{watchDay}}</span>
+      </div>
+      {{#if isGM}}
+        <button type="button" data-action="syncDays"><i class="fa-solid fa-arrows-rotate"></i> Synchroniser</button>
+      {{/if}}
+    </section>
+  {{/if}}
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-route"></i> Déroulement de la journée</h3>
+      <span class="pf1-ss-badge {{generalFatigue.className}}">Fatigue : {{generalFatigue.label}}</span>
+    </div>
+
+    <div class="pf1-ss-daily-phases">
+      {{#each phases}}
+        <button type="button" data-action="setPhase" data-phase="{{id}}" class="{{#if active}}active{{/if}}" {{#unless ../isGM}}disabled{{/unless}}>
+          <i class="{{icon}}"></i>
+          <span>{{label}}</span>
+        </button>
+      {{/each}}
+    </div>
+
+    {{#if isGM}}
+      <div class="pf1-ss-inline-actions">
+        <button type="button" data-action="previousPhase"><i class="fa-solid fa-arrow-left"></i> Phase précédente</button>
+        <button type="button" class="primary" data-action="nextPhase">Phase suivante <i class="fa-solid fa-arrow-right"></i></button>
+      </div>
+    {{/if}}
+
+    <p class="hint">Le cycle organise les outils existants. Il n’ajoute pas de règle PF1 automatique et ne fait pas avancer un calendrier externe.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-list-check"></i> Avancement de Vie à bord</h3>
+      <strong>{{progress.complete}} / {{progress.total}} terminés</strong>
+    </div>
+
+    {{#if progress.rows.length}}
+      <div class="pf1-ss-daily-progress">
+        <div class="pf1-ss-daily-progress-row header">
+          <strong>Personnage</strong><span>Tâche</span><span>Jour</span><span>Nuit</span><span>Rhum</span>
+        </div>
+        {{#each progress.rows}}
+          <div class="pf1-ss-daily-progress-row {{#if complete}}done{{/if}}">
+            <strong>{{actorName}}</strong>
+            <span>{{#if taskDone}}✓{{else}}…{{/if}}</span>
+            <span>{{#if dayDone}}✓{{else}}…{{/if}}</span>
+            <span>{{#if nightDone}}✓{{else}}…{{/if}}</span>
+            <span>{{#if rumDone}}✓{{else}}…{{/if}}</span>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="hint">Aucun personnage n’est actuellement suivi dans Vie à bord.</p>
+    {{/if}}
+  </section>
+
+  {{#if isGM}}
+    <section class="pf1-ss-panel">
+      <h3><i class="fa-solid fa-book"></i> Journal de bord</h3>
+      <div class="pf1-ss-daily-note">
+        <textarea rows="3" data-daily-note placeholder="Événement, décision, météo, rencontre, incident, note de scénario…"></textarea>
+        <button type="button" data-action="addNote"><i class="fa-solid fa-plus"></i> Ajouter au journal</button>
+      </div>
+    </section>
+  {{/if}}
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-clock-rotate-left"></i> Historique</h3>
+    {{#if history.length}}
+      <div class="pf1-ss-daily-history">
+        {{#each history}}
+          <div>
+            <small>Jour {{day}} · {{phaseLabel}} · {{timeLabel}}</small>
+            <span>{{label}}</span>
+          </div>
+        {{/each}}
+      </div>
+    {{else}}
+      <p class="hint">Aucune entrée dans le journal de bord.</p>
+    {{/if}}
+  </section>
+
+  {{#if isGM}}
+    <section class="pf1-ss-panel pf1-ss-daily-close">
+      <h3><i class="fa-solid fa-sun"></i> Fin de journée</h3>
+      {{#if progress.allComplete}}
+        <p>Tout le monde est à jour. La journée peut être clôturée.</p>
+        <button type="button" class="primary" data-action="closeDay"><i class="fa-solid fa-forward-step"></i> Clore la journée et ouvrir le jour suivant</button>
+      {{else}}
+        <p><strong>{{progress.unresolved}}</strong> personnage(s) ont encore au moins un élément non résolu.</p>
+        <div class="pf1-ss-inline-actions">
+          <button type="button" data-action="closeDay"><i class="fa-solid fa-forward-step"></i> Vérifier et clôturer</button>
+          <button type="button" class="danger" data-action="forceCloseDay"><i class="fa-solid fa-triangle-exclamation"></i> Forcer la clôture</button>
+        </div>
+      {{/if}}
+      <p class="hint">La clôture reprend la logique de « Nouvelle journée » de Vie à bord : remise à zéro des actions quotidiennes, report de la fatigue nocturne et jet quotidien de Kroop.</p>
+    </section>
+  {{/if}}
+</div>
