@@ -74,88 +74,6 @@ function graphicsLine(g, points, { color, alpha = 0.95, width = 5 } = {}) {
   for (const p of points.slice(1)) g.lineTo?.(p.x, p.y);
 }
 
-function graphicsPolygon(g, points, { fill, fillAlpha = 0.11, stroke = fill, strokeAlpha = 0.8, strokeWidth = 2 } = {}) {
-  if (!Array.isArray(points) || points.length < 3) return;
-  const flat = points.flatMap((p) => [p.x, p.y]);
-  if (typeof g.poly === "function" && typeof g.fill === "function") {
-    g.poly(flat).fill({ color: fill, alpha: fillAlpha }).stroke({ color: stroke, alpha: strokeAlpha, width: strokeWidth });
-    return;
-  }
-  g.lineStyle?.(strokeWidth, stroke, strokeAlpha);
-  g.beginFill?.(fill, fillAlpha);
-  g.drawPolygon?.(flat);
-  g.endFill?.();
-}
-
-function normalizedTokenRotation(token, ss) {
-  const rotation = Number(token?.document?.rotation ?? token?.rotation ?? 0);
-  const offset = Number(ss?.map?.rotationOffset ?? 0);
-  return ((rotation - offset) % 360 + 360) % 360;
-}
-
-function vectorFromDegrees(degrees) {
-  const radians = Number(degrees ?? 0) * Math.PI / 180;
-  return { dx: Math.sin(radians), dy: -Math.cos(radians) };
-}
-
-function rotatedVector(vector, degrees) {
-  const radians = Number(degrees ?? 0) * Math.PI / 180;
-  const cos = Math.cos(radians);
-  const sin = Math.sin(radians);
-  return {
-    dx: vector.dx * cos - vector.dy * sin,
-    dy: vector.dx * sin + vector.dy * cos
-  };
-}
-
-function pointAt(center, vector, distance) {
-  return {
-    x: center.x + vector.dx * distance,
-    y: center.y + vector.dy * distance
-  };
-}
-
-function drawSectorWedge(container, center, direction, innerRadius, outerRadius, color) {
-  const left = rotatedVector(direction, -45);
-  const right = rotatedVector(direction, 45);
-  const points = [
-    pointAt(center, left, innerRadius),
-    pointAt(center, left, outerRadius),
-    pointAt(center, right, outerRadius),
-    pointAt(center, right, innerRadius)
-  ];
-  const g = new PIXI.Graphics();
-  graphicsPolygon(g, points, {
-    fill: color,
-    fillAlpha: 0.095,
-    stroke: color,
-    strokeAlpha: 0.78,
-    strokeWidth: 2
-  });
-  container.addChild(g);
-}
-
-function drawSectorZones(container, token, ss, scale) {
-  if (!ss.map?.showZones) return;
-  const rect = tokenRect(token, scale);
-  const bowRotation = normalizedTokenRotation(token, ss);
-  const bow = vectorFromDegrees(bowRotation);
-  const starboard = rightVector(bow);
-  const stern = { dx: -bow.dx, dy: -bow.dy };
-  const port = { dx: -starboard.dx, dy: -starboard.dy };
-
-  // L'empreinte Foundry reste approximative. Les secteurs sont donc construits
-  // autour du centre du token et suivent uniquement son axe visuel réel.
-  const footprintRadius = Math.max(rect.w, rect.h) * 0.5;
-  const innerRadius = Math.max(scale.size * 0.45, footprintRadius * 0.72);
-  const outerRadius = innerRadius + Math.max(scale.pixels * 0.8, scale.size * 0.85);
-
-  drawSectorWedge(container, rect.center, bow, innerRadius, outerRadius, COLORS.bow);
-  drawSectorWedge(container, rect.center, stern, innerRadius, outerRadius, COLORS.stern);
-  drawSectorWedge(container, rect.center, port, innerRadius, outerRadius, COLORS.port);
-  drawSectorWedge(container, rect.center, starboard, innerRadius, outerRadius, COLORS.starboard);
-}
-
 function rightVector(forward) {
   return { dx: -forward.dy, dy: forward.dx };
 }
@@ -167,6 +85,87 @@ function tokenRect(token, scale) {
   const h = Number(token.document?.height ?? 1) * scale.size;
   const center = token.center ?? { x: x + w / 2, y: y + h / 2 };
   return { x, y, w, h, center };
+}
+
+function normalizeDegrees(value) {
+  return ((Number(value ?? 0) % 360) + 360) % 360;
+}
+
+/**
+ * Angle réel de la coque affichée sur le Canvas.
+ *
+ * rotationOffset représente le décalage nécessaire pour qu'une texture dont la
+ * proue n'est pas orientée vers le haut à 0° soit correctement alignée.
+ * La rotation du token peut ensuite être totalement libre.
+ */
+function getVisualHullRotation(token, ss) {
+  const tokenRotation = Number(token?.document?.rotation ?? token?.rotation ?? 0);
+  const offset = Number(ss?.map?.rotationOffset ?? 0);
+  return normalizeDegrees(tokenRotation - offset);
+}
+
+function drawRotatingSectorOverlay(container, token, ss, scale) {
+  if (!ss.map?.showZones) return;
+
+  const rect = tokenRect(token, scale);
+  const band = Math.max(scale.size * 0.55, Math.min(scale.pixels, Math.max(rect.w, rect.h) * 0.65));
+  const gap = Math.max(2, scale.size * 0.04);
+
+  // Le conteneur est centré sur le token : toute sa géométrie est exprimée dans
+  // le repère local du navire, puis le conteneur entier est tourné.
+  const local = new PIXI.Container();
+  local.position.set(rect.center.x, rect.center.y);
+  local.rotation = getVisualHullRotation(token, ss) * Math.PI / 180;
+  local.eventMode = "none";
+  local.interactiveChildren = false;
+
+  const halfW = rect.w / 2;
+  const halfH = rect.h / 2;
+
+  const sectors = [
+    {
+      color: COLORS.bow,
+      x: -halfW,
+      y: -halfH - band - gap,
+      w: rect.w,
+      h: band
+    },
+    {
+      color: COLORS.stern,
+      x: -halfW,
+      y: halfH + gap,
+      w: rect.w,
+      h: band
+    },
+    {
+      color: COLORS.port,
+      x: -halfW - band - gap,
+      y: -halfH,
+      w: band,
+      h: rect.h
+    },
+    {
+      color: COLORS.starboard,
+      x: halfW + gap,
+      y: -halfH,
+      w: band,
+      h: rect.h
+    }
+  ];
+
+  for (const sector of sectors) {
+    const g = new PIXI.Graphics();
+    graphicsRect(g, sector.x, sector.y, sector.w, sector.h, {
+      fill: sector.color,
+      fillAlpha: 0.10,
+      stroke: sector.color,
+      strokeAlpha: 0.82,
+      strokeWidth: Math.max(1.5, scale.size * 0.025)
+    });
+    local.addChild(g);
+  }
+
+  container.addChild(local);
 }
 
 function speedMovementRemaining(actor, ss) {
@@ -204,7 +203,8 @@ function drawReachable(container, token, actor, ss, scale) {
   const right = rightVector(forward);
   const speedRemaining = Math.min(12, speedMovementRemaining(actor, ss));
 
-  // Déplacement normal : chaque case peut être avant, avant-bâbord ou avant-tribord.
+  // Les cases atteignables restent fondées sur le cap logique PF1 du navire.
+  // Seul l'overlay de secteurs suit actuellement la rotation libre du token.
   for (let depth = 1; depth <= speedRemaining; depth++) {
     for (let lateral = -depth; lateral <= depth; lateral++) {
       const dx = forward.dx * depth + right.dx * lateral;
@@ -213,7 +213,6 @@ function drawReachable(container, token, actor, ss, scale) {
     }
   }
 
-  // Ascendant : chaque case gagnée peut être déplacée dans la direction de son choix.
   const advRemaining = Math.min(8, advantageMovementRemaining(ss));
   for (let dx = -advRemaining; dx <= advRemaining; dx++) {
     for (let dy = -advRemaining; dy <= advRemaining; dy++) {
@@ -227,12 +226,22 @@ function drawReachable(container, token, actor, ss, scale) {
 function drawShearPlan(container, ss, scale) {
   const plan = ss.map?.shearPlan;
   if (!plan?.active || !Array.isArray(plan.points) || !plan.points.length) return;
-  const points = plan.points.filter((p) => Number.isFinite(Number(p?.x)) && Number.isFinite(Number(p?.y))).map((p) => ({ x: Number(p.x), y: Number(p.y) }));
+  const points = plan.points
+    .filter((p) => Number.isFinite(Number(p?.x)) && Number.isFinite(Number(p?.y)))
+    .map((p) => ({ x: Number(p.x), y: Number(p.y) }));
   if (!points.length) return;
   const color = plan.complete && plan.valid ? COLORS.shearOk : COLORS.shear;
   const g = new PIXI.Graphics();
   graphicsLine(g, points, { color, alpha: 0.9, width: Math.max(3, scale.size * 0.05) });
-  for (const p of points) graphicsCircle(g, p.x, p.y, Math.max(4, scale.size * 0.07), { fill: color, fillAlpha: 0.28, stroke: color, strokeAlpha: 0.95, strokeWidth: 2 });
+  for (const p of points) {
+    graphicsCircle(g, p.x, p.y, Math.max(4, scale.size * 0.07), {
+      fill: color,
+      fillAlpha: 0.28,
+      stroke: color,
+      strokeAlpha: 0.95,
+      strokeWidth: 2
+    });
+  }
   container.addChild(g);
 }
 
@@ -267,7 +276,7 @@ export function refreshNavalVisualOverlay(actor = null) {
   canvas.interface.addChild(container);
   overlay = container;
 
-  drawSectorZones(container, token, ss, scale);
+  drawRotatingSectorOverlay(container, token, ss, scale);
   drawReachable(container, token, actor, ss, scale);
   drawShearPlan(container, ss, scale);
 }
