@@ -1,7 +1,7 @@
 {
   "id": "pf1-skull-and-shackles",
   "title": "PF1 — Skull & Shackles",
-  "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, rotation libre des secteurs visuels, vie à bord, cycle journalier, abordages, équipage, relations, quarts et fatigue, réputation, flottes et outils de campagne.",
+  "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, rotation libre des tokens de navire et secteurs visuels, vie à bord, cycle journalier et journal de bord, abordages, équipage, relations, quarts et fatigue.",
   "version": "1.22.0",
   "authors": [
     {
