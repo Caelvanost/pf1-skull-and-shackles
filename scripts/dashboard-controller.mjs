@@ -28,6 +28,7 @@ import { CrewDevelopmentController } from "./crew-development-controller.mjs";
 import { CrewRelationsController } from "./crew-relations-controller.mjs";
 import { CrewRosterController } from "./crew-roster-controller.mjs";
 import { CrewWatchController } from "./crew-watch-controller.mjs";
+import { DailyCycleController } from "./daily-cycle-controller.mjs";
 import { ShipDisguiseController } from "./ship-disguise-controller.mjs";
 import { LibraryController } from "./library-controller.mjs";
 import { ShipWizard } from "./ship-wizard.mjs";
@@ -82,6 +83,7 @@ export class DashboardController extends HandlebarsApplicationMixin(ApplicationV
       openCrewRelations: this.#openCrewRelations,
       openCrewRoster: this.#openCrewRoster,
       openCrewWatch: this.#openCrewWatch,
+      openDailyCycle: this.#openDailyCycle,
       openDisguise: this.#openDisguise,
       openLibrary: this.#openLibrary,
       openWizard: this.#openWizard,
@@ -185,6 +187,7 @@ export class DashboardController extends HandlebarsApplicationMixin(ApplicationV
   static async #openCrewRelations() { CrewRelationsController.open(this.actor); }
   static async #openCrewRoster() { CrewRosterController.open(this.actor); }
   static async #openCrewWatch() { CrewWatchController.open(this.actor); }
+  static async #openDailyCycle() { DailyCycleController.open(this.actor); }
   static async #openDisguise() { ShipDisguiseController.open(this.actor); }
   static async #openLibrary() { LibraryController.open(this.actor); }
   static async #openWizard() { ShipWizard.open(this.actor); }
