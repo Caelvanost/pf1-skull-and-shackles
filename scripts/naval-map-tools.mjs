@@ -36,8 +36,16 @@ export async function syncTokenHeading(actor, ssData = getSSShipData(actor), { n
   return true;
 }
 
-export function getMovementVector(heading, relative = "forward") {
-  const forward = CARDINAL_DIRECTIONS[heading] ?? CARDINAL_DIRECTIONS.N;
+function tokenVisualForward(token, ssData) {
+  const rotation = Number(token?.document?.rotation ?? token?.rotation ?? 0);
+  const offset = Number(ssData?.map?.rotationOffset ?? 0);
+  const degrees = ((rotation - offset) % 360 + 360) % 360;
+  const radians = degrees * Math.PI / 180;
+  return { dx: Math.sin(radians), dy: -Math.cos(radians) };
+}
+
+export function getMovementVector(heading, relative = "forward", { token = null, ssData = null } = {}) {
+  const forward = token ? tokenVisualForward(token, ssData) : (CARDINAL_DIRECTIONS[heading] ?? CARDINAL_DIRECTIONS.N);
   const right = { dx: -forward.dy, dy: forward.dx };
   switch (relative) {
     case "forwardPort": return { dx: forward.dx - right.dx, dy: forward.dy - right.dy };
@@ -73,7 +81,7 @@ export async function moveTokenOneNavalSquare(actor, relative = "forward", ssDat
   if (!token.document.isOwner && !game.user?.isGM) throw new Error("Tu n'as pas la permission de déplacer ce token.");
   if (token.document.locked && !game.user?.isGM) throw new Error("Le token est verrouillé.");
 
-  const vector = getMovementVector(ssData.navigation?.heading ?? "N", relative);
+  const vector = getMovementVector(ssData.navigation?.heading ?? "N", relative, { token, ssData });
   const x = Number(token.document.x ?? 0) + vector.dx * scale.pixels;
   const y = Number(token.document.y ?? 0) + vector.dy * scale.pixels;
   const bounded = clampTokenPosition(token.document, x, y, scene, scale.size);
