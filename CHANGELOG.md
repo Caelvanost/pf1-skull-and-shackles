@@ -1,3 +1,14 @@
+# 1.22.0 — Rotation libre des navires
+
+- Réactivation des secteurs visuels **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire.
+- Les secteurs suivent désormais directement la rotation réelle du token au lieu du seul cap logique N/E/S/O.
+- Le calcul de l’axe visuel utilise `token.document.rotation - rotationOffset`, afin de respecter les illustrations dont la proue n’est pas orientée vers le haut à 0°.
+- Les **cases atteignables** suivent maintenant elles aussi l’orientation libre du token.
+- Les boutons de déplacement naval utilisent l’axe réel du token et peuvent donc déplacer le navire selon un angle intermédiaire.
+- L’encombrement mécanique Foundry du token n’est pas redimensionné ni pivoté : il reste volontairement approximatif.
+- Le décalage graphique du token peut maintenant être réglé au degré près.
+- Le cap logique N/E/S/O est conservé pour les règles existantes de vent et les automatismes qui en dépendent ; la rotation libre est utilisée pour le rendu et les déplacements visuels.
+
 # 1.22.0 — Rotation libre des secteurs navals
 
 - Réactivation des zones visuelles **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire.
