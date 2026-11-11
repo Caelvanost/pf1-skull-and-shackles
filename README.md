@@ -1,4 +1,17 @@
-# PF1 — Skull & Shackles v1.20.0
+# PF1 — Skull & Shackles v1.21.0
+
+## Nouveautés v1.21 — Cycle journalier & journal de bord
+
+La v1.21 ajoute une vue d’orchestration quotidienne qui relie **Vie à bord**, **Quarts & fatigue** et le **Registre d’équipage** sans introduire de nouvelle règle PF1.
+
+- Six phases de journée clairement visibles et sélectionnables par le MJ.
+- Tableau centralisé Tâche / Jour / Nuit / Rhum pour les personnages suivis.
+- Détection des compteurs de jour désynchronisés entre les sous-systèmes.
+- Journal de bord persistant avec notes libres et historique.
+- Résumé de journée publiable dans le chat.
+- Clôture sécurisée : blocage si des actions restent non résolues, avec option de forçage explicite.
+- La clôture utilise la même logique que « Nouvelle journée » dans Vie à bord.
+- Aucun calendrier externe n’est avancé automatiquement.
 
 ## Nouveautés v1.20 — Quarts, relève et fatigue
 
