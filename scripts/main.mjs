@@ -17,6 +17,7 @@ import { CrewDevelopmentController } from "./crew-development-controller.mjs";
 import { CrewRelationsController } from "./crew-relations-controller.mjs";
 import { CrewRosterController } from "./crew-roster-controller.mjs";
 import { CrewWatchController } from "./crew-watch-controller.mjs";
+import { DailyCycleController } from "./daily-cycle-controller.mjs";
 import { ShipDisguiseController } from "./ship-disguise-controller.mjs";
 import { LibraryController } from "./library-controller.mjs";
 import { ShipWizard } from "./ship-wizard.mjs";
@@ -60,6 +61,7 @@ Hooks.once("init", () => {
       openCrewRelations: (actor) => CrewRelationsController.open(actor),
       openCrewRoster: (actor) => CrewRosterController.open(actor),
       openCrewWatch: (actor) => CrewWatchController.open(actor),
+      openDailyCycle: (actor) => DailyCycleController.open(actor),
       openDisguise: (actor) => ShipDisguiseController.open(actor),
       openLibrary: (actor = null) => LibraryController.open(actor),
       openShipWizard: (actor = null) => ShipWizard.open(actor),
@@ -200,6 +202,11 @@ Hooks.once("init", () => {
         const actor = getSelectedVehicle();
         if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire dont tu veux gérer les quarts."); return null; }
         return CrewWatchController.open(actor);
+      },
+      openSelectedDailyCycle: () => {
+        const actor = getSelectedVehicle();
+        if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire dont tu veux gérer le cycle journalier."); return null; }
+        return DailyCycleController.open(actor);
       },
       openSelectedDisguise: () => {
         const actor = getSelectedVehicle();
