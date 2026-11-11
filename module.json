@@ -1,46 +1,46 @@
 {
-    "id": "pf1-skull-and-shackles",
-    "title": "PF1 — Skull & Shackles",
-    "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, vie à bord, abordages et pertes, progression d’équipage, registre, relations PNJ, quarts et fatigue, loyauté, mutinerie, HUD compact et multijoueur robuste.",
-    "version": "1.20.0",
-    "authors": [
-        {
-            "name": "Module local Skull & Shackles"
+  "id": "pf1-skull-and-shackles",
+  "title": "PF1 — Skull & Shackles",
+  "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, vie à bord, abordages et pertes, progression d’équipage, registre, relations PNJ, quarts et fatigue, loyauté, mutinerie, HUD compact et multijoueur robuste.",
+  "version": "1.20.0",
+  "authors": [
+    {
+      "name": "Module local Skull & Shackles"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf1",
+        "type": "system",
+        "compatibility": {
+          "minimum": "11.0",
+          "verified": "11.11"
         }
-    ],
-    "compatibility": {
-        "minimum": "13",
-        "verified": "13"
-    },
-    "relationships": {
-        "systems": [
-            {
-                "id": "pf1",
-                "type": "system",
-                "compatibility": {
-                    "minimum": "11.0",
-                    "verified": "11.11"
-                }
-            }
-        ]
-    },
-    "esmodules": [
-        "scripts/main.mjs"
-    ],
-    "styles": [
-        "styles/skull-and-shackles.css"
-    ],
-    "languages": [
-        {
-            "lang": "fr",
-            "name": "Français",
-            "path": "lang/fr.json"
-        }
-    ],
-    "url": "https://github.com/Caelvanost/pf1-skull-and-shackles",
-    "manifest": "https://raw.githubusercontent.com/Caelvanost/pf1-skull-and-shackles/main/module.json",
-    "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.20.0/pf1-skull-and-shackles-v1.20.0.zip",
-    "readme": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/README.md",
-    "changelog": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/CHANGELOG.md",
-    "bugs": "https://github.com/Caelvanost/pf1-skull-and-shackles/issues"
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "styles/skull-and-shackles.css"
+  ],
+  "languages": [
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ],
+  "url": "https://github.com/Caelvanost/pf1-skull-and-shackles",
+  "manifest": "https://raw.githubusercontent.com/Caelvanost/pf1-skull-and-shackles/main/module.json",
+  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.20.0/pf1-skull-and-shackles-v1.20.0.zip",
+  "readme": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/README.md",
+  "changelog": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/CHANGELOG.md",
+  "bugs": "https://github.com/Caelvanost/pf1-skull-and-shackles/issues"
 }
