@@ -1,4 +1,10 @@
-# PF1 — Skull & Shackles v1.21.0
+# PF1 — Skull & Shackles v1.21.1
+
+## Correctif v1.21.1 — Zones des tokens
+
+Les zones visuelles **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire sont temporairement désactivées, car elles ne suivaient pas correctement la rotation réelle du token.
+
+Les calculs internes de secteurs nécessaires aux manœuvres navales restent disponibles. L’overlay visuel sera réintroduit plus tard avec une rotation liée directement à l’orientation du token.
 
 ## Nouveautés v1.21 — Cycle journalier & journal de bord
 
