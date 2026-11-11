@@ -1,3 +1,15 @@
+# 1.21.0 — Cycle journalier & journal de bord
+
+- Nouveau contrôleur **Cycle journalier** accessible depuis la Passerelle et par macro.
+- Six phases de journée : **Aube & affectations**, **Travail de jour**, **Heure du sang**, **Soirée & détente**, **Actions nocturnes**, **Repos & relève**.
+- Vue consolidée de l’avancement des personnages suivis dans **Vie à bord** : Tâche / Jour / Nuit / Rhum.
+- Détection et synchronisation des compteurs de jour entre **Vie à bord**, **Quarts & fatigue** et le nouveau cycle.
+- Journal de bord persistant avec notes libres, historique des changements de phase et résumé publiable dans le chat.
+- La clôture normale d’une journée avertit et bloque si des éléments PJ restent non résolus ; le MJ dispose d’une clôture forcée explicite.
+- La clôture reprend la logique existante de **Nouvelle journée** de Vie à bord : remise à zéro des actions, report de fatigue nocturne et jet quotidien de Kroop.
+- Le cycle journalier ne fait pas avancer un calendrier externe et n’ajoute aucun bonus/malus PF1 supplémentaire.
+- Nouvelle macro **S&S — Cycle journalier**, nouvelle page de l’Aide rapide et intégration à la Passerelle.
+
 # 1.20.0 — Quarts, relève et fatigue
 
 - Nouveau contrôleur **Quarts & fatigue** pour organiser les groupes de relève et suivre une disponibilité abstraite de l’équipage.
