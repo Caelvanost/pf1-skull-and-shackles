@@ -78,6 +78,7 @@ export class NavalMapController extends HandlebarsApplicationMixin(ApplicationV2
       advMoveBackwardPort: this.#advMoveBackwardPort,
       advMoveBackwardStarboard: this.#advMoveBackwardStarboard,
       toggleZones: this.#toggleZones,
+      toggleZones: this.#toggleZones,
       toggleReachable: this.#toggleReachable,
       beginShearPlan: this.#beginShearPlan,
       cancelShearPlan: this.#cancelShearPlan,
