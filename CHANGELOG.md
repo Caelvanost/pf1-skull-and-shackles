@@ -1,3 +1,7 @@
+# 1.22.2 — Auteurs du module
+
+- Ajout de **Caelvanost** aux auteurs du module aux côtés de **Gélik**.
+
 # 1.22.1 — Métadonnées du module
 
 - Auteur du module changé en **Gélik** dans le manifeste Foundry.
