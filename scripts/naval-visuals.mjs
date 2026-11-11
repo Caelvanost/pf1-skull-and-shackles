@@ -87,35 +87,6 @@ function tokenRect(token, scale) {
   return { x, y, w, h, center };
 }
 
-function sectorCellCenter(rect, vector, scale) {
-  const halfAlong = Math.abs(vector.dx) * rect.w / 2 + Math.abs(vector.dy) * rect.h / 2;
-  return {
-    x: rect.center.x + vector.dx * (halfAlong + scale.pixels / 2),
-    y: rect.center.y + vector.dy * (halfAlong + scale.pixels / 2)
-  };
-}
-
-function drawSectorCells(container, token, ss, scale) {
-  if (!ss.map?.showZones) return;
-  const forward = CARDINAL_DIRECTIONS[ss.navigation?.heading ?? "N"] ?? CARDINAL_DIRECTIONS.N;
-  const right = rightVector(forward);
-  const vectors = {
-    bow: forward,
-    stern: { dx: -forward.dx, dy: -forward.dy },
-    port: { dx: -right.dx, dy: -right.dy },
-    starboard: right
-  };
-  const rect = tokenRect(token, scale);
-  for (const [key, vector] of Object.entries(vectors)) {
-    const center = sectorCellCenter(rect, vector, scale);
-    const g = new PIXI.Graphics();
-    graphicsRect(g, center.x - scale.pixels / 2, center.y - scale.pixels / 2, scale.pixels, scale.pixels, {
-      fill: COLORS[key], fillAlpha: 0.10, stroke: COLORS[key], strokeAlpha: 0.72, strokeWidth: 2
-    });
-    container.addChild(g);
-  }
-}
-
 function speedMovementRemaining(actor, ss) {
   const round = currentRound();
   const state = deriveShipState(actor, ss);
@@ -203,7 +174,7 @@ export function refreshNavalVisualOverlay(actor = null) {
   if (!token || !scale.valid) return;
 
   const ss = getSSShipData(actor);
-  if (!ss.map?.showZones && !ss.map?.showReachable && !ss.map?.shearPlan?.active) return;
+  if (!ss.map?.showReachable && !ss.map?.shearPlan?.active) return;
 
   const container = new PIXI.Container();
   container.name = OVERLAY_NAME;
@@ -215,6 +186,5 @@ export function refreshNavalVisualOverlay(actor = null) {
   overlay = container;
 
   drawReachable(container, token, actor, ss, scale);
-  drawSectorCells(container, token, ss, scale);
   drawShearPlan(container, ss, scale);
 }
