@@ -1,10 +1,16 @@
-# PF1 — Skull & Shackles v1.21.1
+# PF1 — Skull & Shackles v1.22.0
 
-## Correctif v1.21.1 — Zones des tokens
+## Nouveautés v1.22 — Rotation libre des secteurs navals
 
-Les zones visuelles **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire sont temporairement désactivées, car elles ne suivaient pas correctement la rotation réelle du token.
+Les zones visuelles **Proue / Poupe / Bâbord / Tribord** sont de nouveau disponibles et suivent maintenant la rotation réelle du token.
 
-Les calculs internes de secteurs nécessaires aux manœuvres navales restent disponibles. L’overlay visuel sera réintroduit plus tard avec une rotation liée directement à l’orientation du token.
+- La texture du navire peut être tournée librement dans Foundry.
+- Les secteurs tournent autour du centre du token avec le même angle.
+- Le **Décalage graphique du token** permet de corriger l’orientation propre à chaque image.
+- Les angles intermédiaires sont supportés, pas seulement les quarts de tour.
+- L’encombrement Foundry reste volontairement approximatif et ne change pas lors de la rotation.
+- Pour un grand navire, un encombrement carré comme **3 × 3** peut donc servir d’approximation mécanique pendant que la texture et les secteurs tournent librement à l’intérieur.
+- Les règles et déplacements navals restent pour l’instant fondés sur le cap logique du module ; seule la géométrie visuelle des secteurs suit directement la rotation libre.
 
 ## Nouveautés v1.21 — Cycle journalier & journal de bord
 
