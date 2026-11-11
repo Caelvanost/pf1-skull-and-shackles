@@ -2,10 +2,10 @@
   "id": "pf1-skull-and-shackles",
   "title": "PF1 — Skull & Shackles",
   "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, rotation libre des tokens de navire et secteurs visuels, vie à bord, cycle journalier et journal de bord, abordages, équipage, relations, quarts et fatigue.",
-  "version": "1.22.0",
+  "version": "1.22.1",
   "authors": [
     {
-      "name": "Module local Skull & Shackles"
+      "name": "Gélik"
     }
   ],
   "compatibility": {
@@ -39,7 +39,7 @@
   ],
   "url": "https://github.com/Caelvanost/pf1-skull-and-shackles",
   "manifest": "https://raw.githubusercontent.com/Caelvanost/pf1-skull-and-shackles/main/module.json",
-  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.22.0/pf1-skull-and-shackles-v1.22.0.zip",
+  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.22.1/pf1-skull-and-shackles-v1.22.1.zip",
   "readme": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/README.md",
   "changelog": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/CHANGELOG.md",
   "bugs": "https://github.com/Caelvanost/pf1-skull-and-shackles/issues"
