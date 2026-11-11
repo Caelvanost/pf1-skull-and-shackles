@@ -12,6 +12,15 @@ export const SETTINGS = Object.freeze({
   showNavalVisuals: "showNavalVisuals",
   autoSyncTokenRotation: "autoSyncTokenRotation",
   showResourceHud: "showResourceHud",
+  hudDensity: "hudDensity",
+  hudAutoCollapseSections: "hudAutoCollapseSections",
+  hudSmallScreenDock: "hudSmallScreenDock",
+  hudCollapsed: "hudCollapsed",
+  hudGamesCollapsed: "hudGamesCollapsed",
+  hudLifeCollapsed: "hudLifeCollapsed",
+  hudActorUuid: "hudActorUuid",
+  multiplayerQuietNotifications: "multiplayerQuietNotifications",
+  multiplayerHistoryLimit: "multiplayerHistoryLimit",
   primaryShipUuid: "primaryShipUuid",
   hudPositionX: "hudPositionX",
   hudPositionY: "hudPositionY"
@@ -117,6 +126,76 @@ export function registerSettings() {
     default: true,
     onChange: () => game.modules.get(MODULE_ID)?.api?.refreshCampaignHud?.()
   });
+
+  game.settings.register(MODULE_ID, SETTINGS.hudDensity, {
+    name: "Densité du HUD S&S",
+    hint: "Compact réduit l'encombrement ; Confortable augmente les espacements ; Minimal masque les libellés secondaires autant que possible.",
+    scope: "client",
+    config: true,
+    type: String,
+    choices: {
+      minimal: "Minimal",
+      compact: "Compact",
+      comfortable: "Confortable"
+    },
+    default: "compact",
+    onChange: () => game.modules.get(MODULE_ID)?.api?.refreshCampaignHud?.()
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.hudAutoCollapseSections, {
+    name: "Replier les sections du HUD par défaut",
+    hint: "Les panneaux Vie à bord et Jeux ouverts démarrent repliés lorsqu'aucun état client n'a encore été enregistré.",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: () => game.modules.get(MODULE_ID)?.api?.refreshCampaignHud?.()
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.hudSmallScreenDock, {
+    name: "Ancrer le HUD sur petits écrans",
+    hint: "Sous 760 px de large, le HUD se transforme en panneau bord-à-bord et ignore temporairement sa position enregistrée.",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true,
+    onChange: () => game.modules.get(MODULE_ID)?.api?.refreshCampaignHud?.()
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.multiplayerQuietNotifications, {
+    name: "Notifications multijoueur discrètes",
+    hint: "Affiche de petits messages temporaires dans le HUD au lieu de notifications Foundry pour les accusés de réception et synchronisations.",
+    scope: "client",
+    config: true,
+    type: Boolean,
+    default: true
+  });
+
+  game.settings.register(MODULE_ID, SETTINGS.multiplayerHistoryLimit, {
+    name: "Historique multijoueur conservé",
+    hint: "Nombre maximal d'actions/jets multijoueurs conservés par navire pour l'audit et les corrections du MJ.",
+    scope: "world",
+    config: true,
+    type: Number,
+    default: 60,
+    range: { min: 20, max: 200, step: 10 }
+  });
+
+  for (const [key, type, defaultValue] of [
+    [SETTINGS.hudCollapsed, Boolean, false],
+    [SETTINGS.hudGamesCollapsed, Boolean, true],
+    [SETTINGS.hudLifeCollapsed, Boolean, true],
+    [SETTINGS.hudActorUuid, String, ""]
+  ]) {
+    game.settings.register(MODULE_ID, key, {
+      name: key,
+      scope: "client",
+      config: false,
+      type,
+      default: defaultValue,
+      onChange: () => game.modules.get(MODULE_ID)?.api?.refreshCampaignHud?.()
+    });
+  }
 
 
   game.settings.register(MODULE_ID, SETTINGS.hudPositionX, {

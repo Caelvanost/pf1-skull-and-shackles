@@ -1,7 +1,249 @@
 <div class="pf1-ss-boarding-root">
-<header class="pf1-ss-toolbar"><button type="button" data-action="openShip"><i class="fa-solid fa-anchor"></i> Navire</button><div class="pf1-ss-toolbar-title"><strong>Assistant d'abordage</strong> — {{actor.name}}</div></header>
-<section class="pf1-ss-panel"><h3><i class="fa-solid fa-link"></i> Situation</h3>{{#if grappled}}<div class="pf1-ss-grid three"><div class="pf1-ss-static-field"><span>Attaquant</span><strong>{{actor.name}}</strong><small>{{crewCurrent}} marins</small></div><div class="pf1-ss-static-field"><span>Défenseur</span><strong>{{targetName}}</strong><small>{{targetCrewCurrent}} marins</small></div><div class="pf1-ss-static-field"><span>Corbeau</span><strong>{{#if usesCorvus}}Oui{{else}}Non{{/if}}</strong></div></div><p>{{initiativeText}}</p>{{else}}<p class="bad"><strong>Les navires ne sont pas agrippés.</strong> L'abordage exige d'abord un agrippement.</p>{{/if}}</section>
-<section class="pf1-ss-panel"><h3><i class="fa-solid fa-people-group"></i> Équipages en arrière-plan</h3><p class="hint">Skull & Shackles recommande de faire combattre les équipages ordinaires à l'arrière-plan pendant que les PJ affrontent les personnages importants. Ces champs servent donc uniquement au suivi et n'inventent pas un nouveau jet de combat de masse.</p><div class="pf1-ss-grid four"><label><span>Assaillants engagés</span><input type="number" min="0" name="boarding.attackersCommitted" value="{{data.attackersCommitted}}"></label><label><span>Pertes assaillants</span><input type="number" min="0" name="boarding.attackerLosses" value="{{data.attackerLosses}}"></label><label><span>Défenseurs engagés</span><input type="number" min="0" name="boarding.defendersCommitted" value="{{data.defendersCommitted}}"></label><label><span>Pertes défenseurs</span><input type="number" min="0" name="boarding.defenderLosses" value="{{data.defenderLosses}}"></label></div><label><span>Notes de bataille</span><textarea name="boarding.notes">{{data.notes}}</textarea></label></section>
-<section class="pf1-ss-panel"><h3><i class="fa-solid fa-swords"></i> Transition vers le combat PF1</h3><p>{{#if usesCorvus}}Avec le corbeau, les assaillants ne sont pas pris au dépourvu au premier round.{{else}}Sans corbeau, les assaillants sont pris au dépourvu pendant le premier round.{{/if}}</p><div class="pf1-ss-inline-actions"><button type="button" class="primary" data-action="start" {{#unless grappled}}disabled{{/unless}}><i class="fa-solid fa-play"></i> Commencer l'abordage</button><button type="button" data-action="announce"><i class="fa-solid fa-comment"></i> Rappel dans le chat</button><button type="button" class="good" data-action="resolveAttacker"><i class="fa-solid fa-flag"></i> Assaillants vainqueurs</button><button type="button" class="danger" data-action="resolveDefender"><i class="fa-solid fa-shield"></i> Défenseurs vainqueurs</button><button type="button" data-action="reset"><i class="fa-solid fa-rotate"></i> Réinitialiser</button></div></section>
+<header class="pf1-ss-toolbar">
+  <button type="button" data-action="openShip"><i class="fa-solid fa-anchor"></i> Navire</button>
+  <div class="pf1-ss-toolbar-title"><strong>Assistant d'abordage</strong> — {{actor.name}}</div>
+</header>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-link"></i> Situation</h3>
+  {{#if grappled}}
+    <div class="pf1-ss-grid three">
+      <div class="pf1-ss-static-field"><span>Attaquant</span><strong>{{actor.name}}</strong><small>{{crewCurrent}} combattants disponibles</small></div>
+      <div class="pf1-ss-static-field"><span>Défenseur</span><strong>{{targetName}}</strong><small>{{targetCrewCurrent}} combattants disponibles</small></div>
+      <div class="pf1-ss-static-field"><span>Corbeau</span><strong>{{#if usesCorvus}}Oui{{else}}Non{{/if}}</strong></div>
+    </div>
+    <p>{{initiativeText}}</p>
+  {{else}}
+    <p class="bad"><strong>Les navires ne sont pas agrippés.</strong> L'abordage exige d'abord un agrippement.</p>
+  {{/if}}
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-people-group"></i> Combat des équipages</h3>
+  <p class="hint">Le combat principal des PJ et PNJ importants reste un combat PF1 normal. Ce sous-système maison résout en parallèle la mêlée des matelots, leur moral, leurs pertes et le risque encouru par les PNJ nommés.</p>
+
+  <div class="pf1-ss-boarding-sides">
+    <article class="pf1-ss-crew-side">
+      <h4>{{actor.name}}</h4>
+      <div class="pf1-ss-grid two">
+        <label><span>Qualité</span><select name="boarding.profile.quality">{{#each qualities}}<option value="{{key}}" {{#if ownSelected}}selected{{/if}}>{{label}} ({{bonusDisplay}})</option>{{/each}}</select></label>
+        <label><span>Moral</span><select name="boarding.profile.morale">{{#each morales}}<option value="{{key}}" {{#if ownSelected}}selected{{/if}}>{{label}} {{bonusDisplay}}</option>{{/each}}</select></label>
+        <label><span>Bonus circonstanciel</span><input type="number" name="boarding.profile.circumstanceBonus" value="{{data.profile.circumstanceBonus}}" step="1"></label>
+        <label><span>Bonus manuel</span><input type="number" name="boarding.profile.manualCombatBonus" value="{{data.profile.manualCombatBonus}}" step="1"></label>
+      </div>
+      <div class="pf1-ss-combat-score"><span>Modificateur actuel</span><strong>{{ownCombatTotalDisplay}}</strong><small>Qualité {{ownBreakdown.quality}} · Moral {{ownBreakdown.morale}} · Nombre {{ownBreakdown.numerical}} · Maître d’armes {{ownBreakdown.masterAtArms}} · Commandement {{ownBreakdown.command}} · Événements {{ownBreakdown.events}} · Fatigue {{ownBreakdown.fatigue}}</small></div>
+    </article>
+
+    <article class="pf1-ss-crew-side">
+      <h4>{{targetName}}</h4>
+      {{#if grappled}}
+      <div class="pf1-ss-grid two">
+        <label><span>Qualité</span><select name="targetProfile.quality">{{#each qualities}}<option value="{{key}}" {{#if targetSelected}}selected{{/if}}>{{label}} ({{bonusDisplay}})</option>{{/each}}</select></label>
+        <label><span>Moral</span><select name="targetProfile.morale">{{#each morales}}<option value="{{key}}" {{#if targetSelected}}selected{{/if}}>{{label}} {{bonusDisplay}}</option>{{/each}}</select></label>
+        <label><span>Bonus circonstanciel</span><input type="number" name="targetProfile.circumstanceBonus" value="{{targetData.profile.circumstanceBonus}}" step="1"></label>
+        <label><span>Bonus manuel</span><input type="number" name="targetProfile.manualCombatBonus" value="{{targetData.profile.manualCombatBonus}}" step="1"></label>
+      </div>
+      <div class="pf1-ss-combat-score"><span>Modificateur actuel</span><strong>{{targetCombatTotalDisplay}}</strong><small>Qualité {{targetBreakdown.quality}} · Moral {{targetBreakdown.morale}} · Nombre {{targetBreakdown.numerical}} · Maître d’armes {{targetBreakdown.masterAtArms}} · Commandement {{targetBreakdown.command}} · Événements {{targetBreakdown.events}} · Fatigue {{targetBreakdown.fatigue}}</small></div>
+      {{/if}}
+    </article>
+  </div>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-user-tie"></i> Officiers</h3>
+  <div class="pf1-ss-boarding-sides">
+    <article class="pf1-ss-crew-side">
+      <h4>{{actor.name}}</h4>
+      <div class="pf1-ss-grid two">
+        {{#each ownOfficerRows}}
+        <label><span>{{label}}</span><select name="boarding.profile.officers.{{key}}"><option value="">— Aucun —</option>{{#each choices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        {{/each}}
+      </div>
+      <button type="button" data-action="rollCommandOwn"><i class="fa-solid fa-bullhorn"></i> Test de commandement DD 15</button>
+      <p class="hint">Le capitaine utilise le meilleur de Diplomatie, Intimidation ou Profession (marin). Le maître d’armes apporte automatiquement +1 à +4 selon son BBA.</p>
+    </article>
+
+    <article class="pf1-ss-crew-side">
+      <h4>{{targetName}}</h4>
+      {{#if grappled}}
+      <div class="pf1-ss-grid two">
+        {{#each targetOfficerRows}}
+        <label><span>{{label}}</span><select name="targetProfile.officers.{{key}}"><option value="">— Aucun —</option>{{#each choices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        {{/each}}
+      </div>
+      <button type="button" data-action="rollCommandTarget"><i class="fa-solid fa-bullhorn"></i> Test de commandement DD 15</button>
+      {{/if}}
+    </article>
+  </div>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-heart-pulse"></i> PNJ nommés exposés</h3>
+  <p class="hint">Les PNJ suivis font un jet de survie après chaque phase. Formule : 1d20 + moitié du niveau + modificateur de Constitution. Une blessure grave déclenche la table « Jambe de bois et cache-œil ».</p>
+  <div class="pf1-ss-boarding-sides">
+    <article class="pf1-ss-crew-side">
+      <h4>{{actor.name}}</h4>
+      <div class="pf1-ss-inline-actions"><select data-named-select="own"><option value="">— Choisir un Actor —</option>{{#each actorChoices}}<option value="{{uuid}}">{{name}}</option>{{/each}}</select><button type="button" data-action="addNamedOwn">Ajouter</button><button type="button" data-action="syncLifeOwn">Importer Vie à bord</button></div>
+      <div class="pf1-ss-named-list">
+        {{#each ownNamedRows}}
+        <div class="pf1-ss-named-row"><div><strong>{{name}}</strong><small>Niv. {{level}} · Con {{con}} · {{statusLabel}}{{#if injuryLabel}} · {{injuryLabel}}{{/if}}</small></div><button type="button" data-action="toggleNamedOwn" data-id="{{id}}">{{#if exposed}}Exposé{{else}}Protégé{{/if}}</button><button type="button" data-action="removeNamedOwn" data-id="{{id}}"><i class="fa-solid fa-trash"></i></button></div>
+        {{else}}<p class="hint">Aucun PNJ nommé suivi.</p>{{/each}}
+      </div>
+    </article>
+
+    <article class="pf1-ss-crew-side">
+      <h4>{{targetName}}</h4>
+      {{#if grappled}}
+      <div class="pf1-ss-inline-actions"><select data-named-select="target"><option value="">— Choisir un Actor —</option>{{#each actorChoices}}<option value="{{uuid}}">{{name}}</option>{{/each}}</select><button type="button" data-action="addNamedTarget">Ajouter</button><button type="button" data-action="syncLifeTarget">Importer Vie à bord</button></div>
+      <div class="pf1-ss-named-list">
+        {{#each targetNamedRows}}
+        <div class="pf1-ss-named-row"><div><strong>{{name}}</strong><small>Niv. {{level}} · Con {{con}} · {{statusLabel}}{{#if injuryLabel}} · {{injuryLabel}}{{/if}}</small></div><button type="button" data-action="toggleNamedTarget" data-id="{{id}}">{{#if exposed}}Exposé{{else}}Protégé{{/if}}</button><button type="button" data-action="removeNamedTarget" data-id="{{id}}"><i class="fa-solid fa-trash"></i></button></div>
+        {{else}}<p class="hint">Aucun PNJ nommé suivi.</p>{{/each}}
+      </div>
+      {{/if}}
+    </article>
+  </div>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-bolt"></i> Événements de bataille</h3>
+  <div class="pf1-ss-boarding-sides">
+    <article class="pf1-ss-crew-side">
+      <h4>{{actor.name}}</h4>
+      <div class="pf1-ss-inline-actions"><select data-event-select="own">{{#each events}}<option value="{{key}}">{{label}} ({{bonusDisplay}})</option>{{/each}}</select><button type="button" data-action="addEventOwn">Appliquer</button><button type="button" data-action="clearEventsOwn">Effacer</button></div>
+      {{#each ownEventRows}}<div class="pf1-ss-event-row"><span>{{label}}</span><strong>{{bonusDisplay}}</strong><small>round {{round}}{{#if moraleDelta}} · moral {{moraleDisplay}}{{/if}}</small></div>{{else}}<p class="hint">Aucun événement temporaire.</p>{{/each}}
+    </article>
+    <article class="pf1-ss-crew-side">
+      <h4>{{targetName}}</h4>
+      {{#if grappled}}
+      <div class="pf1-ss-inline-actions"><select data-event-select="target">{{#each events}}<option value="{{key}}">{{label}} ({{bonusDisplay}})</option>{{/each}}</select><button type="button" data-action="addEventTarget">Appliquer</button><button type="button" data-action="clearEventsTarget">Effacer</button></div>
+      {{#each targetEventRows}}<div class="pf1-ss-event-row"><span>{{label}}</span><strong>{{bonusDisplay}}</strong><small>round {{round}}{{#if moraleDelta}} · moral {{moraleDisplay}}{{/if}}</small></div>{{else}}<p class="hint">Aucun événement temporaire.</p>{{/each}}
+      {{/if}}
+    </article>
+  </div>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-skull-crossbones"></i> Pertes cumulées</h3>
+  <div class="pf1-ss-boarding-sides">
+    <article class="pf1-ss-crew-side">
+      <h4>{{actor.name}} — {{ownCasualtyTotal}}</h4>
+      <div class="pf1-ss-grid four"><div class="pf1-ss-static-field"><span>Blessés légers</span><strong>{{data.profile.casualties.light}}</strong></div><div class="pf1-ss-static-field"><span>Blessés graves</span><strong>{{data.profile.casualties.severe}}</strong></div><div class="pf1-ss-static-field"><span>Morts</span><strong>{{data.profile.casualties.dead}}</strong></div><div class="pf1-ss-static-field"><span>Disparus/capturés</span><strong>{{data.profile.casualties.missing}}</strong></div></div>
+      <button type="button" data-action="clearCasualtiesOwn">Réinitialiser le suivi des pertes</button>
+    </article>
+    <article class="pf1-ss-crew-side">
+      <h4>{{targetName}} — {{targetCasualtyTotal}}</h4>
+      {{#if grappled}}<div class="pf1-ss-grid four"><div class="pf1-ss-static-field"><span>Blessés légers</span><strong>{{targetData.profile.casualties.light}}</strong></div><div class="pf1-ss-static-field"><span>Blessés graves</span><strong>{{targetData.profile.casualties.severe}}</strong></div><div class="pf1-ss-static-field"><span>Morts</span><strong>{{targetData.profile.casualties.dead}}</strong></div><div class="pf1-ss-static-field"><span>Disparus/capturés</span><strong>{{targetData.profile.casualties.missing}}</strong></div></div><button type="button" data-action="clearCasualtiesTarget">Réinitialiser le suivi des pertes</button>{{/if}}
+    </article>
+  </div>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-kit-medical"></i> Après l'abordage : triage et récupération</h3>
+  <p class="hint">Sous-système maison. Le chirurgien peut stabiliser une partie des blessés graves, puis une journée de récupération teste les blessés légers (DD 10) et graves (DD 15). Les morts, disparus et mutilations permanentes ne sont pas effacés.</p>
+  <div class="pf1-ss-boarding-sides">
+    <article class="pf1-ss-crew-side">
+      <h4>{{actor.name}}</h4>
+      <div class="pf1-ss-grid two">
+        <div class="pf1-ss-static-field"><span>Chirurgien</span><strong>{{ownSurgeonName}}</strong><small>Triage DD 15</small></div>
+        <div class="pf1-ss-static-field"><span>Récupération</span><strong>Jour {{ownRecovery.day}}</strong><small>Bonus prochain jour : {{ownRecovery.triageBonus}}</small></div>
+        <div class="pf1-ss-static-field"><span>Équipage apte</span><strong>{{crewCurrent}} / {{ownCrewMax}}</strong><small>Les blessés restent hors service</small></div>
+        <div class="pf1-ss-static-field"><span>Dernier triage</span><strong>{{#if ownRecovery.lastTriageTotal}}{{ownRecovery.lastTriageTotal}}{{else}}—{{/if}}</strong><small>{{ownRecovery.lastTriageSkill}}</small></div>
+      </div>
+      <div class="pf1-ss-inline-actions">
+        <button type="button" data-action="triageOwn"><i class="fa-solid fa-stethoscope"></i> Triage DD 15</button>
+        <button type="button" data-action="recoverDayOwn"><i class="fa-solid fa-bed"></i> Passer 1 jour de récupération</button>
+        <button type="button" data-action="syncPiracyOwn"><i class="fa-solid fa-skull"></i> Reporter les pertes permanentes</button>
+      </div>
+      {{#if ownRecovery.lastRecovered}}<p class="hint">Dernière journée : {{ownRecovery.lastRecovered}} retour(s) au service, {{ownRecovery.lastImproved}} blessé(s) grave(s) amélioré(s).</p>{{/if}}
+    </article>
+
+    <article class="pf1-ss-crew-side">
+      <h4>{{targetName}}</h4>
+      {{#if grappled}}
+      <div class="pf1-ss-grid two">
+        <div class="pf1-ss-static-field"><span>Chirurgien</span><strong>{{targetSurgeonName}}</strong><small>Triage DD 15</small></div>
+        <div class="pf1-ss-static-field"><span>Récupération</span><strong>Jour {{targetRecovery.day}}</strong><small>Bonus prochain jour : {{targetRecovery.triageBonus}}</small></div>
+        <div class="pf1-ss-static-field"><span>Équipage apte</span><strong>{{targetCrewCurrent}} / {{targetCrewMax}}</strong><small>Les blessés restent hors service</small></div>
+        <div class="pf1-ss-static-field"><span>Dernier triage</span><strong>{{#if targetRecovery.lastTriageTotal}}{{targetRecovery.lastTriageTotal}}{{else}}—{{/if}}</strong><small>{{targetRecovery.lastTriageSkill}}</small></div>
+      </div>
+      <div class="pf1-ss-inline-actions">
+        <button type="button" data-action="triageTarget"><i class="fa-solid fa-stethoscope"></i> Triage DD 15</button>
+        <button type="button" data-action="recoverDayTarget"><i class="fa-solid fa-bed"></i> Passer 1 jour de récupération</button>
+        <button type="button" data-action="syncPiracyTarget"><i class="fa-solid fa-skull"></i> Reporter les pertes permanentes</button>
+      </div>
+      {{#if targetRecovery.lastRecovered}}<p class="hint">Dernière journée : {{targetRecovery.lastRecovered}} retour(s) au service, {{targetRecovery.lastImproved}} blessé(s) grave(s) amélioré(s).</p>{{/if}}
+      {{/if}}
+    </article>
+  </div>
+</section>
+
+<section class="pf1-ss-panel pf1-ss-phase-panel">
+  <h3><i class="fa-solid fa-dice-d20"></i> Résolution de phase</h3>
+  <p>Chaque phase lance <strong>1d20 + qualité + moral + rapport de forces + maître d’armes + commandement + circonstances + événements</strong>. La marge détermine l'intensité des pertes.</p>
+  {{#if lastOutcome}}<div class="pf1-ss-last-outcome"><strong>Dernière phase : {{lastOutcome.degreeLabel}}</strong><span>Marge {{lastOutcome.margin}} · pertes {{lastOutcome.attackerLosses}} / {{lastOutcome.defenderLosses}}</span></div>{{/if}}
+  <div class="pf1-ss-inline-actions"><button type="button" class="primary" data-action="resolvePhase" {{#unless grappled}}disabled{{/unless}}><i class="fa-solid fa-dice-d20"></i> Résoudre une phase d'équipage</button></div>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-people-group"></i> Suivi officiel de l'abordage</h3>
+  <div class="pf1-ss-grid four"><label><span>Assaillants engagés</span><input type="number" min="0" name="boarding.attackersCommitted" value="{{data.attackersCommitted}}"></label><label><span>Pertes assaillants (historique)</span><input type="number" min="0" name="boarding.attackerLosses" value="{{data.attackerLosses}}"></label><label><span>Défenseurs engagés</span><input type="number" min="0" name="boarding.defendersCommitted" value="{{data.defendersCommitted}}"></label><label><span>Pertes défenseurs (historique)</span><input type="number" min="0" name="boarding.defenderLosses" value="{{data.defenderLosses}}"></label></div>
+  <label><span>Notes de bataille</span><textarea name="boarding.notes">{{data.notes}}</textarea></label>
+</section>
+
+<section class="pf1-ss-panel">
+  <h3><i class="fa-solid fa-swords"></i> Transition vers le combat PF1</h3>
+  <p>{{#if usesCorvus}}Avec le corbeau, les assaillants ne sont pas pris au dépourvu au premier round.{{else}}Sans corbeau, les assaillants sont pris au dépourvu pendant le premier round.{{/if}}</p>
+  <div class="pf1-ss-inline-actions"><button type="button" class="primary" data-action="start" {{#unless grappled}}disabled{{/unless}}><i class="fa-solid fa-play"></i> Commencer l'abordage</button><button type="button" data-action="announce"><i class="fa-solid fa-comment"></i> Rappel dans le chat</button><button type="button" class="good" data-action="resolveAttacker"><i class="fa-solid fa-flag"></i> Assaillants vainqueurs</button><button type="button" class="danger" data-action="resolveDefender"><i class="fa-solid fa-shield"></i> Défenseurs vainqueurs</button><button type="button" data-action="reset"><i class="fa-solid fa-rotate"></i> Réinitialiser la bataille</button></div>
+</section>
+
+<section class="pf1-ss-panel pf1-ss-aftermath-panel">
+  <h3><i class="fa-solid fa-handshake-angle"></i> Suites immédiates : reddition, prisonniers et survivants</h3>
+  {{#if aftermath.canProcess}}
+    <div class="pf1-ss-grid three">
+      <div class="pf1-ss-static-field"><span>Vainqueur</span><strong>{{aftermath.winnerName}}</strong></div>
+      <div class="pf1-ss-static-field"><span>Vaincu</span><strong>{{aftermath.loserName}}</strong></div>
+      <div class="pf1-ss-static-field"><span>Situation</span><strong>{{aftermath.statusLabel}}</strong></div>
+    </div>
+    <p class="hint">Le résultat principal reste celui du combat PF1. Cette étape gère seulement ce qui arrive à l’équipage après la victoire : reddition, repli, fuite, remplacement des pertes et prisonniers.</p>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" class="good" data-action="recordSurrender"><i class="fa-solid fa-flag-white"></i> Reddition du vaincu</button>
+      <button type="button" data-action="recordRetreat"><i class="fa-solid fa-arrow-right-from-bracket"></i> Repli</button>
+      <button type="button" data-action="recordFlee"><i class="fa-solid fa-person-running"></i> Fuite / dispersion</button>
+      <button type="button" data-action="openWinnerPiracy"><i class="fa-solid fa-skull-crossbones"></i> Ouvrir Piraterie &amp; Prises</button>
+    </div>
+
+    {{#if aftermath.isSurrender}}
+      <hr>
+      <div class="pf1-ss-grid four">
+        <div class="pf1-ss-static-field"><span>Survivants aptes</span><strong>{{aftermath.healthyPool}}</strong><small>Disponibles pour enrôlement ou captivité</small></div>
+        <div class="pf1-ss-static-field"><span>Survivants blessés</span><strong>{{aftermath.woundedPool}}</strong><small>Transférables comme prisonniers blessés</small></div>
+        <div class="pf1-ss-static-field"><span>Déjà enrôlés</span><strong>{{aftermath.replacementsTaken}}</strong><small>Remplacement des pertes permanentes</small></div>
+        <div class="pf1-ss-static-field"><span>Déjà capturés</span><strong>{{aftermath.prisonersHealthy}} / {{aftermath.prisonersWounded}}</strong><small>Aptes / blessés</small></div>
+      </div>
+      <div class="pf1-ss-inline-actions">
+        <button type="button" class="good" data-action="recruitSurvivors"><i class="fa-solid fa-user-plus"></i> Enrôler pour remplacer les pertes</button>
+        <button type="button" data-action="transferPrisoners"><i class="fa-solid fa-link"></i> Transférer comme prisonniers</button>
+        <button type="button" data-action="releaseSurvivors"><i class="fa-solid fa-dove"></i> Libérer le reste</button>
+      </div>
+
+      <h4>PNJ nommés du camp vaincu</h4>
+      <p class="hint">Ils ne deviennent jamais prisonniers automatiquement. Marque explicitement ceux qui sont capturés, puis utilise « Transférer comme prisonniers ». Leur niveau est ajouté au calcul de rançon des personnages importants.</p>
+      <div class="pf1-ss-named-list">
+        {{#each aftermath.namedRows}}
+          <div class="pf1-ss-named-row">
+            <div><strong>{{name}}</strong><small>Niv. {{level}} · {{statusLabel}}</small></div>
+            {{#if transferred}}<button type="button" disabled>Transféré</button>{{else}}<button type="button" data-action="toggleAftermathNamed" data-id="{{id}}">{{#if captured}}Capturé{{else}}Libre{{/if}}</button>{{/if}}
+          </div>
+        {{else}}
+          <p class="hint">Aucun PNJ nommé n’est suivi dans l’équipage vaincu.</p>
+        {{/each}}
+      </div>
+    {{/if}}
+  {{else}}
+    <p class="hint">Choisis d’abord le vainqueur principal de l’abordage avec « Assaillants vainqueurs » ou « Défenseurs vainqueurs ».</p>
+  {{/if}}
+</section>
+
 <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button></footer>
 </div>

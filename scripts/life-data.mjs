@@ -122,7 +122,7 @@ export function defaultLifeData() {
     kroopDrunk: false,
     members: [],
     influenceHistory: {},
-    influence: { influencerUuid: "", targetUuid: "", skillId: "", dc: 15, manualModifier: 0, currentAttitude: "indifférente", lastKey: "" },
+    influence: { influencerUuid: "", targetUuid: "", helperUuid: "", skillId: "", dc: 15, manualModifier: 0, currentAttitude: "indifférente", lastKey: "" },
     stealth: { actorUuid: "", skillId: "", dc: 15, manualModifier: 0 },
     punishment: { targetUuid: "", type: "rope", count: 1, attackBonus: 0, targetAc: 10, hours: 12, keelhauling: "slow" }
   };
@@ -168,7 +168,7 @@ export function normalizeLifeData(raw = {}) {
     taskDcManualModifier: n(raw.taskDcManualModifier, 0), kroopDrunk: bool(raw.kroopDrunk),
     members: arrayify(raw.members).map(normalizeCrewMember),
     influenceHistory: raw.influenceHistory && typeof raw.influenceHistory === "object" ? raw.influenceHistory : {},
-    influence: { ...base.influence, ...(raw.influence ?? {}), dc: Math.max(0, Math.floor(n(raw.influence?.dc, 15))), manualModifier: n(raw.influence?.manualModifier, 0) },
+    influence: { ...base.influence, ...(raw.influence ?? {}), helperUuid: String(raw.influence?.helperUuid ?? ""), dc: Math.max(0, Math.floor(n(raw.influence?.dc, 15))), manualModifier: n(raw.influence?.manualModifier, 0) },
     stealth: { ...base.stealth, ...(raw.stealth ?? {}), dc: Math.max(0, Math.floor(n(raw.stealth?.dc, 15))), manualModifier: n(raw.stealth?.manualModifier, 0) },
     punishment: { ...base.punishment, ...(raw.punishment ?? {}), count: Math.max(1, Math.floor(n(raw.punishment?.count, 1))), attackBonus: n(raw.punishment?.attackBonus, 0), targetAc: n(raw.punishment?.targetAc, 10), hours: Math.max(1, Math.floor(n(raw.punishment?.hours, 12))) }
   };

@@ -1,3 +1,91 @@
+# 1.20.0 — Quarts, relève et fatigue
+
+- Nouveau contrôleur **Quarts & fatigue** pour organiser les groupes de relève et suivre une disponibilité abstraite de l’équipage.
+- Le quart actif et la rotation sont déduits des affectations du Registre d’équipage ; la rotation peut être avancée ou reculée sans imposer un modèle historique unique.
+- Ajout de quatre niveaux de fatigue générale : Reposé, Fatigué, Épuisé et Hors service.
+- La fatigue générale applique automatiquement un modificateur de **0 / −1 / −2 / −4** au sous-système maison de combat d’équipage d’Abordage.
+- Suivi individuel de fatigue des personnages nommés ; cette fatigue modifie aussi leur jet maison de survie lorsqu’ils sont exposés pendant un abordage.
+- Action **Branle-bas de combat** : fatigue générale +1 et +1 aux personnages nommés rappelés alors qu’ils n’étaient pas de quart.
+- Action **Cycle de repos** : fatigue générale −1 et récupération d’un niveau pour les personnages hors quart.
+- Import non destructif de la fatigue déjà signalée par **Vie à bord**.
+- Les affectations de quart et fonctions libres restent stockées dans le Registre d’équipage ; le nouveau contrôleur ne duplique pas ces données.
+- Historique des relèves et ajustements, résumé publiable dans le chat, accès depuis la Passerelle et le Registre, macro dédiée et page d’Aide rapide.
+- Cette mécanique est explicitement marquée comme **règle maison** et ne pose aucune condition PF1 ni aucun malus de navigation officiel automatiquement.
+
+# 1.19.0 — Registre d’équipage consolidé
+
+- Nouveau contrôleur **Registre d’équipage** réunissant dans une vue unique les personnages suivis par Vie à bord, Abordage, Relations et les postes d’officiers.
+- Agrégation non destructive : aucune donnée n’est déplacée ni dupliquée entre les anciens sous-systèmes.
+- Résumé par personnage : rôle quotidien, poste d’officier, attitude, PJ lié, camp de mutinerie, état de santé, blessure permanente et provenance du suivi.
+- Ajout manuel de personnages notables avec fonction libre, quart, marque Important et notes.
+- Synchronisation rapide vers **Relations d’équipage** et vers les **PNJ nommés d’Abordage**, avec protection contre les doublons.
+- Retirer une entrée manuelle ne supprime pas les données d’un personnage encore utilisé par un autre sous-système.
+- Publication d’un résumé du registre dans le chat.
+- Nouvelle macro **S&S — Registre d’équipage**, intégration à la Passerelle et nouvelle page de l’Aide rapide.
+- Mise en page responsive avec tableau horizontal scrollable sur petits écrans.
+
+# 1.18.0 — Relations d’équipage et camps de mutinerie
+
+- Nouveau contrôleur **Relations d’équipage** pour suivre les PNJ nommés auxquels les PJ se lient.
+- Suivi persistant des cinq attitudes utilisées par la campagne : Hostile, Inamical, Indifférent, Amical et Serviable.
+- Ajout d’un **lien privilégié** facultatif avec un PJ, purement narratif, afin d’identifier rapidement les matelots importants pour chaque personnage.
+- Prévision automatique des camps lors d’une mutinerie : amicaux/serviables avec les PJ, indifférents neutres, inamicaux/hostiles dans l’opposition, avec surcharge manuelle pour les exceptions de scénario.
+- Publication des camps de mutinerie dans le chat et affichage d’un résumé directement dans **Équipage & cohésion**.
+- Le test maison de mutinerie rappelle désormais le nombre de PNJ suivis dans chaque camp sans modifier automatiquement l’issue de la rencontre PF1.
+- Intégration à **Vie à bord** : l’attitude suivie du PNJ ciblé est affichée pendant une tentative d’Influence.
+- Un PNJ actuellement **Serviable** peut être sélectionné comme aide à une tentative d’Influence et fournit le **+2 officiel** prévu par la campagne.
+- Le rappel d’« aide d’un PNJ amical » sur les tâches précise désormais que le PNJ doit posséder des rangs dans la compétence appropriée.
+- Import rapide des PNJ nommés déjà suivis dans l’assistant **Abordage**.
+- Historique des changements rapides d’attitude, macro dédiée, accès depuis la Passerelle, Vie à bord et Équipage & cohésion.
+
+# 1.17.0 — Progression d’équipage, cohésion et mutinerie
+
+- Nouveau contrôleur **Équipage & cohésion** accessible depuis la Passerelle et par macro.
+- Ajout d’une progression maison de l’équipage avec expérience et seuils de qualité : Recrues 0, Aguerris 3, Vétérans 8, Élite 15, Exceptionnels 24.
+- La qualité de combat d’équipage augmente automatiquement lorsqu’un seuil supérieur est atteint, sans rétrogradation automatique.
+- Ajout de **Loyauté** (−5 à +5) et **Agitation** (0 à 10), avec ajustements libres du MJ et historique des événements.
+- Action rapide de victoire significative (+1 XP, +1 loyauté) et entraînement quotidien par le maître d’armes ou le bosco (DD 15, +1 XP ; +2 XP à 25+).
+- Nouveau **test de risque de mutinerie** utilisant le commandement du capitaine, le moral, la loyauté, l’agitation et le soutien du bosco/quartier-maître.
+- États Calme / Tensions / Mutinerie menaçante / Mutinerie ouverte ; le module ne simule pas le combat de mutinerie, qui reste une scène PF1/narrative.
+- Intégration aux profils d’abordage existants : qualité, moral et officiers sont partagés entre les deux outils.
+- Nouvelle page d’Aide rapide et nouvelle macro **S&S — Équipage & cohésion**.
+- Ergonomie responsive du nouveau contrôleur et nettoyage d’un doublon mineur dans la détection du MJ actif.
+
+# 1.15.0
+
+- Nouvelle phase **Suites immédiates** après la résolution du vainqueur principal d’un abordage.
+- Gestion explicite de la **reddition**, du **repli** ou de la **fuite / dispersion** du camp vaincu.
+- La reddition crée un vivier de survivants ordinaires aptes et blessés sans convertir automatiquement les PNJ nommés.
+- Les survivants aptes peuvent être **enrôlés directement pour remplacer les pertes permanentes** du vainqueur, dans la limite des pertes et de l’effectif maximal du Vehicle.
+- Transfert direct des prisonniers ordinaires vers **Piraterie & Prises → Prisonniers & rançons**.
+- Les PNJ nommés du camp vaincu peuvent être marqués individuellement comme capturés ; leurs niveaux de classe sont ajoutés au calcul des rançons importantes.
+- Possibilité de **libérer le reste des survivants** sans créer de prisonniers ou de recrues supplémentaires.
+- Bouton pour ouvrir directement **Piraterie & Prises** sur le navire vainqueur.
+- Les choix de reddition/prisonniers restent des décisions de MJ et sont séparés de la règle officielle qui fait dépendre l’issue de la mêlée d’équipage du combat principal.
+
+# 1.14.0
+
+- Nouvelle phase **Après-abordage** dans l'assistant d'abordage.
+- Triage du charpentier/chirurgien : Premiers secours / Heal DD 15, Sagesse en repli.
+- Stabilisation des blessés graves et bonus médical de +2 à +4 pour la prochaine journée de récupération.
+- Récupération journalière abstraite : blessés légers DD 10, blessés graves DD 15 ; les marins remis reprennent automatiquement leur place dans `system.crew.value`.
+- Récupération progressive des PNJ nommés sans supprimer leurs blessures permanentes.
+- Synchronisation des morts + disparus/capturés vers **Piraterie & Prises → Pertes à remplacer**.
+- Historique de triage/récupération conservé dans les flags d'abordage.
+- Documentation et Aide rapide mises à jour ; ces mécaniques sont identifiées comme sous-système maison optionnel.
+
+# 1.13.0
+
+- Extension majeure de l’assistant **Abordage** avec un sous-système maison de combat d’équipage, tout en conservant le combat PF1 normal pour les PJ et PNJ importants.
+- Qualité et moral d’équipage, rapport de forces, commandement, maître d’armes et événements de bataille intégrés aux jets opposés de phase.
+- Degrés de résultat et pertes automatiques : blessés légers, blessés graves, morts, disparus/capturés.
+- Les pertes réduisent automatiquement `system.crew.value` du Vehicle, ce qui les raccorde aux règles navales déjà présentes.
+- Gestion de six postes d’officiers avec Actors PF1 ; commandement DD 15 et bonus du maître d’armes selon le BBA.
+- Suivi des PNJ nommés, exposition/protection, import depuis **Vie à bord**, jets de survie basés sur niveau et Constitution.
+- Blessures graves reliées à la table optionnelle « Jambe de bois et cache-œil ».
+- Cartes de chat détaillées pour les phases d’équipage, les pertes et les conséquences sur les PNJ nommés.
+- Mise à jour de l’Aide rapide et de la documentation.
+
 # 1.12.0
 
 - Ajout des compendiums **S&S — Navires de campagne** et **S&S — Flottes de campagne**.
@@ -139,3 +227,17 @@
 ## 1.0.0
 
 - Première version stable regroupant navigation, combat naval, artillerie, réputation, flottes, vie à bord, divertissements, bibliothèque et assistant de navire.
+
+## 1.16.0 — Interface & multijoueur
+
+- Grosse passe du HUD de campagne : modes **Minimal / Compact / Confortable**, états client persistants, position conservée et ancrage automatique sur petits écrans.
+- Ajout d'états visuels **Prêt / En attente / Envoyé** pour les jeux de pirates et les actions de Vie à bord.
+- Ajout d'un indicateur de connexion au MJ et d'un bouton de resynchronisation manuelle dans le HUD.
+- Remplacement des confirmations réseau répétitives par des **notifications discrètes** configurables.
+- Ajout d'identifiants uniques de requête, d'accusés de réception, de verrous locaux et serveur et de contrôles d'état pour limiter les **doubles soumissions** et doubles jets.
+- Renforcement des permissions côté MJ : personnage obligatoirement contrôlé par l'utilisateur, navire S&S valide, inscription et phase de jeu vérifiées avant mutation.
+- Ajout d'un **historique d'audit multijoueur** par navire pour les inscriptions, choix, actions et jets validés.
+- Le MJ peut **annuler/corriger** la dernière action active d'un sous-système ; l'état précédent est restauré et le joueur peut alors refaire son choix ou son jet.
+- Ajout de resynchronisations lors d'une reconnexion, du retour sur l'onglet, du retour réseau et des changements de scène.
+- Le personnage sélectionné et les sections ouvertes/repliées du HUD sont conservés côté client.
+- Ergonomie améliorée sur petits écrans : HUD bord-à-bord, contenu scrollable, grille simplifiée et historique responsive.

@@ -1,0 +1,73 @@
+<div class="pf1-ss-crew-relations-root">
+  <header class="pf1-ss-toolbar">
+    <div class="pf1-ss-toolbar-title"><strong>Relations d’équipage</strong> — {{actor.name}}</div>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" data-action="openLife"><i class="fa-solid fa-bottle-droplet"></i> Vie à bord</button>
+      <button type="button" data-action="openCrewDevelopment"><i class="fa-solid fa-users-gear"></i> Cohésion</button>
+      <button type="button" data-action="openBoarding"><i class="fa-solid fa-person-running"></i> Abordage</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-handshake"></i> Attitudes et liens</h3>
+        <p class="hint">Règle de campagne : un PNJ peut être hostile, inamical, indifférent, amical ou serviable. Les modifications d’attitude persistent jusqu’à un nouveau changement. Le champ « lien privilégié » est purement narratif.</p>
+      </div>
+      {{#if isGM}}<button type="button" data-action="syncBoarding"><i class="fa-solid fa-rotate"></i> Importer depuis Abordage</button>{{/if}}
+    </div>
+
+    {{#if isGM}}
+      <div class="pf1-ss-grid two">
+        <label><span>Ajouter un personnage</span><select name="newRelationUuid"><option value="">— sélectionner —</option>{{#each addChoices}}<option value="{{uuid}}">{{name}}</option>{{/each}}</select></label>
+        <div class="pf1-ss-actions"><button type="button" class="primary" data-action="addRelation"><i class="fa-solid fa-user-plus"></i> Ajouter</button></div>
+      </div>
+    {{/if}}
+
+    {{#if rows.length}}
+      <div class="pf1-ss-table-scroll">
+        <table class="pf1-ss-table pf1-ss-relations-table">
+          <thead><tr><th>Personnage</th><th>Attitude</th><th>Lien privilégié</th><th>Camp si mutinerie</th><th>Effet</th><th>Notes</th><th></th></tr></thead>
+          <tbody>
+            {{#each rows}}
+              <tr>
+                <td><strong>{{actorName}}</strong><input type="hidden" name="relations.entries.{{index}}.id" value="{{id}}"><input type="hidden" name="relations.entries.{{index}}.actorUuid" value="{{actorUuid}}"></td>
+                <td>
+                  {{#if ../isGM}}
+                    <select name="relations.entries.{{index}}.attitude">{{#each attitudeChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+                    <div class="pf1-ss-inline-actions compact"><button type="button" data-action="worsenAttitude" data-id="{{id}}" title="Dégrader"><i class="fa-solid fa-minus"></i></button><button type="button" data-action="improveAttitude" data-id="{{id}}" title="Améliorer"><i class="fa-solid fa-plus"></i></button></div>
+                  {{else}}<span class="pf1-ss-badge {{attitudeClass}}">{{attitudeLabel}}</span>{{/if}}
+                </td>
+                <td>{{#if ../isGM}}<select name="relations.entries.{{index}}.linkedPcUuid"><option value="">— aucun —</option>{{#each pcChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select>{{else}}{{linkedPcName}}{{/if}}</td>
+                <td>{{#if ../isGM}}<select name="relations.entries.{{index}}.mutinySide">{{#each sideChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>{{else}}{{sideLabel}}{{/if}}</td>
+                <td><small>{{benefits}}</small></td>
+                <td>{{#if ../isGM}}<input type="text" name="relations.entries.{{index}}.notes" value="{{notes}}" placeholder="Événements, dette, promesse…">{{else}}{{notes}}{{/if}}</td>
+                <td>{{#if ../isGM}}<button type="button" class="danger" data-action="removeRelation" data-id="{{id}}" title="Retirer"><i class="fa-solid fa-trash"></i></button>{{/if}}</td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}<p class="hint">Aucun membre d’équipage suivi pour le moment.</p>{{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-flag"></i> Prévision d’une mutinerie</h3>
+    <div class="pf1-ss-dashboard-stats crew-relations-stats">
+      <div><span>Avec les PJ</span><strong>{{pcsCount}}</strong><small>{{pcsNames}}</small></div>
+      <div><span>Neutres</span><strong>{{neutralCount}}</strong><small>{{neutralNames}}</small></div>
+      <div><span>Opposition</span><strong>{{oppositionCount}}</strong><small>{{oppositionNames}}</small></div>
+    </div>
+    <p class="hint">Dans la première aventure, les PNJ amicaux ou serviables se battent avec les PJ, les indifférents restent à l’écart, et les inamicaux ou hostiles soutiennent Plugg et le Fléau. Le menu « Camp » permet au MJ de gérer les exceptions de scénario.</p>
+    <div class="pf1-ss-actions"><button type="button" class="primary" data-action="postMutinyRoster"><i class="fa-solid fa-scroll"></i> Publier les camps dans le chat</button></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-clock-rotate-left"></i> Historique d’attitude</h3>{{#if isGM}}<button type="button" data-action="clearHistory"><i class="fa-solid fa-trash"></i> Vider</button>{{/if}}</div>
+    {{#if history.length}}
+      <div class="pf1-ss-table-scroll"><table class="pf1-ss-table"><thead><tr><th>Date / jour</th><th>Personnage</th><th>Changement</th><th>Source</th><th>Note</th></tr></thead><tbody>{{#each history}}<tr><td>{{date}}<br><small>J{{day}}</small></td><td>{{actorName}}</td><td>{{fromLabel}} → {{toLabel}}</td><td>{{source}}</td><td>{{note}}</td></tr>{{/each}}</tbody></table></div>
+    {{else}}<p class="hint">Aucun changement rapide enregistré. Les modifications directes du formulaire sont conservées mais ne créent pas automatiquement une entrée d’historique.</p>{{/if}}
+  </section>
+
+  {{#if isGM}}<footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer les relations</button></footer>{{/if}}
+</div>

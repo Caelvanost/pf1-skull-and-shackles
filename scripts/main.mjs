@@ -13,6 +13,10 @@ import { FleetRecruitmentController } from "./fleet-recruitment-controller.mjs";
 import { LifeController } from "./life-controller.mjs";
 import { EntertainmentController } from "./entertainment-controller.mjs";
 import { BoardingController } from "./boarding-controller.mjs";
+import { CrewDevelopmentController } from "./crew-development-controller.mjs";
+import { CrewRelationsController } from "./crew-relations-controller.mjs";
+import { CrewRosterController } from "./crew-roster-controller.mjs";
+import { CrewWatchController } from "./crew-watch-controller.mjs";
 import { ShipDisguiseController } from "./ship-disguise-controller.mjs";
 import { LibraryController } from "./library-controller.mjs";
 import { ShipWizard } from "./ship-wizard.mjs";
@@ -23,7 +27,8 @@ import { syncSinkingState, processSinkingRound } from "./ship-damage.mjs";
 import { refreshWindOverlay, removeWindOverlay } from "./naval-map-tools.mjs";
 import { refreshNavalVisualOverlay, removeNavalVisualOverlay } from "./naval-visuals.mjs";
 import { refreshCampaignHud, autoBindPrimaryShip, setPrimaryShip } from "./campaign-hud.mjs";
-import { initMultiplayerSocket, broadcastHudRefresh } from "./multiplayer.mjs";
+import { initMultiplayerSocket, broadcastHudRefresh, installMultiplayerRecoveryHooks, requestMultiplayerSync } from "./multiplayer.mjs";
+import { MultiplayerHistory } from "./multiplayer-history.mjs";
 
 function getSelectedVehicle() {
   const selected = canvas?.tokens?.controlled?.[0]?.actor ?? null;
@@ -51,6 +56,10 @@ Hooks.once("init", () => {
       openLife: (actor) => LifeController.open(actor),
       openEntertainment: (actor) => EntertainmentController.open(actor),
       openBoarding: (actor) => BoardingController.open(actor),
+      openCrewDevelopment: (actor) => CrewDevelopmentController.open(actor),
+      openCrewRelations: (actor) => CrewRelationsController.open(actor),
+      openCrewRoster: (actor) => CrewRosterController.open(actor),
+      openCrewWatch: (actor) => CrewWatchController.open(actor),
       openDisguise: (actor) => ShipDisguiseController.open(actor),
       openLibrary: (actor = null) => LibraryController.open(actor),
       openShipWizard: (actor = null) => ShipWizard.open(actor),
@@ -60,6 +69,7 @@ Hooks.once("init", () => {
       refreshWindOverlay: () => refreshWindOverlay(),
       refreshNavalVisuals: (actor = null) => refreshNavalVisualOverlay(actor),
       refreshCampaignHud: () => refreshCampaignHud(),
+      openMultiplayerHistory: (actor) => MultiplayerHistory.open(actor),
       setPrimaryShip: (actor) => setPrimaryShip(actor),
       broadcastHudRefresh: () => broadcastHudRefresh(),
       openSelectedNavalMap: () => {
@@ -171,6 +181,26 @@ Hooks.once("init", () => {
         if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le navire qui monte à l'abordage."); return null; }
         return BoardingController.open(actor);
       },
+      openSelectedCrewDevelopment: () => {
+        const actor = getSelectedVehicle();
+        if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire dont tu veux gérer l’équipage."); return null; }
+        return CrewDevelopmentController.open(actor);
+      },
+      openSelectedCrewRelations: () => {
+        const actor = getSelectedVehicle();
+        if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire dont tu veux gérer les relations."); return null; }
+        return CrewRelationsController.open(actor);
+      },
+      openSelectedCrewRoster: () => {
+        const actor = getSelectedVehicle();
+        if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire dont tu veux ouvrir le registre d’équipage."); return null; }
+        return CrewRosterController.open(actor);
+      },
+      openSelectedCrewWatch: () => {
+        const actor = getSelectedVehicle();
+        if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire dont tu veux gérer les quarts."); return null; }
+        return CrewWatchController.open(actor);
+      },
       openSelectedDisguise: () => {
         const actor = getSelectedVehicle();
         if (!actor) { ui.notifications.warn("Skull & Shackles : sélectionne le Vehicle du navire à pétarder."); return null; }
@@ -207,8 +237,10 @@ Hooks.once("ready", async () => {
     return;
   }
   initMultiplayerSocket();
+  installMultiplayerRecoveryHooks();
   await autoBindPrimaryShip();
   await refreshCampaignHud();
+  requestMultiplayerSync();
 });
 
 
@@ -299,7 +331,7 @@ Hooks.on("updateCombat", () => refreshNavalVisualOverlay());
 
 
 // v1.8 — HUD de campagne et synchronisation des jeux multijoueurs.
-Hooks.on("canvasReady", () => refreshCampaignHud());
+Hooks.on("canvasReady", () => { refreshCampaignHud(); requestMultiplayerSync(); });
 Hooks.on("controlToken", () => refreshCampaignHud());
 Hooks.on("updateActor", (actor, changes) => {
   if (actor?.type !== "vehicle") return;

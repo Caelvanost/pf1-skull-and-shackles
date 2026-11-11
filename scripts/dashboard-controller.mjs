@@ -24,6 +24,10 @@ import { FleetRecruitmentController } from "./fleet-recruitment-controller.mjs";
 import { LifeController } from "./life-controller.mjs";
 import { EntertainmentController } from "./entertainment-controller.mjs";
 import { BoardingController } from "./boarding-controller.mjs";
+import { CrewDevelopmentController } from "./crew-development-controller.mjs";
+import { CrewRelationsController } from "./crew-relations-controller.mjs";
+import { CrewRosterController } from "./crew-roster-controller.mjs";
+import { CrewWatchController } from "./crew-watch-controller.mjs";
 import { ShipDisguiseController } from "./ship-disguise-controller.mjs";
 import { LibraryController } from "./library-controller.mjs";
 import { ShipWizard } from "./ship-wizard.mjs";
@@ -74,6 +78,10 @@ export class DashboardController extends HandlebarsApplicationMixin(ApplicationV
       openLife: this.#openLife,
       openEntertainment: this.#openEntertainment,
       openBoarding: this.#openBoarding,
+      openCrewDevelopment: this.#openCrewDevelopment,
+      openCrewRelations: this.#openCrewRelations,
+      openCrewRoster: this.#openCrewRoster,
+      openCrewWatch: this.#openCrewWatch,
       openDisguise: this.#openDisguise,
       openLibrary: this.#openLibrary,
       openWizard: this.#openWizard,
@@ -173,6 +181,10 @@ export class DashboardController extends HandlebarsApplicationMixin(ApplicationV
   static async #openLife() { LifeController.open(this.actor); }
   static async #openEntertainment() { EntertainmentController.open(this.actor); }
   static async #openBoarding() { BoardingController.open(this.actor); }
+  static async #openCrewDevelopment() { CrewDevelopmentController.open(this.actor); }
+  static async #openCrewRelations() { CrewRelationsController.open(this.actor); }
+  static async #openCrewRoster() { CrewRosterController.open(this.actor); }
+  static async #openCrewWatch() { CrewWatchController.open(this.actor); }
   static async #openDisguise() { ShipDisguiseController.open(this.actor); }
   static async #openLibrary() { LibraryController.open(this.actor); }
   static async #openWizard() { ShipWizard.open(this.actor); }

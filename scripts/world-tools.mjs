@@ -89,6 +89,30 @@ const WORLD_MACROS = Object.freeze([
     command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedDisguise();'
   },
   {
+    key: "crew-development",
+    name: "S&S — Équipage & cohésion",
+    icon: "icons/svg/d20-black.svg",
+    command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedCrewDevelopment();'
+  },
+  {
+    key: "crew-relations",
+    name: "S&S — Relations d’équipage",
+    icon: "icons/svg/d20-black.svg",
+    command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedCrewRelations();'
+  },
+  {
+    key: "crew-roster",
+    name: "S&S — Registre d’équipage",
+    icon: "icons/svg/d20-black.svg",
+    command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedCrewRoster();'
+  },
+  {
+    key: "crew-watch",
+    name: "S&S — Quarts & fatigue",
+    icon: "icons/svg/d20-black.svg",
+    command: 'game.modules.get("pf1-skull-and-shackles")?.api?.openSelectedCrewWatch();'
+  },
+  {
     key: "boarding",
     name: "S&S — Abordage",
     icon: "icons/svg/d20-black.svg",
@@ -283,6 +307,43 @@ function quickReferencePages() {
         <li><strong>v1.9 :</strong> les joueurs propriétaires d’un personnage voient leur tâche et leurs actions dans le HUD et lancent eux-mêmes leurs dés. Le MJ suit l’avancement Tâche/Jour/Nuit/Rhum dans la fiche Vie à bord.</li>
       </ul>
     `),
+    page("Relations d’équipage", `
+      <h1>Relations, attitudes et mutinerie</h1>
+      <p>Le contrôleur <strong>Relations d’équipage</strong> suit les PNJ nommés auxquels les PJ se lient au cours de la campagne.</p>
+      <ul>
+        <li>Attitudes officielles : <strong>hostile, inamical, indifférent, amical, serviable</strong>.</li>
+        <li>Un PNJ <strong>amical</strong> peut fournir +2 à une tâche de jour s’il possède des rangs dans la compétence appropriée.</li>
+        <li>Un PNJ <strong>serviable</strong> peut aussi aider de nuit et fournir +2 aux tests pour influencer d’autres PNJ ou dans les jeux/divertissements, ainsi que prêter argent ou équipement selon le MJ.</li>
+        <li>Lors de la mutinerie de la première aventure : amicaux/serviables avec les PJ, indifférents neutres, inamicaux/hostiles dans l’opposition, sauf exception de scénario.</li>
+      </ul>
+      <p>Le « lien privilégié » est un repère narratif maison sans bonus automatique.</p>
+    `),
+    page("Registre d’équipage", `
+      <h1>Registre d’équipage</h1>
+      <p>Le registre rassemble dans une seule vue les personnages nommés déjà utilisés par <strong>Vie à bord</strong>, <strong>Abordage</strong>, <strong>Relations d’équipage</strong> et les postes d’officiers.</p>
+      <ul>
+        <li>Affiche fonction quotidienne, poste d’officier, attitude, lien avec un PJ, camp probable en mutinerie, état de santé et blessure permanente.</li>
+        <li>Un personnage ajouté manuellement peut recevoir une fonction libre, un quart, une marque « Important » et des notes.</li>
+        <li>Les boutons de synchronisation permettent d’ajouter rapidement un personnage au suivi des relations ou aux PNJ nommés d’Abordage sans le dupliquer.</li>
+        <li>Retirer l’entrée manuelle n’efface jamais les données des autres sous-systèmes : le personnage reste visible tant qu’il est encore utilisé ailleurs.</li>
+        <li>Le bouton <strong>Publier</strong> envoie au chat un résumé des personnages importants, officiers, blessés et relations suivies.</li>
+      </ul>
+      <p>Le registre est un outil d’organisation : il n’ajoute pas de bonus mécanique automatique.</p>
+    `),
+    page("Quarts & fatigue", `
+      <h1>Quarts, relève et fatigue</h1>
+      <p>Ce contrôleur est un <strong>sous-système maison</strong> destiné à donner un poids mécanique léger aux relèves et à la fatigue sans gérer individuellement tout l’équipage.</p>
+      <ul>
+        <li>Les personnages nommés peuvent être affectés à un groupe de quart depuis ce contrôleur ou depuis le Registre d’équipage.</li>
+        <li>Le <strong>quart actif</strong> permet d’identifier rapidement les personnages déjà de service lorsqu’un événement survient.</li>
+        <li>La fatigue générale possède quatre niveaux : Reposé (0), Fatigué (−1), Épuisé (−2), Hors service (−4).</li>
+        <li>Ce modificateur s’applique automatiquement uniquement au <strong>combat d’équipage maison</strong> de l’assistant Abordage. Il ne modifie pas les jets PF1 normaux ni les tests de navigation officiels.</li>
+        <li>Le <strong>branle-bas de combat</strong> augmente la fatigue générale et la fatigue abstraite des personnages nommés rappelés hors de leur quart.</li>
+        <li>Un <strong>cycle de repos</strong> réduit la fatigue générale et celle des personnages hors quart.</li>
+        <li>La fatigue signalée par Vie à bord peut être importée sans écraser des niveaux déjà plus élevés.</li>
+      </ul>
+      <p>La fatigue individuelle suivie ici influe aussi sur le jet maison de survie des PNJ nommés lors d’un abordage ; elle ne pose aucune condition PF1 automatiquement.</p>
+    `),
     page("Flottes", `
       <h1>Affrontements entre flottes</h1>
       <ul>
@@ -313,10 +374,38 @@ function quickReferencePages() {
       <h2>Vie quotidienne multijoueur</h2>
       <p>Lorsqu’un personnage est ajouté dans <strong>Vie à bord</strong>, son propriétaire voit sa tâche du jour dans le HUD. Il peut choisir son action diurne/nocturne, lancer sa tâche, résoudre les actions discrètes et gérer sa ration de rhum lui-même.</p>
     `),
+    page("Équipage & cohésion", `
+      <h1>Progression, loyauté et mutinerie</h1>
+      <p>La v1.17 ajoute un <strong>sous-système maison optionnel</strong> pour faire évoluer l’équipage sans suivre individuellement tous les matelots.</p>
+      <h2>Expérience et qualité</h2>
+      <p>L’équipage gagne des points d’expérience à la discrétion du MJ. Les seuils maison sont : Recrues 0, Aguerris 3, Vétérans 8, Élite 15, Exceptionnels 24. Atteindre un seuil supérieur augmente automatiquement la qualité utilisée dans le combat d’équipage ; la qualité n’est jamais rétrogradée automatiquement.</p>
+      <p>Une victoire significative peut être enregistrée en un clic (+1 XP, +1 loyauté). Un entraînement quotidien peut être conduit par le maître d’armes ou le bosco : DD 15, +1 XP en réussite, +2 à 25+.</p>
+      <h2>Loyauté et agitation</h2>
+      <p>La loyauté varie de −5 à +5 et l’agitation de 0 à 10. Le MJ dispose d’un ajustement libre pour refléter partage du butin, pénuries, punitions, victoires, pertes, décisions impopulaires ou autres événements de campagne.</p>
+      <h2>Risque de mutinerie</h2>
+      <p>Le test maison utilise le meilleur de Diplomatie, Intimidation ou Profession (marin) du capitaine, le moral de l’équipage et un soutien de +1 chacun si un bosco et/ou un quartier-maître sont affectés. Le DD augmente avec l’agitation et un mauvais moral.</p>
+      <p>Une réussite peut calmer l’équipage ; un échec augmente les tensions. Un échec sévère place l’équipage en <strong>mutinerie ouverte</strong>. À ce stade le module ne résout pas le combat : la mutinerie devient une scène narrative ou un combat PF1 normal géré par le MJ.</p>
+    `),
     page("Abordage", `
       <h1>Abordage</h1>
       <p>Un abordage exige d'abord que les navires soient agrippés. L'assistant compare l'initiative des pilotes quand elle existe dans le Combat Tracker et rappelle la règle du premier round.</p>
-      <p>Le combat principal redevient ensuite un <strong>combat PF1 normal sur le pont</strong>. Les équipages ordinaires sont suivis en arrière-plan sans introduire de jet de combat de masse maison.</p>
+      <p>La règle officielle reste inchangée : le combat principal est un <strong>combat PF1 normal sur le pont</strong> entre les PJ et les personnages importants. La v1.13 ajoute en parallèle un <strong>sous-système maison optionnel</strong> pour donner des conséquences concrètes au combat des matelots.</p>
+      <h2>Combat d'équipage maison</h2>
+      <p>Chaque phase oppose <strong>1d20 + qualité + moral + rapport numérique + maître d'armes + commandement + circonstances + événements</strong>. La marge produit une mêlée indécise (0–4), un avantage (5–9), une domination (10–14) ou un effondrement (15+).</p>
+      <p>Les pertes sont réparties entre blessés légers, blessés graves, morts et disparus/capturés. Elles réduisent automatiquement l'équipage disponible du Vehicle et peuvent donc avoir des conséquences sur la navigation.</p>
+      <h2>PNJ nommés</h2>
+      <p>Les PNJ marqués <strong>Exposés</strong> font après chaque phase un jet de survie : <strong>1d20 + moitié du niveau + modificateur de Constitution</strong>. Le DD dépend de la situation (10 favorable, 12 disputée, 15 lourdes pertes, 18 effondrement). Une blessure grave déclenche la table optionnelle « Jambe de bois et cache-œil ».</p>
+      <h2>Officiers et moral</h2>
+      <p>Le capitaine peut effectuer un test de commandement DD 15 avec le meilleur de Diplomatie, Intimidation ou Profession (marin), pour un bonus de −1 à +3. Le maître d'armes apporte +1 à +4 selon son BBA. Des événements visibles du combat (capitaine vaincu, pavillon abattu, navire en feu, renforts, etc.) modifient la mêlée et parfois le moral.</p>
+      <p>Le bouton <strong>Importer Vie à bord</strong> permet de reprendre automatiquement les Actors déjà suivis dans la fiche de vie quotidienne du navire.</p>
+      <h2>Après l'abordage (règle maison)</h2>
+      <p>Le charpentier/chirurgien peut effectuer un <strong>triage DD 15</strong> avec Premiers secours/Heal (Sagesse en repli). Un succès stabilise des blessés graves et donne +2 à +4 aux tests de récupération de la prochaine journée.</p>
+      <p>Chaque journée, les blessés légers testent DD 10 pour reprendre le service et les blessés graves DD 15 pour devenir légers. Les retours au service remontent automatiquement l'effectif du Vehicle, sans dépasser son effectif complet. Les PNJ nommés peuvent aussi améliorer leur état sans perdre une éventuelle mutilation permanente.</p>
+      <p>Le bouton <strong>Reporter les pertes permanentes</strong> copie morts + disparus/capturés vers <strong>Piraterie & Prises → Pertes à remplacer</strong>.</p>
+      <h2>Reddition, prisonniers et survivants</h2>
+      <p>Après avoir déclaré le vainqueur principal, la section <strong>Suites immédiates</strong> permet d’enregistrer une reddition, un repli ou une fuite. En cas de reddition, les survivants ordinaires sont séparés en aptes et blessés.</p>
+      <p>Les survivants aptes peuvent remplacer les pertes permanentes du vainqueur. Le reste peut être transféré directement vers <strong>Piraterie & Prises → Prisonniers & rançons</strong> ou libéré.</p>
+      <p>Les PNJ nommés ne sont jamais capturés automatiquement : le MJ marque individuellement ceux qui deviennent prisonniers. Leurs niveaux de classe sont alors ajoutés au calcul de rançon des personnages importants.</p>
     `),
   ];
 }

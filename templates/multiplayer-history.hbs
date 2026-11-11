@@ -1,0 +1,32 @@
+<div class="pf1-ss-mp-history-root">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-clock-rotate-left"></i> Historique multijoueur</h2>
+      <div class="pf1-ss-badges"><span class="pf1-ss-badge">Révision {{revision}}</span><span class="pf1-ss-badge">{{actor.name}}</span></div>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" data-action="refresh"><i class="fa-solid fa-rotate"></i> Actualiser</button>
+      <button type="button" data-action="clear"><i class="fa-solid fa-trash"></i> Vider le journal</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <p class="pf1-ss-rules-help">Chaque soumission multijoueur validée par le MJ est journalisée. L'annulation restaure l'état précédent du sous-système concerné. Pour éviter les incohérences, seule la dernière action encore active de chaque sous-système peut être annulée ; annule plusieurs lignes successivement pour remonter plus loin.</p>
+    <div class="pf1-ss-mp-history-list">
+      {{#each rows}}
+      <article class="pf1-ss-mp-history-row {{statusClass}}">
+        <div class="pf1-ss-mp-history-main">
+          <div class="pf1-ss-mp-history-title"><strong>{{label}}</strong><span class="pf1-ss-badge">{{scopeLabel}}</span><span class="pf1-ss-badge {{statusClass}}">{{status}}</span></div>
+          <p>{{summary}}</p>
+          <small>{{date}} · {{#if actorName}}{{actorName}} · {{/if}}{{#if userName}}{{userName}}{{else}}Utilisateur inconnu{{/if}}</small>
+        </div>
+        <div class="pf1-ss-mp-history-actions">
+          <button type="button" data-action="undo" data-id="{{id}}" {{#unless canUndo}}disabled{{/unless}} title="Restaure l'état antérieur et permet une correction / nouvelle soumission"><i class="fa-solid fa-rotate-left"></i> Annuler / corriger</button>
+        </div>
+      </article>
+      {{else}}
+      <p class="hint">Aucune action multijoueur journalisée pour ce navire.</p>
+      {{/each}}
+    </div>
+  </section>
+</div>

@@ -1395,3 +1395,389 @@
 .pf1-ss-disguise .pf1-ss-disguise-costs > div { display:flex; flex-direction:column; gap:.2rem; padding:.65rem; border:1px solid rgba(100,80,55,.25); border-radius:6px; background:rgba(255,255,255,.035); }
 .pf1-ss-disguise .pf1-ss-disguise-costs strong { font-size:1.25em; }
 .pf1-ss-disguise textarea { width:100%; min-height:90px; resize:vertical; }
+
+/* v1.13 — combat d'équipage et abordages avancés */
+.pf1-ss-boarding .pf1-ss-boarding-sides {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: .7rem;
+}
+.pf1-ss-boarding .pf1-ss-crew-side {
+  border: 1px solid var(--color-border-light-2, #876);
+  border-radius: 6px;
+  padding: .7rem;
+  background: rgba(255,255,255,.035);
+  min-width: 0;
+}
+.pf1-ss-boarding .pf1-ss-crew-side h4 { margin: 0 0 .5rem; }
+.pf1-ss-boarding .pf1-ss-combat-score {
+  margin-top: .55rem;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: .2rem .5rem;
+  padding: .55rem;
+  border: 1px solid rgba(120,90,55,.3);
+  border-radius: 5px;
+  background: rgba(0,0,0,.055);
+}
+.pf1-ss-boarding .pf1-ss-combat-score strong { font-size: 1.35em; }
+.pf1-ss-boarding .pf1-ss-combat-score small { grid-column: 1 / -1; opacity: .75; }
+.pf1-ss-boarding .pf1-ss-named-list { display: grid; gap: .35rem; margin-top: .55rem; }
+.pf1-ss-boarding .pf1-ss-named-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: .35rem;
+  align-items: center;
+  padding: .4rem;
+  border: 1px solid rgba(120,90,55,.22);
+  border-radius: 4px;
+}
+.pf1-ss-boarding .pf1-ss-named-row > div { display: flex; flex-direction: column; min-width: 0; }
+.pf1-ss-boarding .pf1-ss-named-row small { opacity: .72; overflow: hidden; text-overflow: ellipsis; }
+.pf1-ss-boarding .pf1-ss-event-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: .1rem .5rem;
+  align-items: center;
+  margin-top: .35rem;
+  padding: .35rem .45rem;
+  border-left: 3px solid rgba(145,62,62,.65);
+  background: rgba(145,62,62,.055);
+}
+.pf1-ss-boarding .pf1-ss-event-row small { grid-column: 1 / -1; opacity: .7; }
+.pf1-ss-boarding .pf1-ss-phase-panel { border-color: rgba(145,62,62,.55); }
+.pf1-ss-boarding .pf1-ss-last-outcome {
+  display: flex;
+  justify-content: space-between;
+  gap: .7rem;
+  padding: .55rem .65rem;
+  margin: .5rem 0;
+  border-radius: 5px;
+  background: rgba(145,62,62,.08);
+}
+.pf1-ss-boarding select { min-width: 0; max-width: 100%; }
+@media (max-width: 760px) {
+  .pf1-ss-boarding .pf1-ss-boarding-sides { grid-template-columns: 1fr; }
+}
+
+/* v1.16 — grosse passe interface & multijoueur */
+#pf1-ss-campaign-hud .pf1-ss-hud-connection {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:20px;
+  padding:1px 6px;
+  border-radius:999px;
+  border:1px solid rgba(255,255,255,.16);
+  font-size:9px;
+  white-space:nowrap;
+  opacity:.9;
+}
+#pf1-ss-campaign-hud .pf1-ss-hud-connection.ready,
+#pf1-ss-campaign-hud .pf1-ss-hud-state.ready { color:#bde9c7; border-color:rgba(65,180,91,.55); background:rgba(34,130,62,.12); }
+#pf1-ss-campaign-hud .pf1-ss-hud-connection.waiting,
+#pf1-ss-campaign-hud .pf1-ss-hud-state.waiting { color:#ffe0a3; border-color:rgba(208,150,44,.58); background:rgba(171,112,24,.13); }
+#pf1-ss-campaign-hud .pf1-ss-hud-connection.offline { color:#ffb4b4; border-color:rgba(200,65,65,.55); background:rgba(150,35,35,.15); }
+#pf1-ss-campaign-hud .pf1-ss-hud-state.done { color:#c9c9c9; border-color:rgba(150,150,150,.35); background:rgba(100,100,100,.08); }
+#pf1-ss-campaign-hud .pf1-ss-hud-state {
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:18px;
+  padding:1px 5px;
+  border:1px solid rgba(255,255,255,.14);
+  border-radius:999px;
+  font-size:9px;
+  line-height:1;
+  white-space:nowrap;
+}
+#pf1-ss-campaign-hud .pf1-ss-hud-detail { font-size:10px; opacity:.68; text-align:right; }
+#pf1-ss-campaign-hud button:disabled { opacity:.48; cursor:not-allowed; box-shadow:none; }
+
+#pf1-ss-campaign-hud .density-minimal { font-size:11px; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-head { min-height:25px; padding:2px 4px; gap:3px; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-head button { min-width:24px; width:24px; padding:1px; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-resources { padding:3px; gap:2px; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-resources button { padding:2px 4px; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-resources span,
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-detail { display:none; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-resources strong { font-size:16px; }
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-games-body,
+#pf1-ss-campaign-hud .density-minimal .pf1-ss-hud-life-body { padding:4px; gap:3px; }
+
+#pf1-ss-campaign-hud .density-compact .pf1-ss-hud-head { min-height:28px; padding:2px 5px; }
+#pf1-ss-campaign-hud .density-compact .pf1-ss-hud-resources { padding:4px; }
+#pf1-ss-campaign-hud .density-compact .pf1-ss-hud-games-body,
+#pf1-ss-campaign-hud .density-compact .pf1-ss-hud-life-body { padding:5px; gap:4px; }
+
+#pf1-ss-campaign-hud .density-comfortable .pf1-ss-hud-head { min-height:34px; padding:5px 8px; gap:7px; }
+#pf1-ss-campaign-hud .density-comfortable .pf1-ss-hud-games-body,
+#pf1-ss-campaign-hud .density-comfortable .pf1-ss-hud-life-body { padding:8px; gap:8px; }
+#pf1-ss-campaign-hud .density-comfortable button,
+#pf1-ss-campaign-hud .density-comfortable select { min-height:30px; }
+
+#pf1-ss-campaign-hud .pf1-ss-hud-game {
+  grid-template-columns:minmax(0,1fr) auto;
+}
+#pf1-ss-campaign-hud .pf1-ss-hud-game > strong { min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+#pf1-ss-campaign-hud .pf1-ss-hud-game > .pf1-ss-hud-detail { grid-column:1 / -1; text-align:left; }
+#pf1-ss-campaign-hud .pf1-ss-hud-game > button { min-width:0; }
+#pf1-ss-campaign-hud .pf1-ss-hud-life-task { grid-template-columns:minmax(0,1fr) auto; }
+#pf1-ss-campaign-hud .pf1-ss-hud-life-task > .pf1-ss-hud-detail { grid-column:1 / -1; text-align:left; }
+
+#pf1-ss-mp-toasts {
+  position:fixed;
+  right:14px;
+  bottom:14px;
+  z-index:10000;
+  display:grid;
+  gap:6px;
+  pointer-events:none;
+  max-width:min(360px,calc(100vw - 28px));
+}
+.pf1-ss-mp-toast {
+  opacity:0;
+  transform:translateY(5px);
+  transition:opacity .18s ease, transform .18s ease;
+  padding:6px 9px;
+  border-radius:6px;
+  border:1px solid rgba(202,161,71,.5);
+  background:rgba(22,17,14,.94);
+  color:#f4ead3;
+  box-shadow:0 3px 12px rgba(0,0,0,.35);
+  font-size:11px;
+}
+.pf1-ss-mp-toast.visible { opacity:1; transform:none; }
+.pf1-ss-mp-toast.warn { border-color:rgba(220,151,56,.65); }
+.pf1-ss-mp-toast.error { border-color:rgba(205,70,70,.7); }
+
+.pf1-ss-multiplayer-history .window-content { overflow:auto; }
+.pf1-ss-mp-history-root { display:grid; gap:.7rem; }
+.pf1-ss-mp-history-list { display:grid; gap:.45rem; }
+.pf1-ss-mp-history-row {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  gap:.65rem;
+  align-items:center;
+  padding:.55rem .65rem;
+  border:1px solid var(--color-border-light-2,#876);
+  border-radius:6px;
+  background:rgba(255,255,255,.025);
+}
+.pf1-ss-mp-history-row.undone { opacity:.62; }
+.pf1-ss-mp-history-row.corrected { border-style:dashed; }
+.pf1-ss-mp-history-title { display:flex; flex-wrap:wrap; gap:.35rem; align-items:center; }
+.pf1-ss-mp-history-main p { margin:.25rem 0; }
+.pf1-ss-mp-history-main small { opacity:.7; }
+.pf1-ss-mp-history-actions button { white-space:nowrap; }
+.pf1-ss-mp-history-row .pf1-ss-badge.accepted { border-color:rgba(65,180,91,.5); }
+.pf1-ss-mp-history-row .pf1-ss-badge.undone { border-color:rgba(180,90,70,.5); }
+.pf1-ss-mp-history-row .pf1-ss-badge.corrected { border-color:rgba(208,150,44,.55); }
+
+@media (max-width:760px) {
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock {
+    top:42px;
+    left:6px;
+    right:6px;
+    width:auto;
+    min-width:0;
+    max-width:none;
+    max-height:min(66vh,560px);
+  }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-shell { max-height:min(66vh,560px); overflow:auto; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-head { position:sticky; top:0; z-index:2; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-ship { max-width:30vw; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-connection { font-size:8px; padding-inline:4px; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-life-body label,
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-character { grid-template-columns:1fr; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-life-rum { grid-template-columns:1fr 1fr; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-life-rum span { grid-column:1 / -1; }
+  .pf1-ss-mp-history-row { grid-template-columns:1fr; }
+  .pf1-ss-mp-history-actions button { width:100%; }
+}
+
+@media (max-width:480px) {
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-resources { grid-template-columns:repeat(3,minmax(0,1fr)); }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-resources button { grid-template-columns:1fr; justify-items:center; text-align:center; }
+  #pf1-ss-campaign-hud.pf1-ss-hud-mobile-dock .pf1-ss-hud-resources strong { font-size:16px; }
+}
+
+/* v1.17 — Progression d'équipage, cohésion et mutinerie */
+.pf1-ss-crew-development .window-content { overflow:auto; }
+.pf1-ss-crew-development-root { display:grid; gap:.75rem; }
+.pf1-ss-crew-development-root .crew-dev-stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.crew-dev-progress { height:10px; overflow:hidden; border-radius:999px; border:1px solid var(--color-border-light-2,#876); background:rgba(0,0,0,.14); margin:.35rem 0 .5rem; }
+.crew-dev-progress-bar { height:100%; min-width:0; background:currentColor; opacity:.55; transition:width .2s ease; }
+.crew-dev-thresholds { margin:.35rem 0 .6rem; }
+.pf1-ss-crew-development-root .ok { color:#6dbb79; }
+.pf1-ss-crew-development-root .warning { color:#d7a243; }
+.pf1-ss-crew-development-root .danger { color:#d76565; }
+@media (max-width:760px) {
+  .pf1-ss-crew-development-root .crew-dev-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .pf1-ss-crew-development-root .pf1-ss-grid.four { grid-template-columns:repeat(2,minmax(0,1fr)); }
+}
+@media (max-width:480px) {
+  .pf1-ss-crew-development-root .crew-dev-stats,
+  .pf1-ss-crew-development-root .pf1-ss-grid.two,
+  .pf1-ss-crew-development-root .pf1-ss-grid.four { grid-template-columns:1fr; }
+  .pf1-ss-crew-development-root .pf1-ss-inline-actions,
+  .pf1-ss-crew-development-root .pf1-ss-actions { display:grid; grid-template-columns:1fr; }
+}
+
+
+/* v1.18 — Relations d’équipage */
+.pf1-ss-crew-relations .window-content { overflow:auto; }
+.pf1-ss-crew-relations-root { display:grid; gap:.75rem; }
+.pf1-ss-crew-relations-root .crew-relations-stats { grid-template-columns:repeat(3,minmax(0,1fr)); }
+.pf1-ss-relations-table td { vertical-align:top; }
+.pf1-ss-relations-table td:nth-child(1) { min-width:120px; }
+.pf1-ss-relations-table td:nth-child(2) { min-width:135px; }
+.pf1-ss-relations-table td:nth-child(3),
+.pf1-ss-relations-table td:nth-child(4) { min-width:145px; }
+.pf1-ss-relations-table td:nth-child(5) { min-width:220px; }
+.pf1-ss-relations-table .pf1-ss-inline-actions.compact { margin-top:.25rem; gap:.25rem; }
+.pf1-ss-relations-table .pf1-ss-inline-actions.compact button { min-width:30px; padding-inline:.4rem; }
+@media (max-width:760px) {
+  .pf1-ss-crew-relations-root .crew-relations-stats { grid-template-columns:1fr; }
+  .pf1-ss-crew-relations-root .pf1-ss-toolbar { align-items:flex-start; }
+  .pf1-ss-crew-relations-root .pf1-ss-toolbar .pf1-ss-inline-actions { display:grid; grid-template-columns:1fr; width:100%; }
+}
+
+/* v1.19 — Registre d’équipage */
+.pf1-ss-crew-roster .window-content { overflow:auto; }
+.pf1-ss-crew-roster-root { display:grid; gap:.75rem; }
+.pf1-ss-roster-hero { display:flex; gap:.75rem; align-items:flex-start; justify-content:space-between; }
+.pf1-ss-roster-hero h2 { margin:.15rem 0; }
+.pf1-ss-roster-stats { grid-template-columns:repeat(4,minmax(0,1fr)); }
+.pf1-ss-roster-add .pf1-ss-inline-actions select { min-width:260px; flex:1; }
+.pf1-ss-roster-table-wrap { min-height:0; }
+.pf1-ss-roster-table-scroll { overflow:auto; max-height:500px; }
+.pf1-ss-roster-table { min-width:980px; }
+.pf1-ss-roster-table td { vertical-align:top; }
+.pf1-ss-roster-table tr.is-highlighted { outline:1px solid rgba(202,161,71,.55); background:rgba(202,161,71,.06); }
+.pf1-ss-roster-person { display:grid; grid-template-columns:42px minmax(0,1fr); gap:.45rem; align-items:center; min-width:150px; }
+.pf1-ss-roster-person img { width:42px; height:42px; object-fit:cover; border:1px solid var(--color-border-light-2,#876); border-radius:4px; }
+.pf1-ss-roster-person small,
+.pf1-ss-roster-table td > small { display:block; opacity:.75; margin-top:.15rem; }
+.pf1-ss-roster-table textarea { width:100%; min-width:160px; resize:vertical; }
+.pf1-ss-roster-table input[type="text"],
+.pf1-ss-roster-table select { width:100%; margin-bottom:.25rem; }
+.pf1-ss-roster-sync-actions { display:flex; gap:.25rem; margin-top:.35rem; }
+.pf1-ss-roster-sync-actions button { min-width:30px; padding-inline:.4rem; }
+.pf1-ss-badge.muted { opacity:.6; }
+
+@media (max-width:760px) {
+  .pf1-ss-roster-hero { display:grid; grid-template-columns:1fr; }
+  .pf1-ss-roster-hero .pf1-ss-inline-actions { display:grid; grid-template-columns:1fr 1fr; width:100%; }
+  .pf1-ss-roster-stats { grid-template-columns:repeat(2,minmax(0,1fr)); }
+  .pf1-ss-roster-add .pf1-ss-inline-actions { display:grid; grid-template-columns:1fr; }
+  .pf1-ss-roster-add .pf1-ss-inline-actions select { min-width:0; width:100%; }
+  .pf1-ss-roster-table-scroll { max-height:60vh; }
+}
+
+@media (max-width:480px) {
+  .pf1-ss-roster-hero .pf1-ss-inline-actions,
+  .pf1-ss-roster-stats { grid-template-columns:1fr; }
+}
+
+/* v1.20 — Quarts, relève et fatigue */
+.pf1-ss-crew-watch .pf1-ss-watch-hero {
+  display: flex;
+  gap: 1rem;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-controls {
+  display: grid;
+  grid-template-columns: auto minmax(180px, 1fr) auto auto;
+  gap: .5rem;
+  align-items: center;
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-actionbar {
+  margin-top: .65rem;
+  flex-wrap: wrap;
+}
+
+.pf1-ss-crew-watch .pf1-ss-fatigue-scale {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: .5rem;
+}
+
+.pf1-ss-crew-watch .pf1-ss-fatigue-scale > div {
+  display: grid;
+  gap: .15rem;
+  padding: .65rem .75rem;
+  border: 1px solid var(--color-border-light-2, rgba(127,127,127,.35));
+  border-radius: 6px;
+  background: rgba(0,0,0,.04);
+}
+
+.pf1-ss-crew-watch .pf1-ss-fatigue-scale > div.active {
+  outline: 2px solid var(--color-border-highlight, #b8860b);
+  background: rgba(184,134,11,.09);
+}
+
+.pf1-ss-crew-watch .pf1-ss-fatigue-scale strong {
+  font-size: 1.15rem;
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-table tr.is-on-duty {
+  background: rgba(60, 140, 80, .08);
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-table td:nth-child(2) {
+  min-width: 230px;
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-table select,
+.pf1-ss-crew-watch .pf1-ss-watch-table input[type="text"] {
+  width: 100%;
+  margin-bottom: .25rem;
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-history {
+  display: grid;
+  grid-template-columns: minmax(130px, .7fr) minmax(260px, 2fr) minmax(150px, .8fr);
+  gap: .65rem;
+  align-items: baseline;
+  padding: .4rem 0;
+  border-bottom: 1px solid rgba(127,127,127,.2);
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-history:last-child {
+  border-bottom: 0;
+}
+
+.pf1-ss-crew-watch .pf1-ss-watch-history small {
+  text-align: right;
+}
+
+.pf1-ss-text-ok { color: #2f7d45; }
+.pf1-ss-text-warning { color: #9b6a10; }
+.pf1-ss-text-danger { color: #a83333; }
+
+@media (max-width: 760px) {
+  .pf1-ss-crew-watch .pf1-ss-watch-hero {
+    display: block;
+  }
+  .pf1-ss-crew-watch .pf1-ss-watch-hero .pf1-ss-inline-actions {
+    margin-top: .6rem;
+  }
+  .pf1-ss-crew-watch .pf1-ss-watch-controls {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pf1-ss-crew-watch .pf1-ss-fatigue-scale {
+    grid-template-columns: 1fr 1fr;
+  }
+  .pf1-ss-crew-watch .pf1-ss-watch-history {
+    grid-template-columns: 1fr;
+    gap: .1rem;
+  }
+  .pf1-ss-crew-watch .pf1-ss-watch-history small {
+    text-align: left;
+  }
+}

@@ -1,0 +1,106 @@
+<div class="pf1-ss-crew-watch-root">
+  <header class="pf1-ss-panel pf1-ss-watch-hero">
+    <div>
+      <span class="pf1-ss-kicker">QUARTS & DISPONIBILITÉ</span>
+      <h2><i class="fa-solid fa-clock"></i> {{actor.name}}</h2>
+      <p class="hint">Sous-système maison : organise les relèves et suit une fatigue abstraite de l’équipage sans modifier automatiquement les conditions PF1 des Actors.</p>
+    </div>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" data-action="openRoster"><i class="fa-solid fa-address-book"></i> Registre</button>
+      <button type="button" data-action="openLife"><i class="fa-solid fa-bottle-droplet"></i> Vie à bord</button>
+      <button type="button" data-action="openBoarding"><i class="fa-solid fa-person-running"></i> Abordage</button>
+      <button type="button" data-action="postSummary"><i class="fa-solid fa-message"></i> Publier</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-dashboard-stats pf1-ss-watch-stats">
+    <div><span>Jour</span><strong>{{data.day}}</strong></div>
+    <div><span>Quart actif</span><strong>{{currentWatchLabel}}</strong><small>{{summary.onDuty}} personnage(s) nommé(s) de quart</small></div>
+    <div><span>Fatigue générale</span><strong class="pf1-ss-text-{{general.className}}">{{general.label}}</strong><small>Abordage {{boardingModifier}}</small></div>
+    <div><span>Fatigués / épuisés</span><strong>{{summary.fatigued}} / {{summary.exhausted}}</strong><small>{{summary.total}} suivi(s)</small></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-bell"></i> Relève</h3>
+        <p class="hint">Rotation détectée : {{rotationLabel}}</p>
+      </div>
+    </div>
+    {{#if isGM}}
+      <div class="pf1-ss-watch-controls">
+        <button type="button" data-action="previousWatch"><i class="fa-solid fa-chevron-left"></i> Quart précédent</button>
+        <select data-current-watch>{{#each watchChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+        <button type="button" data-action="setWatch">Activer</button>
+        <button type="button" data-action="nextWatch">Quart suivant <i class="fa-solid fa-chevron-right"></i></button>
+      </div>
+      <div class="pf1-ss-inline-actions pf1-ss-watch-actionbar">
+        <button type="button" class="primary" data-action="generalQuarters"><i class="fa-solid fa-bell"></i> Branle-bas de combat</button>
+        <button type="button" data-action="restCycle"><i class="fa-solid fa-bed"></i> Cycle de repos</button>
+        <button type="button" data-action="syncLifeFatigue"><i class="fa-solid fa-rotate"></i> Importer fatigue Vie à bord</button>
+        <button type="button" data-action="resetFatigue"><i class="fa-solid fa-eraser"></i> Réinitialiser fatigue</button>
+      </div>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div><h3><i class="fa-solid fa-users"></i> Disponibilité générale</h3><p class="hint">Cette valeur représente l’état du gros de l’équipage et s’applique automatiquement au moteur maison de combat d’équipage lors d’un abordage.</p></div>
+      {{#if isGM}}
+        <div class="pf1-ss-inline-actions">
+          <button type="button" data-action="adjustGeneral" data-delta="-1"><i class="fa-solid fa-minus"></i></button>
+          <button type="button" data-action="adjustGeneral" data-delta="1"><i class="fa-solid fa-plus"></i></button>
+        </div>
+      {{/if}}
+    </div>
+    <div class="pf1-ss-fatigue-scale">
+      {{#each fatigueScale}}<div class="{{#if active}}active{{/if}}"><strong>{{points}}</strong><span>{{label}}</span><small>{{combatModifier}} abordage</small></div>{{/each}}
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-watch-table-wrap">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-user-clock"></i> Personnages nommés</h3></div>
+    {{#if rows.length}}
+      <div class="pf1-ss-roster-table-scroll">
+        <table class="pf1-ss-table pf1-ss-watch-table">
+          <thead><tr><th>Personnage</th><th>Quart / fonction</th><th>État</th>{{#if isGM}}<th>Ajuster</th>{{/if}}</tr></thead>
+          <tbody>
+            {{#each rows}}
+              <tr class="{{#if onDuty}}is-on-duty{{/if}}">
+                <td>
+                  <div class="pf1-ss-roster-person"><img src="{{actorImg}}" alt=""><div><strong>{{actorName}}</strong>{{#if onDuty}}<small class="pf1-ss-text-ok">● De quart</small>{{else}}{{#if reserve}}<small>Réserve</small>{{else}}<small>Hors quart</small>{{/if}}{{/if}}</div></div>
+                </td>
+                <td>
+                  {{#if ../isGM}}
+                    <input type="hidden" name="watchRows.{{@index}}.actorUuid" value="{{actorUuid}}">
+                    <select name="watchRows.{{@index}}.watch">{{#each watchChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+                    <input type="text" name="watchRows.{{@index}}.duty" value="{{duty}}" placeholder="Fonction / poste">
+                  {{else}}
+                    <strong>{{assignedWatchLabel}}</strong><small>{{duty}}</small>
+                  {{/if}}
+                </td>
+                <td>
+                  <span class="pf1-ss-badge {{fatigue.className}}">{{fatigue.label}}</span>
+                  {{#if fatigueNote}}<small>{{fatigueNote}}</small>{{/if}}
+                  {{#if lifeFatigued}}<small class="pf1-ss-text-warning">Vie à bord signale de la fatigue</small>{{/if}}
+                </td>
+                {{#if ../isGM}}
+                  <td><div class="pf1-ss-inline-actions"><button type="button" data-action="adjustMember" data-uuid="{{actorUuid}}" data-delta="-1"><i class="fa-solid fa-minus"></i></button><button type="button" data-action="adjustMember" data-uuid="{{actorUuid}}" data-delta="1"><i class="fa-solid fa-plus"></i></button></div></td>
+                {{/if}}
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+    {{else}}
+      <p class="hint">Aucun personnage nommé n’est encore suivi. Ajoute-les au Registre, à Vie à bord, aux Relations ou à Abordage.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-clock-rotate-left"></i> Historique récent</h3>
+    {{#each history}}
+      <div class="pf1-ss-watch-history"><span>Jour {{day}} · {{watchLabel}}</span><strong>{{label}}</strong><small>{{timeLabel}}</small></div>
+    {{else}}<p class="hint">Aucune relève ou modification enregistrée.</p>{{/each}}
+  </section>
+</div>

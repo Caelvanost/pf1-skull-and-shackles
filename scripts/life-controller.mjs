@@ -8,6 +8,7 @@ import {
 } from "./life-data.mjs";
 import { EntertainmentController } from "./entertainment-controller.mjs";
 import { getPerformanceCharismaBonus, getEntertainmentData, setEntertainmentData } from "./entertainment-data.mjs";
+import { getCrewRelationsData, relationForActor, attitudeInfo } from "./crew-relations-data.mjs";
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications.api;
 const escape = foundry.utils.escapeHTML;
@@ -75,7 +76,8 @@ export class LifeController extends HandlebarsApplicationMixin(ApplicationV2) {
       clearPunishments: this.#clearPunishments,
       newDay: this.#newDay,
       randomizeKroop: this.#randomizeKroop,
-      openEntertainmentController: this.#openEntertainmentController
+      openEntertainmentController: this.#openEntertainmentController,
+      openCrewRelations: this.#openCrewRelations
     },
     form: { handler: this.#onSubmit, closeOnSubmit: false }
   };
@@ -136,6 +138,10 @@ export class LifeController extends HandlebarsApplicationMixin(ApplicationV2) {
     const stealthActor = actorByUuid(life.stealth.actorUuid);
     const stealthSkills = pickStealthSkills(stealthActor);
     if (stealthActor && !life.stealth.skillId && stealthSkills.length) life.stealth.skillId = stealthSkills[0].id;
+    const relations = getCrewRelationsData(this.actor);
+    const targetRelation = relationForActor(relations, life.influence.targetUuid);
+    const helpfulRelations = relations.entries.filter(r => r.attitude === "helpful" && r.actorUuid !== life.influence.targetUuid && r.actorUuid !== life.influence.influencerUuid);
+    const helpfulChoices = helpfulRelations.map(r => { const a = actorByUuid(r.actorUuid); return a ? { uuid:a.uuid, name:a.name, selected:a.uuid===life.influence.helperUuid } : null; }).filter(Boolean);
 
     return {
       ...context,
@@ -148,6 +154,8 @@ export class LifeController extends HandlebarsApplicationMixin(ApplicationV2) {
       influenceActorChoices: actorChoices.map(c=>({ ...c, selected:c.uuid===life.influence.influencerUuid })),
       influenceTargetChoices: actorChoices.map(c=>({ ...c, selected:c.uuid===life.influence.targetUuid })),
       influenceSkills: influenceSkills.map(s=>({ ...s, selected:s.id===life.influence.skillId, modDisplay:signed(s.mod) })),
+      influenceHelperChoices: helpfulChoices,
+      trackedInfluenceAttitude: targetRelation ? attitudeInfo(targetRelation.attitude).label : "Non suivi",
       stealthActor,
       stealthActorChoices: actorChoices.map(c=>({ ...c, selected:c.uuid===life.stealth.actorUuid })),
       stealthSkills: stealthSkills.map(s=>({ ...s, selected:s.id===life.stealth.skillId, modDisplay:signed(s.mod) })),
@@ -199,6 +207,11 @@ export class LifeController extends HandlebarsApplicationMixin(ApplicationV2) {
 
   static async #openEntertainmentController() {
     EntertainmentController.open(this.actor);
+  }
+
+  static async #openCrewRelations() {
+    const { CrewRelationsController } = await import("./crew-relations-controller.mjs");
+    CrewRelationsController.open(this.actor);
   }
 
   static async #addMember() {
@@ -453,10 +466,15 @@ export class LifeController extends HandlebarsApplicationMixin(ApplicationV2) {
     const skills=pickInfluenceSkills(a); const sk=skills.find(s=>s.id===inf.skillId)??skills[0]; if(!sk){ui.notifications.warn("Aucune compétence de Bluff, Diplomatie ou Intimidation détectée.");return;}
     const key=`${life.day}:${a.uuid}:${target.uuid}`;
     if(life.influenceHistory[key]){ui.notifications.warn(`${a.name} a déjà tenté d’influencer ${target.name} aujourd’hui.`);return;}
-    const performanceBonus=getPerformanceCharismaBonus(this.actor,a.uuid); const mod=Number(sk.mod)+Number(inf.manualModifier??0)+performanceBonus; const roll=await new Roll(`1d20 + ${mod}`).evaluate(); const ok=Number(roll.total)>=Number(inf.dc);
-    life.influenceHistory[key]={total:Number(roll.total),skill:sk.name,success:ok,day:life.day}; inf.lastKey=key;
+    const performanceBonus=getPerformanceCharismaBonus(this.actor,a.uuid);
+    const relations=getCrewRelationsData(this.actor),helperRel=relationForActor(relations,inf.helperUuid),helper=actorByUuid(inf.helperUuid);
+    const helperBonus=helperRel?.attitude==="helpful"&&helper&&helper.uuid!==a.uuid&&helper.uuid!==target.uuid?2:0;
+    const tracked=relationForActor(relations,target.uuid);
+    const mod=Number(sk.mod)+Number(inf.manualModifier??0)+performanceBonus+helperBonus; const roll=await new Roll(`1d20 + ${mod}`).evaluate(); const ok=Number(roll.total)>=Number(inf.dc);
+    const attitudeText=tracked?`, attitude suivie : <strong>${escape(attitudeInfo(tracked.attitude).label)}</strong>`:`, attitude déclarée : ${escape(inf.currentAttitude)}`;
+    life.influenceHistory[key]={total:Number(roll.total),skill:sk.name,success:ok,day:life.day,helperUuid:helperBonus?helper.uuid:""}; inf.lastKey=key;
     await setLifeData(this.actor,life);
-    await postChat(a,"Influencer un membre d’équipage",`<p><strong>${escape(a.name)}</strong> tente d’influencer <strong>${escape(target.name)}</strong>, attitude indiquée : ${escape(inf.currentAttitude)}.</p><p>${escape(sk.name)} ${signed(mod)} : <strong>${roll.total}</strong> contre DD ${inf.dc} → <strong>${ok?"réussite":"échec"}</strong>.</p>${performanceBonus?`<p><strong>+${performanceBonus}</strong> inclus grâce à une Représentation réussie devant l’équipage (24 h).</p>`:""}<p class="hint">La campagne indique que Bluff, Diplomatie ou Intimidation sont traités comme Diplomatie pour changer l’attitude. Le DD est laissé au MJ car cette section renvoie aux règles normales de Diplomatie.</p>`,"fa-solid fa-comments");
+    await postChat(a,"Influencer un membre d’équipage",`<p><strong>${escape(a.name)}</strong> tente d’influencer <strong>${escape(target.name)}</strong>${attitudeText}.</p><p>${escape(sk.name)} ${signed(mod)} : <strong>${roll.total}</strong> contre DD ${inf.dc} → <strong>${ok?"réussite":"échec"}</strong>.</p>${performanceBonus?`<p><strong>+${performanceBonus}</strong> inclus grâce à une Représentation réussie devant l’équipage (24 h).</p>`:""}${helperBonus?`<p><strong>+2</strong> grâce à l’aide nocturne/journalière de <strong>${escape(helper.name)}</strong>, actuellement serviable.</p>`:""}<p class="hint">La campagne traite Bluff, Diplomatie ou Intimidation comme Diplomatie pour changer l’attitude. Le DD et le nouvel état final restent au MJ ; mets ensuite à jour l’attitude dans Relations d’équipage.</p>`,"fa-solid fa-comments");
     await this.render();
   }
 

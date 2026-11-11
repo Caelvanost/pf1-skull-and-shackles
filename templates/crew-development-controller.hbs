@@ -1,0 +1,69 @@
+<div class="pf1-ss-crew-development-root">
+  <header class="pf1-ss-toolbar">
+    <div class="pf1-ss-toolbar-title"><strong>Équipage & cohésion</strong> — {{actor.name}}</div>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" data-action="openLife"><i class="fa-solid fa-bottle-droplet"></i> Vie à bord</button>
+      <button type="button" data-action="openRelations"><i class="fa-solid fa-people-group"></i> Relations</button>
+      <button type="button" data-action="openBoarding"><i class="fa-solid fa-person-running"></i> Abordage</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><div><h3><i class="fa-solid fa-chart-line"></i> Progression de l’équipage</h3><p class="hint">Sous-système maison : l’expérience représente l’habitude de combattre et de manœuvrer ensemble. La qualité utilisée par les abordages augmente automatiquement quand un seuil supérieur est atteint.</p></div></div>
+    <div class="pf1-ss-dashboard-stats crew-dev-stats">
+      <div><span>Qualité</span><strong>{{qualityLabel}}</strong></div>
+      <div><span>Expérience</span><strong>{{development.xp}}</strong><small>{{#if progress.next}}encore {{progress.remaining}} pour {{nextQualityLabel}}{{else}}maximum{{/if}}</small></div>
+      <div><span>Moral</span><strong>{{moraleLabel}}</strong></div>
+      <div><span>Jour</span><strong>{{day}}</strong><small>Vie à bord</small></div>
+    </div>
+    <div class="crew-dev-progress"><div class="crew-dev-progress-bar" style="width: {{progress.percent}}%"></div></div>
+    <div class="pf1-ss-badges crew-dev-thresholds">{{#each thresholdRows}}<span class="pf1-ss-badge {{#if current}}ok{{/if}}">{{label}} : {{value}}</span>{{/each}}</div>
+    {{#if isGM}}<div class="pf1-ss-actions"><button type="button" class="primary" data-action="addVictory"><i class="fa-solid fa-trophy"></i> Enregistrer une victoire (+1 XP, +1 loyauté)</button><button type="button" data-action="train" {{#unless canTrain}}disabled{{/unless}}><i class="fa-solid fa-dumbbell"></i> Entraîner l’équipage</button></div>{{/if}}
+    <p class="hint">Formateur actuel : <strong>{{trainerName}}</strong> {{trainerMod}}. Un seul entraînement par journée ; DD 15, +1 XP en réussite, +2 à 25+.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-handshake"></i> Loyauté, agitation et mutinerie</h3>
+    <div class="pf1-ss-dashboard-stats crew-dev-stats">
+      <div><span>Loyauté</span><strong>{{development.loyalty}}</strong><small>de −5 à +5</small></div>
+      <div><span>Agitation</span><strong>{{development.unrest}}</strong><small>de 0 à 10</small></div>
+      <div><span>Risque</span><strong class="{{risk.className}}">{{risk.label}}</strong><small>indice {{risk.score}}</small></div>
+      <div><span>État</span><strong class="{{mutinyClass}}">{{mutinyLabel}}</strong></div>
+    </div>
+    <div class="pf1-ss-grid two">
+      <div class="pf1-ss-static-field"><span>Capitaine</span><strong>{{captainName}}</strong><small>{{commandLabel}} {{commandMod}}</small></div>
+      <div class="pf1-ss-static-field"><span>Soutien des officiers</span><strong>{{supportBonus}}</strong><small>{{supportLabels}}</small></div>
+    </div>
+    <div class="pf1-ss-grid three">
+      <div class="pf1-ss-static-field"><span>Relations suivies</span><strong>{{relationRoster.total}}</strong><small>PNJ nommés</small></div>
+      <div class="pf1-ss-static-field"><span>Avec les PJ / neutres</span><strong>{{relationRoster.pcs}} / {{relationRoster.neutral}}</strong><small>selon attitudes</small></div>
+      <div class="pf1-ss-static-field"><span>Opposition</span><strong>{{relationRoster.opposition}}</strong><small>hostiles/inamicaux</small></div>
+    </div>
+    <p class="hint">Test maison actuel : 1d20 + meilleur commandement du capitaine + moral + soutien du bosco/quartier-maître contre DD {{predictedDc}}. L’échec peut accroître l’agitation et dégrader le moral ; un échec sévère déclenche une mutinerie ouverte. Les camps individuels viennent du suivi officiel des attitudes dans Relations d’équipage.</p>
+    {{#if isGM}}<div class="pf1-ss-actions"><button type="button" class="danger" data-action="checkMutiny"><i class="fa-solid fa-triangle-exclamation"></i> Tester le risque de mutinerie</button><button type="button" data-action="resetMutiny"><i class="fa-solid fa-dove"></i> Stabiliser après résolution</button></div>{{/if}}
+  </section>
+
+  {{#if isGM}}
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-sliders"></i> Ajustement MJ</h3>
+    <p class="hint">Pour refléter une part de butin généreuse, des vivres rationnés, une victoire, une punition impopulaire ou tout autre événement de campagne sans imposer une table rigide.</p>
+    <div class="pf1-ss-grid four">
+      <label><span>Expérience</span><input type="number" name="manual.xp" value="0" step="1"></label>
+      <label><span>Loyauté</span><input type="number" name="manual.loyalty" value="0" step="1"></label>
+      <label><span>Agitation</span><input type="number" name="manual.unrest" value="0" step="1"></label>
+      <label><span>Libellé</span><input type="text" name="manual.label" value="Ajustement MJ"></label>
+    </div>
+    <label><span>Note</span><input type="text" name="manual.note" placeholder="Cause de l’ajustement..."></label>
+    <div class="pf1-ss-actions"><button type="button" class="primary" data-action="adjust"><i class="fa-solid fa-check"></i> Appliquer l’événement</button></div>
+  </section>
+  {{/if}}
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-clock-rotate-left"></i> Historique</h3>{{#if isGM}}<button type="button" data-action="clearHistory"><i class="fa-solid fa-trash"></i> Vider</button>{{/if}}</div>
+    {{#if history.length}}
+      <div class="pf1-ss-table-scroll"><table class="pf1-ss-table"><thead><tr><th>Date / jour</th><th>Événement</th><th>XP</th><th>Loyauté</th><th>Agitation</th><th>Note</th></tr></thead><tbody>{{#each history}}<tr><td>{{date}}<br><small>J{{day}}</small></td><td>{{label}}</td><td>{{xpDisplay}}</td><td>{{loyaltyDisplay}}</td><td>{{unrestDisplay}}</td><td>{{note}}</td></tr>{{/each}}</tbody></table></div>
+    {{else}}<p class="hint">Aucun événement enregistré.</p>{{/if}}
+  </section>
+
+  <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button></footer>
+</div>

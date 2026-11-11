@@ -1,0 +1,108 @@
+<div class="pf1-ss-crew-roster-root">
+  <header class="pf1-ss-panel pf1-ss-roster-hero">
+    <div>
+      <span class="pf1-ss-kicker">REGISTRE D’ÉQUIPAGE</span>
+      <h2><i class="fa-solid fa-address-book"></i> {{actor.name}}</h2>
+      <p class="hint">Vue consolidée des personnages suivis dans Vie à bord, Abordage, Relations et les postes d’officiers.</p>
+    </div>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" data-action="openLife"><i class="fa-solid fa-bottle-droplet"></i> Vie à bord</button>
+      <button type="button" data-action="openBoarding"><i class="fa-solid fa-person-running"></i> Abordage</button>
+      <button type="button" data-action="openRelations"><i class="fa-solid fa-people-group"></i> Relations</button>
+      <button type="button" data-action="openDevelopment"><i class="fa-solid fa-users-gear"></i> Cohésion</button>
+      <button type="button" data-action="openWatch"><i class="fa-solid fa-clock"></i> Quarts</button>
+      <button type="button" data-action="postSummary"><i class="fa-solid fa-message"></i> Publier</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-dashboard-stats pf1-ss-roster-stats">
+    <div><span>Personnages suivis</span><strong>{{summary.total}}</strong></div>
+    <div><span>Officiers</span><strong>{{summary.officers}}</strong></div>
+    <div><span>Blessés / capturés</span><strong>{{summary.wounded}}</strong></div>
+    <div><span>Avec les PJ / opposition</span><strong>{{summary.pcsSide}} / {{summary.opposition}}</strong></div>
+  </section>
+
+  {{#if isGM}}
+    <section class="pf1-ss-panel pf1-ss-roster-add">
+      <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-user-plus"></i> Ajouter un personnage notable</h3></div>
+      <div class="pf1-ss-inline-actions">
+        <select name="newRosterUuid">
+          <option value="">— Choisir un Actor PF1 —</option>
+          {{#each addChoices}}<option value="{{uuid}}">{{name}}</option>{{/each}}
+        </select>
+        <button type="button" class="primary" data-action="addMember"><i class="fa-solid fa-plus"></i> Ajouter au registre</button>
+      </div>
+      <p class="hint">Ajouter ici ne l’inscrit pas automatiquement aux tâches quotidiennes ni aux combats : utilise les boutons de synchronisation sur sa ligne.</p>
+    </section>
+  {{/if}}
+
+  <section class="pf1-ss-panel pf1-ss-roster-table-wrap">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-list"></i> Personnages suivis</h3></div>
+    {{#if rows.length}}
+      <div class="pf1-ss-roster-table-scroll">
+        <table class="pf1-ss-table pf1-ss-roster-table">
+          <thead>
+            <tr>
+              <th>Personnage</th><th>Fonction</th><th>Relation</th><th>État</th><th>Suivi</th>{{#if isGM}}<th>Registre</th>{{/if}}<th></th>
+            </tr>
+          </thead>
+          <tbody>
+            {{#each rows}}
+              <tr class="{{#if highlighted}}is-highlighted{{/if}}">
+                <td>
+                  <div class="pf1-ss-roster-person">
+                    <img src="{{actorImg}}" alt="">
+                    <div><strong>{{actorName}}</strong><small>{{typeLabel}}{{#if level}} · niv. {{level}}{{/if}}</small></div>
+                  </div>
+                </td>
+                <td>
+                  <strong>{{officerLabel}}</strong>
+                  <small>Vie à bord : {{lifeRole}}{{#if fatigued}} · fatigué{{/if}}</small>
+                  {{#if duty}}<small>Fonction libre : {{duty}}</small>{{/if}}
+                </td>
+                <td>
+                  <span class="pf1-ss-badge {{attitudeClass}}">{{attitudeLabel}}</span>
+                  <small>Lien : {{linkedPcName}}</small>
+                  <small>Mutinerie : {{mutinySide}}</small>
+                </td>
+                <td>
+                  <span class="pf1-ss-badge {{healthClass}}">{{healthLabel}}</span>
+                  <small>Blessure : {{injuryLabel}}</small>
+                  {{#if exposed}}<small>Exposé en abordage</small>{{/if}}
+                </td>
+                <td>
+                  <div class="pf1-ss-badges">{{#each sources}}<span class="pf1-ss-badge {{className}}">{{label}}</span>{{/each}}</div>
+                  {{#if ../isGM}}
+                    <div class="pf1-ss-roster-sync-actions">
+                      {{#unless inRelations}}<button type="button" data-action="addToRelations" data-uuid="{{actorUuid}}" title="Ajouter aux Relations"><i class="fa-solid fa-handshake"></i></button>{{/unless}}
+                      {{#unless inBoarding}}<button type="button" data-action="addToBoarding" data-uuid="{{actorUuid}}" title="Ajouter aux PNJ nommés d’Abordage"><i class="fa-solid fa-person-running"></i></button>{{/unless}}
+                    </div>
+                  {{/if}}
+                </td>
+                {{#if ../isGM}}
+                  <td>
+                    {{#if manual}}
+                      <input type="hidden" name="roster.entries.{{manualIndex}}.id" value="{{manual.id}}">
+                      <input type="hidden" name="roster.entries.{{manualIndex}}.actorUuid" value="{{actorUuid}}">
+                      <input type="text" name="roster.entries.{{manualIndex}}.duty" value="{{duty}}" placeholder="Fonction libre">
+                      <select name="roster.entries.{{manualIndex}}.watch">{{#each watchChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+                      <label class="pf1-ss-checkbox"><input type="checkbox" name="roster.entries.{{manualIndex}}.highlighted" {{#if highlighted}}checked{{/if}}> Important</label>
+                      <textarea name="roster.entries.{{manualIndex}}.notes" rows="2" placeholder="Notes">{{notes}}</textarea>
+                      <button type="button" class="icon" data-action="removeManual" data-uuid="{{actorUuid}}" title="Retirer l’entrée manuelle"><i class="fa-solid fa-xmark"></i></button>
+                    {{else}}
+                      <small class="hint">Ajouté par un autre sous-système.</small>
+                    {{/if}}
+                  </td>
+                {{/if}}
+                <td><button type="button" class="icon" data-action="openActor" data-uuid="{{actorUuid}}" title="Ouvrir la fiche"><i class="fa-solid fa-up-right-from-square"></i></button></td>
+              </tr>
+            {{/each}}
+          </tbody>
+        </table>
+      </div>
+      {{#if isGM}}<footer class="form-footer"><button type="submit" class="primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer le registre</button></footer>{{/if}}
+    {{else}}
+      <p class="hint">Aucun personnage n’est encore suivi. Ajoute un Actor ou commence à l’utiliser dans Vie à bord, Abordage ou Relations.</p>
+    {{/if}}
+  </section>
+</div>

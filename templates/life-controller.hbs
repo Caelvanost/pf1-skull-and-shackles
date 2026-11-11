@@ -1,6 +1,7 @@
 <div class="pf1-ss-life-root">
   <header class="pf1-ss-toolbar">
-    <div class="pf1-ss-inline-actions"><button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Navire</button><button type="button" data-action="openEntertainmentController"><i class="fa-solid fa-masks-theater"></i> Divertissements</button></div>
+    <div class="pf1-ss-inline-actions"><button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Navire</button><button type="button" data-action="openEntertainmentController"><i class="fa-solid fa-masks-theater"></i> Divertissements</button>
+      <button type="button" data-action="openCrewRelations"><i class="fa-solid fa-people-group"></i> Relations</button></div>
     <div class="pf1-ss-toolbar-title"><strong>Jour {{life.day}}</strong> — {{actor.name}}</div>
     <button type="button" class="primary" data-action="newDay"><i class="fa-solid fa-sun"></i> Jour suivant</button>
   </header>
@@ -79,7 +80,7 @@
             <div class="pf1-ss-grid three">
               <label><span>Action diurne</span><select name="life.members.{{index}}.dayAction">{{#each dayChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
               <label><span>Mod. manuel tâche</span><input type="number" name="life.members.{{index}}.manualTaskModifier" value="{{manualTaskModifier}}" step="1"></label>
-              <label class="pf1-ss-checkbox"><input type="checkbox" name="life.members.{{index}}.friendlyHelp" {{#if friendlyHelp}}checked{{/if}}><span>Aide d’un PNJ amical (+2)</span></label>
+              <label class="pf1-ss-checkbox"><input type="checkbox" name="life.members.{{index}}.friendlyHelp" {{#if friendlyHelp}}checked{{/if}}><span>Aide d’un PNJ amical/serviable (+2 si compétence appropriée)</span></label>
             </div>
             <div class="pf1-ss-actions"><button type="button" data-action="resolveDayAction"><i class="fa-solid fa-sun"></i> Résoudre / rappeler l’action diurne</button></div>
           </div>
@@ -126,7 +127,9 @@
       <label><span>PJ</span><select name="life.influence.influencerUuid"><option value="">—</option>{{#each influenceActorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
       <label><span>PNJ ciblé</span><select name="life.influence.targetUuid"><option value="">—</option>{{#each influenceTargetChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
       <label><span>Compétence</span><select name="life.influence.skillId"><option value="">—</option>{{#each influenceSkills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} {{modDisplay}}</option>{{/each}}</select></label>
-      <label><span>Attitude actuelle</span><select name="life.influence.currentAttitude">{{#each attitudeChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label><span>Aide d’un PNJ serviable</span><select name="life.influence.helperUuid"><option value="">— aucune —</option>{{#each influenceHelperChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}} (+2)</option>{{/each}}</select></label>
+      <label><span>Attitude suivie</span><div class="pf1-ss-static-field"><strong>{{trackedInfluenceAttitude}}</strong><small>Relations d’équipage</small></div></label>
+      <label><span>Attitude déclarée / repère</span><select name="life.influence.currentAttitude">{{#each attitudeChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
       <label><span>DD</span><input type="number" name="life.influence.dc" value="{{life.influence.dc}}" min="0"></label>
       <label><span>Modificateur circonstanciel</span><input type="number" name="life.influence.manualModifier" value="{{life.influence.manualModifier}}" step="1"></label>
     </div>
