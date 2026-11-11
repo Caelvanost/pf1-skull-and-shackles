@@ -1,6 +1,6 @@
-# PF1 — Skull & Shackles v1.22.1
+# PF1 — Skull & Shackles v1.22.2
 
-**Auteur : Gélik**
+**Auteurs : Gélik, Caelvanost**
 
 ## Nouveautés v1.22 — Rotation libre des navires
 
