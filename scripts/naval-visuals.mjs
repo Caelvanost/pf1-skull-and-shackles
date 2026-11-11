@@ -74,6 +74,88 @@ function graphicsLine(g, points, { color, alpha = 0.95, width = 5 } = {}) {
   for (const p of points.slice(1)) g.lineTo?.(p.x, p.y);
 }
 
+function graphicsPolygon(g, points, { fill, fillAlpha = 0.11, stroke = fill, strokeAlpha = 0.8, strokeWidth = 2 } = {}) {
+  if (!Array.isArray(points) || points.length < 3) return;
+  const flat = points.flatMap((p) => [p.x, p.y]);
+  if (typeof g.poly === "function" && typeof g.fill === "function") {
+    g.poly(flat).fill({ color: fill, alpha: fillAlpha }).stroke({ color: stroke, alpha: strokeAlpha, width: strokeWidth });
+    return;
+  }
+  g.lineStyle?.(strokeWidth, stroke, strokeAlpha);
+  g.beginFill?.(fill, fillAlpha);
+  g.drawPolygon?.(flat);
+  g.endFill?.();
+}
+
+function normalizedTokenRotation(token, ss) {
+  const rotation = Number(token?.document?.rotation ?? token?.rotation ?? 0);
+  const offset = Number(ss?.map?.rotationOffset ?? 0);
+  return ((rotation - offset) % 360 + 360) % 360;
+}
+
+function vectorFromDegrees(degrees) {
+  const radians = Number(degrees ?? 0) * Math.PI / 180;
+  return { dx: Math.sin(radians), dy: -Math.cos(radians) };
+}
+
+function rotatedVector(vector, degrees) {
+  const radians = Number(degrees ?? 0) * Math.PI / 180;
+  const cos = Math.cos(radians);
+  const sin = Math.sin(radians);
+  return {
+    dx: vector.dx * cos - vector.dy * sin,
+    dy: vector.dx * sin + vector.dy * cos
+  };
+}
+
+function pointAt(center, vector, distance) {
+  return {
+    x: center.x + vector.dx * distance,
+    y: center.y + vector.dy * distance
+  };
+}
+
+function drawSectorWedge(container, center, direction, innerRadius, outerRadius, color) {
+  const left = rotatedVector(direction, -45);
+  const right = rotatedVector(direction, 45);
+  const points = [
+    pointAt(center, left, innerRadius),
+    pointAt(center, left, outerRadius),
+    pointAt(center, right, outerRadius),
+    pointAt(center, right, innerRadius)
+  ];
+  const g = new PIXI.Graphics();
+  graphicsPolygon(g, points, {
+    fill: color,
+    fillAlpha: 0.095,
+    stroke: color,
+    strokeAlpha: 0.78,
+    strokeWidth: 2
+  });
+  container.addChild(g);
+}
+
+function drawSectorZones(container, token, ss, scale) {
+  if (!ss.map?.showZones) return;
+  const rect = tokenRect(token, scale);
+  const bowRotation = normalizedTokenRotation(token, ss);
+  const bow = vectorFromDegrees(bowRotation);
+  const starboard = rightVector(bow);
+  const stern = { dx: -bow.dx, dy: -bow.dy };
+  const port = { dx: -starboard.dx, dy: -starboard.dy };
+
+  // L'empreinte Foundry reste approximative. Les secteurs sont donc construits
+  // autour du centre du token et suivent uniquement son axe visuel réel.
+  const footprintRadius = Math.max(rect.w, rect.h) * 0.5;
+  const innerRadius = Math.max(scale.size * 0.45, footprintRadius * 0.72);
+  const outerRadius = innerRadius + Math.max(scale.pixels * 0.8, scale.size * 0.85);
+
+  drawSectorWedge(container, rect.center, bow, innerRadius, outerRadius, COLORS.bow);
+  drawSectorWedge(container, rect.center, stern, innerRadius, outerRadius, COLORS.stern);
+  drawSectorWedge(container, rect.center, port, innerRadius, outerRadius, COLORS.port);
+  drawSectorWedge(container, rect.center, starboard, innerRadius, outerRadius, COLORS.starboard);
+}
+
 function rightVector(forward) {
   return { dx: -forward.dy, dy: forward.dx };
 }
@@ -174,7 +256,7 @@ export function refreshNavalVisualOverlay(actor = null) {
   if (!token || !scale.valid) return;
 
   const ss = getSSShipData(actor);
-  if (!ss.map?.showReachable && !ss.map?.shearPlan?.active) return;
+  if (!ss.map?.showZones && !ss.map?.showReachable && !ss.map?.shearPlan?.active) return;
 
   const container = new PIXI.Container();
   container.name = OVERLAY_NAME;
@@ -185,6 +267,7 @@ export function refreshNavalVisualOverlay(actor = null) {
   canvas.interface.addChild(container);
   overlay = container;
 
+  drawSectorZones(container, token, ss, scale);
   drawReachable(container, token, actor, ss, scale);
   drawShearPlan(container, ss, scale);
 }
