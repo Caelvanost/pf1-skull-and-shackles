@@ -1,5 +1,19 @@
 # PF1 — Skull & Shackles v1.20.0
 
+## Nouveautés v1.20 — Quarts, relève et fatigue
+
+La v1.20 ajoute un contrôleur **Quarts & fatigue** pour organiser les groupes de relève et suivre la disponibilité de l’équipage.
+
+- Le quart actif et la rotation sont déduits des affectations du **Registre d’équipage**.
+- Quatre niveaux de fatigue générale sont suivis : **Reposé**, **Fatigué**, **Épuisé** et **Hors service**.
+- La fatigue générale applique un modificateur de **0 / −1 / −2 / −4** au sous-système maison de combat d’équipage d’Abordage.
+- La fatigue individuelle des personnages nommés est également suivie et intervient dans leur jet maison de survie lorsqu’ils sont exposés pendant un abordage.
+- **Branle-bas de combat** augmente la fatigue générale et celle des personnages rappelés alors qu’ils n’étaient pas de quart.
+- **Cycle de repos** réduit la fatigue générale et permet aux personnages hors quart de récupérer.
+- La fatigue déjà signalée par **Vie à bord** est importée sans écraser les données existantes.
+- Le contrôleur conserve un historique des relèves et ajustements et peut publier un résumé dans le chat.
+- Cette mécanique est explicitement une **règle maison** : elle n’ajoute aucune condition PF1 ni aucun malus officiel de navigation automatiquement.
+
 ## Nouveautés v1.19 — Registre d’équipage consolidé
 
 La v1.19 ajoute un contrôleur **Registre d’équipage** destiné à centraliser les PNJ et PJ importants du navire sans remplacer les sous-systèmes existants.
