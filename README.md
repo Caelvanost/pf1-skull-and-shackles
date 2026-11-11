@@ -1,5 +1,7 @@
 # PF1 — Skull & Shackles v1.12.0
 
+
+
 ## Nouveautés v1.9 — Vie à bord multijoueur
 
 - Le HUD affiche désormais la **tâche journalière** du personnage possédé par le joueur.
@@ -26,6 +28,8 @@ Module complémentaire pour **Foundry VTT v13** et le système **Pathfinder 1 (P
 2. Vérifier que `Data/modules/pf1-skull-and-shackles/module.json` existe directement.
 3. Activer **PF1 — Skull & Shackles** dans un monde PF1.
 4. Recharger le monde.
+
+
 
 ## Nouveau en v1.6 — Voyages, poursuites et rencontres en mer
 
@@ -167,11 +171,14 @@ Le contrôleur **Piraterie & Prises** gère les cinq proies de l’évènement r
 
 Il inclut également un bouton de versement de la **part de l’équipage** (−1 Butin lors d’une vente de Butin), le calcul de la capacité des cales, la création/l’association d’un Vehicle PF1 pour la proie et un suivi indicatif des prisonniers et rançons.
 
+
 ## Recrutement de flotte (v1.10)
 Le contrôleur **Recrutement de flotte** automatise la phase de constitution de la flotte : mercenaires, cinq ports de recrutement, délais, DD 30, coûts, réduction par Déshonneur et alliés de campagne. Ouvre-le depuis la Passerelle, la fiche Flotte ou la macro `S&S — Recrutement de flotte`.
 
+
 ## v1.11 — HUD déplaçable et pétardage
 Le HUD de ressources peut être déplacé en saisissant sa barre de titre ; sa position est mémorisée localement pour chaque utilisateur. Le contrôleur Pétardage & identité gère le chantier des Pétards du Frêle et conserve un historique des changements d’identité du navire.
+
 
 ## v1.12 — Compendiums de campagne
 

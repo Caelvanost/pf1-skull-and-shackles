@@ -1,0 +1,517 @@
+<div class="pf1-ss-controller">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-anchor"></i> {{actor.name}}</h2>
+      <div class="pf1-ss-badges">
+        {{#each status}}
+          <span class="pf1-ss-badge {{className}}">{{label}}</span>
+        {{/each}}
+      </div>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" class="primary" data-action="openDashboard"><i class="fa-solid fa-compass"></i> Passerelle</button>
+      <button type="button" data-action="openNavalMap"><i class="fa-solid fa-map"></i> Carte navale</button>
+      <button type="button" data-action="openHazards"><i class="fa-solid fa-cloud-bolt"></i> Dangers & Régate</button>
+      <button type="button" data-action="openImprovements"><i class="fa-solid fa-hammer"></i> Améliorations</button>
+      <button type="button" data-action="openVoyage"><i class="fa-solid fa-route"></i> Voyages &amp; Poursuites</button>
+      <button type="button" data-action="openPiracy"><i class="fa-solid fa-skull-crossbones"></i> Piraterie &amp; Prises</button>
+      <button type="button" data-action="openVehicleSheet"><i class="fa-solid fa-sheet-plastic"></i> Fiche PF1</button>
+      <button type="button" data-action="openSiegeController"><i class="fa-solid fa-crosshairs"></i> Artillerie</button>
+      <button type="button" data-action="openReputationController"><i class="fa-solid fa-skull-crossbones"></i> Réputation</button>
+      <button type="button" data-action="openFleetController"><i class="fa-solid fa-flag"></i> Flotte</button>
+      <button type="button" data-action="openFleetRecruitment"><i class="fa-solid fa-users-viewfinder"></i> Recrutement</button>
+      <button type="button" data-action="openDisguise"><i class="fa-solid fa-masks-theater"></i> Pétardage</button>
+      <button type="button" data-action="openLifeController"><i class="fa-solid fa-bottle-droplet"></i> Vie à bord</button>
+      <button type="button" data-action="openEntertainmentController"><i class="fa-solid fa-masks-theater"></i> Divertissements</button>
+      <button type="button" data-action="openBoardingController"><i class="fa-solid fa-person-running"></i> Abordage</button>
+      <button type="button" data-action="openLibraryController"><i class="fa-solid fa-book-open"></i> Bibliothèque</button>
+      <button type="button" data-action="openShipWizard"><i class="fa-solid fa-wand-magic-sparkles"></i> Assistant</button>
+      <button type="button" data-action="initializeSailingShip"><i class="fa-solid fa-sailboat"></i> Profil bateau à voiles</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-compass"></i> Pilote et navigation</h3>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Pilote</span>
+        <select name="native.driverUuid">
+          <option value="">— Aucun —</option>
+          {{#each pilotChoices}}
+            <option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Compétence de navigation</span>
+        <select name="native.driverSkill">
+          <option value="">Sagesse</option>
+          {{#each skillChoices}}
+            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{modDisplay}})</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>DD normal du test</span>
+        <input type="number" name="ss.navigation.dc" value="{{ss.navigation.dc}}" min="0" step="1" data-dtype="Number">
+      </label>
+
+      <label>
+        <span>Propulsion utilisée</span>
+        <select name="ss.navigation.propulsionMode">
+          {{#each propulsionChoices}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label>
+        <span>Modificateur circonstanciel</span>
+        <input type="number" name="ss.navigation.manualModifier" value="{{ss.navigation.manualModifier}}" step="1" data-dtype="Number">
+      </label>
+
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.navigation.aid" {{#if ss.navigation.aid}}checked{{/if}}>
+        <span>Aider quelqu’un réussi (+2)</span>
+      </label>
+
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.navigation.experiencedDriver" {{#if ss.navigation.experiencedDriver}}checked{{/if}}>
+        <span>Pilote avec Conducteur expérimenté (réduit l’inertie de 1 case)</span>
+      </label>
+
+      <label>
+        <span>Cap du navire</span>
+        <select name="ss.navigation.heading">
+          {{#each directionChoices}}
+            <option value="{{value}}" {{#if headingSelected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.navigation.windwardManual" {{#if ss.navigation.windwardManual}}checked{{/if}}>
+        <span>Forcer « au vent » (+2 au test d’ascendant)</span>
+      </label>
+    </div>
+
+    <div class="pf1-ss-nav-summary">
+      <div><strong>Compétence :</strong> {{nav.driver.skillName}} ({{displays.driverModifier}})</div>
+      <div><strong>Ajustements :</strong> {{displays.navigationAdjustment}}</div>
+      <div><strong>Total :</strong> {{displays.navigationTotal}}</div>
+      <div><strong>DD actuel :</strong> {{navDc.dc}}{{#if navDc.forced}} (imposé){{/if}}</div>
+    </div>
+
+    {{#if navDc.forced}}
+      <p class="pf1-ss-alert warning">
+        <i class="fa-solid fa-crosshairs"></i>
+        Le prochain test de navigation utilise le DD <strong>{{navDc.dc}}</strong>{{#if navDc.source}}, imposé par <strong>{{navDc.source}}</strong>{{/if}}.
+        <button type="button" class="inline" data-action="clearForcedDc">Supprimer</button>
+      </p>
+    {{/if}}
+
+    {{#if nav.impossibleReason}}
+      <p class="pf1-ss-alert danger"><i class="fa-solid fa-triangle-exclamation"></i> {{nav.impossibleReason}}</p>
+    {{/if}}
+
+    <div class="pf1-ss-actions">
+      <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+      <button type="button" class="primary" data-action="rollNavigation"><i class="fa-solid fa-dice-d20"></i> Test de navigation</button>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-wind-panel">
+    <h3><i class="fa-solid fa-wind"></i> Vent et ascendant</h3>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Le vent souffle vers</span>
+        <select name="world.windDirection">
+          {{#each directionChoices}}
+            <option value="{{value}}" {{#if windSelected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+
+      <div class="pf1-ss-wind-actions">
+        <span>Direction aléatoire</span>
+        <button type="button" data-action="randomizeWind"><i class="fa-solid fa-dice-d4"></i> Lancer 1d4</button>
+      </div>
+    </div>
+
+    <div class="pf1-ss-wind-summary">
+      <div><span>Cap</span><strong>{{wind.headingLabel}}</strong></div>
+      <div><span>Vent</span><strong>vers {{wind.windDirectionLabel}}</strong></div>
+      <div><span>Vent arrière</span><strong>{{#if wind.withWind}}Oui ×2 vitesse max{{else}}Non{{/if}}</strong></div>
+      <div><span>Vent debout</span><strong>{{#if wind.headToWind}}Oui{{else}}Non{{/if}}</strong></div>
+    </div>
+
+    {{#if wind.headToWind}}
+      <p class="pf1-ss-alert danger"><i class="fa-solid fa-triangle-exclamation"></i> La proue pointe contre le vent. Les actions normales de navigation sont bloquées ; utilise <strong>Incontrôlé</strong> puis corrige le cap.</p>
+    {{/if}}
+    {{#if wind.withWind}}
+      <p class="pf1-ss-alert ok"><i class="fa-solid fa-wind"></i> Le navire suit le vent : sa vitesse maximale de propulsion par le vent est doublée.</p>
+    {{/if}}
+
+    {{#if targetVehicle}}
+      <p class="hint"><strong>Cible actuelle :</strong> {{targetVehicle.name}}. {{#if windward}}{{windward.note}}{{/if}}</p>
+      {{#if windward.actorBonus}}
+        <p class="pf1-ss-alert ok"><strong>{{actor.name}}</strong> bénéficie de +2 au test opposé d’ascendant.</p>
+      {{/if}}
+      {{#if windward.targetBonus}}
+        <p class="pf1-ss-alert warning"><strong>{{targetVehicle.name}}</strong> bénéficie de +2 au test opposé d’ascendant.</p>
+      {{/if}}
+    {{else}}
+      <p class="hint">Cible exactement un token Vehicle adverse pour calculer automatiquement qui se hâle au vent et lancer le test opposé.</p>
+    {{/if}}
+
+    <div class="pf1-ss-actions">
+      <button type="button" class="primary" data-action="rollAdvantage"><i class="fa-solid fa-flag"></i> Déterminer l’ascendant</button>
+    </div>
+
+    {{#if advantageCurrent}}
+      <div class="pf1-ss-last-advantage">
+        <strong>Dernier résultat{{#if currentRound}} — round {{currentRound}}{{/if}} :</strong>
+        {{#if ss.advantage.opponentName}} contre {{ss.advantage.opponentName}},{{/if}}
+        {{ss.advantage.ownTotal}} à {{ss.advantage.opponentTotal}}.
+        {{#if ss.advantage.moveSquares}}
+          Ascendant gagné : {{ss.advantage.moveSquares}} case(s) libre(s), rotation jusqu’à {{ss.advantage.rotationDegrees}}°.
+        {{/if}}
+      </div>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-movement-panel">
+    <h3><i class="fa-solid fa-ship"></i> Actions de navigation</h3>
+    <p class="hint">Le module résout le test et met à jour la <strong>vitesse actuelle</strong>. Le déplacement et la rotation du token restent manuels pour respecter la grille navale de 9 m.</p>
+
+    <div class="pf1-ss-movement-summary">
+      <div><span>Vitesse actuelle</span><strong>{{speed.current}}</strong><small>{{speed.currentSquares}}</small></div>
+      <div><span>Accélération</span><strong>{{speed.acceleration}}</strong><small>{{speed.accelerationSquares}}</small></div>
+      <div><span>Max. effectif</span><strong>{{speed.effectiveMaximum}}</strong></div>
+      <div><span>Malus virage actuel</span><strong>{{displays.turnPenalty}}</strong></div>
+    </div>
+
+    <div class="pf1-ss-maneuver-grid">
+      <button type="button" data-action="moveAhead">
+        <i class="fa-solid fa-forward"></i><strong>En avant toute !</strong><small>Action simple — accélérer</small>
+      </button>
+      <button type="button" data-action="turnPort">
+        <i class="fa-solid fa-rotate-left"></i><strong>Bâbord toute !</strong><small>Action simple — virage à gauche</small>
+      </button>
+      <button type="button" data-action="turnStarboard">
+        <i class="fa-solid fa-rotate-right"></i><strong>Tribord toute !</strong><small>Action simple — virage à droite</small>
+      </button>
+      <button type="button" data-action="heaveTo">
+        <i class="fa-solid fa-gauge-low"></i><strong>À la cape !</strong><small>Action simple — ralentir</small>
+      </button>
+      <button type="button" data-action="makeWay">
+        <i class="fa-solid fa-shuffle"></i><strong>Faites place !</strong><small>Action simple — gêner l’adversaire</small>
+      </button>
+      <button type="button" data-action="holdCourse">
+        <i class="fa-solid fa-arrow-up"></i><strong>Maintenez le cap !</strong><small>Action de mouvement</small>
+      </button>
+      <button type="button" data-action="reverse">
+        <i class="fa-solid fa-backward"></i><strong>Arrière toute !</strong><small>Action complexe — vitesse 0 requise</small>
+      </button>
+      <button type="button" class="danger" data-action="uncontrolled">
+        <i class="fa-solid fa-triangle-exclamation"></i><strong>Incontrôlé</strong><small>Aucun test — ralentit automatiquement</small>
+      </button>
+    </div>
+
+    <p class="hint"><strong>Faites place ! :</strong> cible exactement un token Vehicle adverse avant de cliquer pour que le DD obtenu soit appliqué automatiquement à son prochain test de navigation.</p>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-combat-panel">
+    <h3><i class="fa-solid fa-skull-crossbones"></i> Combat entre navires</h3>
+    <p class="hint">Cible exactement un token <strong>Vehicle</strong> adverse pour les manœuvres offensives. Le BMO/DMD du Vehicle PF1 inclut déjà le bonus du pilote ; le module ajoute les ajustements propres à Skull & Shackles.</p>
+
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Dégâts d'éperonnage de base</span>
+        <input type="text" name="ss.ramDamage" value="{{ss.ramDamage}}" placeholder="8d8">
+      </label>
+      <label>
+        <span>Modificateur de manœuvre</span>
+        <input type="number" name="ss.combat.maneuverModifier" value="{{ss.combat.maneuverModifier}}" step="1" data-dtype="Number">
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.combat.ramEquipped" {{#if ss.combat.ramEquipped}}checked{{/if}}>
+        <span>Éperon installé (+2d8 aux dégâts d'éperonnage)</span>
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.combat.autoApplyRamDamage" {{#if ss.combat.autoApplyRamDamage}}checked{{/if}}>
+        <span>Appliquer automatiquement les dégâts d'éperonnage à la structure (solidité déduite)</span>
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.combat.usesCorvus" {{#if ss.combat.usesCorvus}}checked{{/if}}>
+        <span>Abordage avec un corbeau (pas pris au dépourvu au 1er round)</span>
+      </label>
+    </div>
+
+    <div class="pf1-ss-nav-summary">
+      <div><strong>BMO naval :</strong> {{displays.maneuverTotal}}</div>
+      <div><strong>DMD :</strong> {{combat.cmd}}</div>
+      <div><strong>Agrippé :</strong> {{#if ss.combat.grappledWithUuid}}Oui — {{ss.combat.grappledWithName}}{{else}}Non{{/if}}</div>
+      <div><strong>Cible :</strong> {{#if targetVehicle}}{{targetVehicle.name}}{{else}}—{{/if}}</div>
+    </div>
+
+    {{#if targetVehicle}}
+      <div class="pf1-ss-target-summary">
+        <strong>{{targetVehicle.name}}</strong> — DMD {{targetCombat.cmd}}, PV {{targetState.hpValue}} / {{targetState.hpMax}}, vitesse {{targetSpeed}}.
+        {{#if proximity}}<br><small>{{proximity.note}}</small>{{/if}}
+      </div>
+    {{/if}}
+
+    <div class="pf1-ss-maneuver-grid pf1-ss-naval-combat-grid">
+      <button type="button" class="danger" data-action="ramShip">
+        <i class="fa-solid fa-burst"></i><strong>Éperonner</strong><small>BMO contre DMD — 9 m de déplacement minimum</small>
+      </button>
+      <button type="button" data-action="grappleShip">
+        <i class="fa-solid fa-link"></i><strong>Agripper</strong><small>BMO contre DMD — à 9 m ou moins</small>
+      </button>
+      <button type="button" data-action="mutualGrapple">
+        <i class="fa-solid fa-handshake"></i><strong>Agrippement mutuel</strong><small>Réussite automatique si les deux pilotes le veulent</small>
+      </button>
+      <button type="button" data-action="breakGrapple">
+        <i class="fa-solid fa-link-slash"></i><strong>Se libérer</strong><small>BMO contre DMD avec −4</small>
+      </button>
+      <button type="button" class="primary" data-action="boardShip">
+        <i class="fa-solid fa-person-running"></i><strong>Aborder</strong><small>Navires agrippés requis</small>
+      </button>
+      <button type="button" data-action="shearOars">
+        <i class="fa-solid fa-scissors"></i><strong>Cisailler les rames</strong><small>Brise les rames d'un navire propulsé par muscles</small>
+      </button>
+    </div>
+
+    {{#if ss.combat.grappledWithUuid}}
+      <p class="pf1-ss-alert warning"><i class="fa-solid fa-link"></i> <strong>{{actor.name}}</strong> est agrippé à <strong>{{ss.combat.grappledWithName}}</strong>. Les actions normales de navigation sont bloquées jusqu'à libération.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-damage-panel">
+    <h3><i class="fa-solid fa-fire"></i> Dégâts, incendies et réparations</h3>
+    <p class="hint">Cette section applique les dégâts directement au Vehicle et à ses composants Skull & Shackles. Les voiles doublent automatiquement les dégâts de feu et d'acide ; la solidité est déduite sauf si tu choisis de l'ignorer.</p>
+
+    <div class="pf1-ss-component-grid">
+      <div><span>Structure</span><strong>{{components.structure.value}} / {{components.structure.max}}</strong><small>Solidité {{components.structure.hardness}} — CA {{components.structure.ac}}</small></div>
+      <div><span>Voiles</span><strong>{{components.sails.value}} / {{components.sails.max}}</strong><small>Solidité {{components.sails.hardness}} — CA {{components.sails.ac}}</small></div>
+      <div><span>Rames</span><strong>{{components.oars.value}} / {{components.oars.max}}</strong><small>Solidité {{components.oars.hardness}} — CA {{components.oars.ac}}</small></div>
+      <div><span>Pilotage</span><strong>{{components.steering.value}} / {{components.steering.max}}</strong><small>Solidité {{components.steering.hardness}} — CA {{components.steering.ac}}</small></div>
+    </div>
+
+    <h4><i class="fa-solid fa-burst"></i> Dégâts ciblés</h4>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Formule de dégâts</span>
+        <input type="text" name="ss.damage.formula" value="{{ss.damage.formula}}" placeholder="3d8">
+      </label>
+      <label>
+        <span>Composant touché</span>
+        <select name="ss.damage.component">
+          {{#each componentChoices}}
+            <option value="{{value}}" {{#if damageSelected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Type de dégâts</span>
+        <select name="ss.damage.type">
+          {{#each damageTypeChoices}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.damage.ignoreHardness" {{#if ss.damage.ignoreHardness}}checked{{/if}}>
+        <span>Ignorer la solidité</span>
+      </label>
+    </div>
+    <div class="pf1-ss-actions">
+      <button type="button" class="danger" data-action="applyDamage"><i class="fa-solid fa-burst"></i> Lancer et appliquer les dégâts</button>
+    </div>
+
+    <h4><i class="fa-solid fa-fire-flame-curved"></i> Incendie</h4>
+    <div class="pf1-ss-fire-summary">
+      <div><span>État</span><strong>{{#if ss.fire.active}}EN FEU{{else}}Pas d'incendie{{/if}}</strong></div>
+      <div><span>Rounds écoulés</span><strong>{{ss.fire.roundsElapsed}}</strong></div>
+      <div><span>Sauvegarde du navire</span><strong>{{fireSave}}</strong></div>
+      <div><span>DD d'extinction actuel</span><strong>{{fireExtinguishDc}}</strong></div>
+    </div>
+    {{#if ss.fire.active}}
+      <p class="pf1-ss-alert danger"><i class="fa-solid fa-fire"></i> Chaque round, l'incendie inflige <strong>2d6 dégâts de feu en ignorant la solidité</strong>. Une tentative d'extinction est une action complexe de tout l'équipage et force le navire à être <strong>Incontrôlé</strong> pendant ce round.</p>
+    {{/if}}
+    <div class="pf1-ss-actions wrap">
+      <button type="button" data-action="igniteShip"><i class="fa-solid fa-fire"></i> Déclarer un incendie</button>
+      <button type="button" class="danger" data-action="resolveFireRound"><i class="fa-solid fa-fire-flame-curved"></i> Résoudre 1 round de feu</button>
+      <button type="button" class="primary" data-action="extinguishShip"><i class="fa-solid fa-bucket"></i> Tenter d'éteindre</button>
+    </div>
+
+    <h4><i class="fa-solid fa-hammer"></i> Réparations</h4>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Composant à réparer</span>
+        <select name="ss.repair.component">
+          {{#each componentChoices}}
+            <option value="{{value}}" {{#if repairSelected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Bonus au test de réparation</span>
+        <input type="number" name="ss.repair.modifier" value="{{ss.repair.modifier}}" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>Niveau de lanceur — réparation intégrale</span>
+        <input type="number" name="ss.repair.casterLevel" value="{{ss.repair.casterLevel}}" min="1" step="1" data-dtype="Number">
+      </label>
+    </div>
+    <div class="pf1-ss-actions wrap">
+      <button type="button" data-action="ordinaryRepair"><i class="fa-solid fa-hammer"></i> Réparation ordinaire — DD 10</button>
+      <button type="button" class="primary" data-action="makeWholeRepair"><i class="fa-solid fa-wand-magic-sparkles"></i> Réparation intégrale — 1d6/NLS</button>
+    </div>
+    <p class="hint">Réparation ordinaire : une journée, 10 po de matériaux, 10 PV sur réussite et 5 PV sur échec. Une réparation non-magique ne peut normalement pas sauver une coque déjà en plein naufrage.</p>
+
+    {{#if state.sinking}}
+      <p class="pf1-ss-alert danger"><i class="fa-solid fa-water"></i> <strong>En plein naufrage :</strong> {{state.sinkingRoundsRemaining}} round(s) avant de couler. Le compteur baisse automatiquement à chaque changement de round du Combat Tracker. Chaque coup supplémentaire infligeant plus de 25 dégâts effectifs retire aussi 1 round.</p>
+    {{/if}}
+    {{#if state.sunk}}
+      <p class="pf1-ss-alert danger"><i class="fa-solid fa-skull-crossbones"></i> <strong>Coulé :</strong> le navire est détruit et ne peut plus être réparé.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-ship"></i> Navire</h3>
+    <div class="pf1-ss-stats">
+      <div><span>PV</span><strong>{{state.hpValue}} / {{state.hpMax}}</strong></div>
+      <div><span>Solidité</span><strong>{{actor.system.attributes.hardness.total}}</strong></div>
+      <div><span>CA effective</span><strong>{{combat.ac}}</strong></div>
+      <div><span>Sauvegarde effective</span><strong>{{combat.save}}</strong></div>
+      <div><span>BMO effectif</span><strong>{{combat.cmb}}</strong></div>
+      <div><span>DMD effective</span><strong>{{combat.cmd}}</strong></div>
+      <div><span>Éperonnage</span><strong>{{#if ss.ramDamage}}{{ss.ramDamage}}{{else}}—{{/if}}</strong></div>
+      <div><span>Ascendant</span><strong>{{#if state.canTakeAdvantage}}Possible{{else}}Impossible{{/if}}</strong></div>
+    </div>
+    {{#if state.hullBroken}}
+      <p class="pf1-ss-alert warning">État <strong>Brisé</strong> : −2 à la CA, navigation, sauvegardes et manœuvres offensives ; vitesse maximale réduite de moitié ; impossible de prendre l’ascendant.</p>
+    {{/if}}
+    {{#if state.sinking}}
+      <p class="pf1-ss-alert danger">Le navire est <strong>en plein naufrage</strong> : il ne peut plus se déplacer ni attaquer. Il reste {{state.sinkingRoundsRemaining}} round(s).</p>
+    {{/if}}
+    {{#if state.sunk}}
+      <p class="pf1-ss-alert danger">Le navire a <strong>coulé</strong> : il est détruit.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-wind"></i> Déplacement et propulsion</h3>
+    <div class="pf1-ss-stats">
+      <div><span>Vitesse actuelle</span><strong>{{speed.current}}</strong></div>
+      <div><span>Vitesse maximale</span><strong>{{speed.maximum}}</strong></div>
+      <div><span>Maximum effectif</span><strong>{{speed.effectiveMaximum}}</strong></div>
+      <div><span>Accélération</span><strong>{{speed.acceleration}}</strong></div>
+    </div>
+
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>PV des voiles</span>
+        <input type="number" name="ss.sails.value" value="{{ss.sails.value}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>PV max des voiles</span>
+        <input type="number" name="ss.sails.max" value="{{ss.sails.max}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>Cases de voilure (1,50 m)</span>
+        <input type="number" name="ss.sails.squares" value="{{ss.sails.squares}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>Solidité des voiles</span>
+        <input type="number" name="ss.sails.hardness" value="{{ss.sails.hardness}}" min="0" step="1" data-dtype="Number">
+      </label>
+    </div>
+
+    <h4><i class="fa-solid fa-grip-lines"></i> Rames</h4>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>PV des rames</span>
+        <input type="number" name="ss.oars.value" value="{{ss.oars.value}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>PV max des rames</span>
+        <input type="number" name="ss.oars.max" value="{{ss.oars.max}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>Nombre de rames</span>
+        <input type="number" name="ss.oars.count" value="{{ss.oars.count}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>Solidité des rames</span>
+        <input type="number" name="ss.oars.hardness" value="{{ss.oars.hardness}}" min="0" step="1" data-dtype="Number">
+      </label>
+    </div>
+
+    {{#if state.sailsBroken}}
+      <p class="pf1-ss-alert warning">Les voiles sont <strong>brisées</strong> : la propulsion concernée réduit la vitesse maximale de moitié et ne permet plus de prendre l’ascendant.</p>
+    {{/if}}
+    {{#if state.oarsBroken}}
+      <p class="pf1-ss-alert warning">Les rames sont <strong>brisées</strong> : la propulsion concernée réduit la vitesse maximale de moitié et ne permet plus de prendre l’ascendant.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-dharmachakra"></i> Dispositif de pilotage</h3>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Type</span>
+        <select name="ss.steering.type">
+          {{#each steeringChoices}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>CA</span>
+        <input type="number" name="ss.steering.ac" value="{{ss.steering.ac}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>PV actuels</span>
+        <input type="number" name="ss.steering.value" value="{{ss.steering.value}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>PV maximum</span>
+        <input type="number" name="ss.steering.max" value="{{ss.steering.max}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label>
+        <span>Solidité</span>
+        <input type="number" name="ss.steering.hardness" value="{{ss.steering.hardness}}" min="0" step="1" data-dtype="Number">
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.steering.broken" {{#if ss.steering.broken}}checked{{/if}}>
+        <span>Forcer l'état Brisé (−10 navigation)</span>
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="ss.steering.destroyed" {{#if ss.steering.destroyed}}checked{{/if}}>
+        <span>Forcer l'état Détruit (pilotage impossible)</span>
+      </label>
+    </div>
+    {{#if state.steeringBroken}}
+      <p class="pf1-ss-alert warning">Le dispositif de pilotage est <strong>Brisé</strong> : −10 aux tests de navigation.</p>
+    {{/if}}
+    {{#if state.steeringDestroyed}}
+      <p class="pf1-ss-alert danger">Le dispositif de pilotage est <strong>Détruit</strong> : impossible de piloter le navire avant réparation.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel compact">
+    <h3><i class="fa-solid fa-users"></i> Équipage</h3>
+    <p><strong>{{state.crewCurrent}}</strong> présents / <strong>{{state.crewFull}}</strong> équipage complet — minimum pour piloter : <strong>{{state.crewMinimum}}</strong>.</p>
+    {{#if state.crewIncomplete}}
+      <p class="pf1-ss-alert warning">Équipage incomplet : −10 aux tests de navigation.</p>
+    {{/if}}
+    {{#if state.crewInsufficient}}
+      <p class="pf1-ss-alert danger">Moins de la moitié de l’équipage : seule l’action <strong>Incontrôlé</strong> est possible.</p>
+    {{/if}}
+  </section>
+</div>

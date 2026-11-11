@@ -1,0 +1,46 @@
+{
+  "id": "pf1-skull-and-shackles",
+  "title": "PF1 — Skull & Shackles",
+  "description": "Complément Pathfinder 1 pour Skull & Shackles : HUD Butin/Infamie/Déshonneur déplaçable, pétardage et identité des navires, recrutement de flotte, vie à bord multijoueur, jeux multijoueurs, abordage tactique, passerelle, navigation et combat naval, dangers et Régate, améliorations, voyages, piraterie, dégâts, artillerie, réputation, flottes et vie à bord.",
+  "version": "1.12.0",
+  "authors": [
+    {
+      "name": "Module local Skull & Shackles"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "relationships": {
+    "systems": [
+      {
+        "id": "pf1",
+        "type": "system",
+        "compatibility": {
+          "minimum": "11.0",
+          "verified": "11.11"
+        }
+      }
+    ]
+  },
+  "esmodules": [
+    "scripts/main.mjs"
+  ],
+  "styles": [
+    "styles/skull-and-shackles.css"
+  ],
+  "languages": [
+    {
+      "lang": "fr",
+      "name": "Français",
+      "path": "lang/fr.json"
+    }
+  ],
+  "url": "https://github.com/Caelvanost/pf1-skull-and-shackles",
+  "manifest": "https://raw.githubusercontent.com/Caelvanost/pf1-skull-and-shackles/main/module.json",
+  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.12.0/pf1-skull-and-shackles-v1.12.0.zip",
+  "readme": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/README.md",
+  "changelog": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/CHANGELOG.md",
+  "bugs": "https://github.com/Caelvanost/pf1-skull-and-shackles/issues"
+}

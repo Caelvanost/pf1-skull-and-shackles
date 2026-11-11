@@ -1,0 +1,164 @@
+<div class="pf1-ss-life-root">
+  <header class="pf1-ss-toolbar">
+    <div class="pf1-ss-inline-actions"><button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Navire</button><button type="button" data-action="openEntertainmentController"><i class="fa-solid fa-masks-theater"></i> Divertissements</button></div>
+    <div class="pf1-ss-toolbar-title"><strong>Jour {{life.day}}</strong> — {{actor.name}}</div>
+    <button type="button" class="primary" data-action="newDay"><i class="fa-solid fa-sun"></i> Jour suivant</button>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-bell"></i> Routine de l’Absinthe</h3>
+      <button type="button" data-action="randomizeKroop"><i class="fa-solid fa-wine-bottle"></i> 50 % Kroop</button>
+    </div>
+    <div class="pf1-ss-grid four">
+      <label><span>Jour</span><input type="number" name="life.day" value="{{life.day}}" min="1" step="1"></label>
+      <label class="pf1-ss-checkbox"><input type="checkbox" name="life.absintheMode" {{#if life.absintheMode}}checked{{/if}}><span>Règle d’effectif de l’Absinthe</span></label>
+      <label><span>Seuil d’effectif</span><input type="number" name="life.absintheCrewThreshold" value="{{life.absintheCrewThreshold}}" min="1"></label>
+      <label><span>Modificateur manuel aux DD</span><input type="number" name="life.taskDcManualModifier" value="{{life.taskDcManualModifier}}" step="1"></label>
+    </div>
+    <div class="pf1-ss-nav-summary">
+      <div><strong>Équipage actuel :</strong> {{crewCurrent}}</div>
+      <div><strong>Kroop :</strong> {{kroopStatus}}</div>
+      <div><strong>Mod. total aux DD de tâche :</strong> {{taskDcTotalMod}}</div>
+      <div><strong>Sous-effectif :</strong> {{#if understaffedBonus}}+2 DD{{else}}non{{/if}}</div>
+    </div>
+    <label class="pf1-ss-checkbox"><input type="checkbox" name="life.kroopDrunk" {{#if life.kroopDrunk}}checked{{/if}}><span>Forcer Kroop complètement saoul aujourd’hui</span></label>
+    <p class="hint">Sur l’Absinthe, si l’équipage tombe sous 20 membres, les DD des tâches augmentent de +2. Kroop est complètement saoul 50 % des jours.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-people-group"></i> PJ et tâches quotidiennes</h3>
+      <div class="pf1-ss-inline-actions">
+        <button type="button" data-action="assignAllTasks"><i class="fa-solid fa-dice"></i> Tirer toutes les tâches</button>
+        <button type="button" data-action="addMember"><i class="fa-solid fa-plus"></i> Ajouter un PJ</button>
+      </div>
+    </div>
+
+    {{#if members.length}}
+      <div class="pf1-ss-life-members">
+      {{#each members}}
+        <article class="pf1-ss-life-member" data-member-id="{{id}}">
+          <input type="hidden" name="life.members.{{index}}.id" value="{{id}}">
+          <div class="pf1-ss-life-member-head">
+            <label class="grow"><span>Personnage</span><select name="life.members.{{index}}.actorUuid">
+              <option value="">— choisir —</option>
+              {{#each actorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+            </select></label>
+            <label><span>Poste</span><select name="life.members.{{index}}.role">
+              {{#each roleChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+            </select></label>
+            <button type="button" class="danger" data-action="removeMember" title="Retirer"><i class="fa-solid fa-trash"></i></button>
+          </div>
+
+          <div class="pf1-ss-life-status">
+            <span class="{{#if fatigued}}bad{{else}}good{{/if}}"><i class="fa-solid fa-bed"></i> {{#if fatigued}}Fatigué{{else}}Reposé{{/if}}</span>
+            <span><i class="fa-solid fa-triangle-exclamation"></i> Échecs consécutifs : {{consecutiveTaskFailures}}</span>
+            <span><i class="fa-solid fa-gavel"></i> Refus : {{refusalCount}}</span>
+            <span><i class="fa-solid fa-wine-bottle"></i> Rhum jeté repéré : {{rumDumpOffenses}}</span>
+          </div>
+          <div class="pf1-ss-player-progress">
+            <span class="{{#if playerTaskDone}}good{{else}}warning{{/if}}">Tâche {{#if playerTaskDone}}✓{{else}}…{{/if}}</span>
+            <span class="{{#if playerDayDone}}good{{else}}warning{{/if}}">Jour {{#if playerDayDone}}✓{{else}}…{{/if}}</span>
+            <span class="{{#if playerNightDone}}good{{else}}warning{{/if}}">Nuit {{#if playerNightDone}}✓{{else}}…{{/if}}</span>
+            <span class="{{#if playerRumDone}}good{{else}}warning{{/if}}">Rhum {{#if playerRumDone}}✓{{else}}…{{/if}}</span>
+          </div>
+
+          <div class="pf1-ss-task-box">
+            <div class="pf1-ss-task-title">
+              <div><strong>Tâche {{taskRollLabel}} :</strong> {{#if task}}{{task.name}}{{else}}— non attribuée —{{/if}}</div>
+              <div class="pf1-ss-inline-actions">
+                <button type="button" data-action="assignTask"><i class="fa-solid fa-dice-six"></i> Tirer 1d6</button>
+                <button type="button" class="primary" data-action="rollTask"><i class="fa-solid fa-dice-d20"></i> Résoudre</button>
+                <button type="button" class="danger" data-action="refuseWork"><i class="fa-solid fa-ban"></i> Refuser</button>
+              </div>
+            </div>
+            <input type="hidden" name="life.members.{{index}}.taskId" value="{{taskId}}">
+            <input type="hidden" name="life.members.{{index}}.taskRoll" value="{{taskRoll}}">
+            {{#if task.note}}<p class="hint">{{task.note}}</p>{{/if}}
+            <div class="pf1-ss-grid three">
+              <label><span>Action diurne</span><select name="life.members.{{index}}.dayAction">{{#each dayChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+              <label><span>Mod. manuel tâche</span><input type="number" name="life.members.{{index}}.manualTaskModifier" value="{{manualTaskModifier}}" step="1"></label>
+              <label class="pf1-ss-checkbox"><input type="checkbox" name="life.members.{{index}}.friendlyHelp" {{#if friendlyHelp}}checked{{/if}}><span>Aide d’un PNJ amical (+2)</span></label>
+            </div>
+            <div class="pf1-ss-actions"><button type="button" data-action="resolveDayAction"><i class="fa-solid fa-sun"></i> Résoudre / rappeler l’action diurne</button></div>
+          </div>
+
+          <div class="pf1-ss-night-box">
+            <div class="pf1-ss-grid three">
+              <label><span>Action nocturne</span><select name="life.members.{{index}}.nightAction">{{#each nightChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+              <label><span>Action supplémentaire *</span><select name="life.members.{{index}}.extraNightChoice">{{#each extraChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+              <div class="pf1-ss-static-field"><span>Actions sup. utilisées</span><strong>{{extraNightActions}} / 2</strong><small>prochain DD Con {{extraNightDc}}</small></div>
+            </div>
+            <div class="pf1-ss-inline-actions">
+              <button type="button" data-action="resolveNightAction"><i class="fa-solid fa-moon"></i> Résoudre l’action nocturne</button>
+              <button type="button" data-action="extraNightAction"><i class="fa-solid fa-clock"></i> Faire l’action supplémentaire</button>
+            </div>
+          </div>
+
+          <div class="pf1-ss-rum-box">
+            <div><strong>Ration de rhum :</strong> {{#if rum.drankToday}}bue — +{{rum.chaBonus}} Cha, fatigue {{rum.fatigueHours}} h, {{rum.conDamage}} Con{{else}}{{#if rum.dumpedToday}}jetée{{else}}non résolue{{/if}}{{/if}}</div>
+            <div class="pf1-ss-inline-actions">
+              <button type="button" data-action="drinkRum"><i class="fa-solid fa-wine-bottle"></i> Boire</button>
+              <button type="button" data-action="dumpRum"><i class="fa-solid fa-bottle-water"></i> Jeter discrètement</button>
+            </div>
+          </div>
+
+          {{#if hasPunishments}}
+            <div class="pf1-ss-punishment-queue">
+              <strong>Punitions en attente :</strong>
+              <ul>{{#each punishmentQueue}}<li>{{this}}</li>{{/each}}</ul>
+              <button type="button" data-action="clearPunishments"><i class="fa-solid fa-check"></i> Marquer comme traitées</button>
+            </div>
+          {{/if}}
+        </article>
+      {{/each}}
+      </div>
+    {{else}}
+      <p class="hint">Ajoute les PJ affectés aux postes de gabier, moussaillon ou commis de cuisine.</p>
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-comments"></i> Influence d’un membre d’équipage</h3>
+    <p class="hint">Une tentative prend une action de bord et un même PJ ne peut effectuer qu’un test par jour contre un PNJ donné. Bluff, Diplomatie et Intimidation sont traités comme Diplomatie pour modifier l’attitude.</p>
+    <div class="pf1-ss-grid three">
+      <label><span>PJ</span><select name="life.influence.influencerUuid"><option value="">—</option>{{#each influenceActorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>PNJ ciblé</span><select name="life.influence.targetUuid"><option value="">—</option>{{#each influenceTargetChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>Compétence</span><select name="life.influence.skillId"><option value="">—</option>{{#each influenceSkills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} {{modDisplay}}</option>{{/each}}</select></label>
+      <label><span>Attitude actuelle</span><select name="life.influence.currentAttitude">{{#each attitudeChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label><span>DD</span><input type="number" name="life.influence.dc" value="{{life.influence.dc}}" min="0"></label>
+      <label><span>Modificateur circonstanciel</span><input type="number" name="life.influence.manualModifier" value="{{life.influence.manualModifier}}" step="1"></label>
+    </div>
+    <div class="pf1-ss-actions"><button type="button" class="primary" data-action="rollInfluence"><i class="fa-solid fa-comments"></i> Tenter d’influencer</button></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-user-secret"></i> Vol, chapardage et discrétion</h3>
+    <p class="hint">Repères officiels : DD 20 au milieu d’une foule ; DD 15 lorsqu’il existe un risque d’être découvert ; DD 10 sous couvert d’une bonne diversion. Échec de 4 ou moins : l’action est interrompue. Échec de 5 ou plus : pris sur le fait.</p>
+    <div class="pf1-ss-grid three">
+      <label><span>Personnage</span><select name="life.stealth.actorUuid"><option value="">—</option>{{#each stealthActorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>Compétence</span><select name="life.stealth.skillId"><option value="">—</option>{{#each stealthSkills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} {{modDisplay}}</option>{{/each}}</select></label>
+      <label><span>DD</span><input type="number" name="life.stealth.dc" value="{{life.stealth.dc}}" min="0"></label>
+      <label><span>Modificateur</span><input type="number" name="life.stealth.manualModifier" value="{{life.stealth.manualModifier}}" step="1"></label>
+    </div>
+    <div class="pf1-ss-actions"><button type="button" data-action="rollStealth"><i class="fa-solid fa-user-secret"></i> Faire le test</button></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-gavel"></i> Heure du sang — châtiments</h3>
+    <div class="pf1-ss-grid four">
+      <label><span>Victime</span><select name="life.punishment.targetUuid"><option value="">—</option>{{#each punishmentTargetChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>Châtiment</span><select name="life.punishment.type">{{#each punishmentTypes}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label><span>Nombre de coups</span><input type="number" name="life.punishment.count" value="{{life.punishment.count}}" min="1"></label>
+      <label><span>Bonus d’attaque du bourreau</span><input type="number" name="life.punishment.attackBonus" value="{{life.punishment.attackBonus}}" step="1"></label>
+      <label><span>CA effective de la victime</span><input type="number" name="life.punishment.targetAc" value="{{life.punishment.targetAc}}" min="0"></label>
+      <label><span>Heures au sauna</span><input type="number" name="life.punishment.hours" value="{{life.punishment.hours}}" min="1"></label>
+      <label><span>Passage sous la quille</span><select name="life.punishment.keelhauling">{{#each keelChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    </div>
+    <div class="pf1-ss-actions"><button type="button" class="danger" data-action="resolvePunishment"><i class="fa-solid fa-gavel"></i> Résoudre le châtiment</button></div>
+    <p class="hint">Le module ne retranche pas automatiquement les dégâts aux PJ : il publie les jets dans le chat pour laisser PF1 gérer les dégâts létaux/non létaux et les éventuelles résistances.</p>
+  </section>
+
+  <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer la vie à bord</button></footer>
+</div>

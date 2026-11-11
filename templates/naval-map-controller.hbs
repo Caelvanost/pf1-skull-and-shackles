@@ -1,0 +1,211 @@
+<div class="pf1-ss-naval-map-root">
+  <header class="pf1-ss-dashboard-hero pf1-ss-map-hero">
+    <div class="pf1-ss-dashboard-identity">
+      <span class="pf1-ss-kicker">CARTE NAVALE</span>
+      <h2><i class="fa-solid fa-map"></i> {{actor.name}}</h2>
+      <p>Cap {{displays.heading}} · Vent vers {{displays.wind}} · Vitesse {{displays.currentSpeed}}</p>
+    </div>
+    <div class="pf1-ss-dashboard-hero-actions">
+      <button type="button" data-action="centerOnShip"><i class="fa-solid fa-location-crosshairs"></i> Centrer</button>
+      <button type="button" data-action="refresh"><i class="fa-solid fa-rotate"></i></button>
+      <button type="button" class="primary" data-action="openShipController"><i class="fa-solid fa-compass"></i> Navigation</button>
+    </div>
+  </header>
+
+  {{#unless tokenReady}}
+    <section class="pf1-ss-dashboard-alert danger">
+      <i class="fa-solid fa-triangle-exclamation"></i>
+      <div><strong>Aucun token sur la scène active.</strong><span>Place le Vehicle PF1 sur la scène pour utiliser les déplacements et aides visuelles.</span></div>
+    </section>
+  {{/unless}}
+
+  <section class="pf1-ss-dashboard-stats">
+    <div><span>Cap</span><strong>{{displays.heading}}</strong><small>token : {{tokenName}}</small></div>
+    <div><span>Vitesse</span><strong>{{displays.currentSpeed}}</strong><small>{{displays.currentSpeedSquares}}</small></div>
+    <div><span>Vent</span><strong>{{displays.wind}}</strong><small>{{#if wind.withWind}}vent arrière{{else}}{{#if wind.headToWind}}vent debout{{else}}travers / autre{{/if}}{{/if}}</small></div>
+    <div><span>Échelle</span><strong>1 case = {{#if scale.metric}}9 m{{else}}30 ft{{/if}}</strong><small>{{scaleLabel}}</small></div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-map-visual-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-eye"></i> Aides visuelles</h3>
+        <p class="hint">Les aides sont dessinées uniquement sur ton client et ne créent aucun Drawing dans la scène.</p>
+      </div>
+      <div class="pf1-ss-action-row">
+        <button type="button" data-action="toggleZones" class="{{#if visuals.showZones}}active{{/if}}"><i class="fa-solid fa-compass"></i> Secteurs {{#if visuals.showZones}}ON{{else}}OFF{{/if}}</button>
+        <button type="button" data-action="toggleReachable" class="{{#if visuals.showReachable}}active{{/if}}"><i class="fa-solid fa-border-all"></i> Cases {{#if visuals.showReachable}}ON{{else}}OFF{{/if}}</button>
+      </div>
+    </div>
+    <div class="pf1-ss-map-legend">
+      <span class="bow">Proue</span><span class="port">Bâbord</span><span class="starboard">Tribord</span><span class="stern">Poupe</span>
+      <span class="speed">Déplacement par vitesse</span><span class="advantage">Déplacement d’ascendant</span><span class="shear">Trajet de cisaillement</span>
+    </div>
+  </section>
+
+  <div class="pf1-ss-dashboard-columns pf1-ss-map-columns">
+    <section class="pf1-ss-panel">
+      <div class="pf1-ss-panel-heading">
+        <h3><i class="fa-solid fa-compass"></i> Orientation</h3>
+        <div class="pf1-ss-action-row">
+          <button type="button" data-action="saveMapSettings"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+          <button type="button" data-action="syncHeading"><i class="fa-solid fa-arrows-rotate"></i> Synchroniser le token</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Cap du navire</label>
+        <div class="form-fields">
+          <select name="headingOverride">
+            {{#each headings}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+          </select>
+          <button type="button" data-action="applyHeading"><i class="fa-solid fa-check"></i> Appliquer</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Décalage graphique du token</label>
+        <div class="form-fields">
+          <input type="number" name="map.rotationOffset" value="{{ss.map.rotationOffset}}" step="90">
+          <span class="units">°</span>
+        </div>
+        <p class="hint">0° suppose que l'image non tournée a sa proue vers le haut.</p>
+      </div>
+      <div class="form-group">
+        <label>Longueur navale manuelle</label>
+        <div class="form-fields">
+          <input type="number" name="map.navalLengthOverride" value="{{ss.map.navalLengthOverride}}" min="0" step="1">
+          <span class="units">case(s)</span>
+        </div>
+        <p class="hint">0 = longueur du profil officiel. Utile pour un Vehicle personnalisé et pour le calcul d’un trajet de cisaillement.</p>
+      </div>
+      <div class="pf1-ss-map-advantage-rotation">
+        <p><strong>Rotation d’ascendant :</strong> {{budgets.advantageRotationRemaining}}° restant(s) / {{budgets.advantageRotation}}°.</p>
+        <div class="pf1-ss-action-row">
+          <button type="button" data-action="advantagePort" {{#unless budgets.advantageRotationRemaining}}disabled{{/unless}}><i class="fa-solid fa-rotate-left"></i> 90° bâbord</button>
+          <button type="button" data-action="advantageStarboard" {{#unless budgets.advantageRotationRemaining}}disabled{{/unless}}><i class="fa-solid fa-rotate-right"></i> 90° tribord</button>
+        </div>
+      </div>
+    </section>
+
+    <section class="pf1-ss-panel">
+      <div class="pf1-ss-panel-heading">
+        <h3><i class="fa-solid fa-wind"></i> Vent et grille</h3>
+        <button type="button" data-action="randomizeWind"><i class="fa-solid fa-dice-d4"></i> Tirer le vent</button>
+      </div>
+      <div class="pf1-ss-map-compass">
+        <div class="north">N</div><div class="west">O</div><div class="center"><i class="fa-solid fa-ship"></i></div><div class="east">E</div><div class="south">S</div>
+      </div>
+      <p><strong>Vent actuel :</strong> vers {{wind.windDirectionLabel}}.</p>
+      {{#if wind.withWind}}<p class="pf1-ss-result success">VENT ARRIÈRE — vitesse maximale du vent doublée.</p>{{/if}}
+      {{#if wind.headToWind}}<p class="pf1-ss-result failure">VENT DEBOUT — action Incontrôlé requise jusqu’au changement de cap.</p>{{/if}}
+      <button type="button" data-action="configureScale"><i class="fa-solid fa-border-all"></i> Faire de chaque case Foundry une case navale</button>
+      <p class="hint">Optionnel : le module sait aussi convertir automatiquement une grille PF1 classique de 1,50 m / 5 ft en déplacements de 9 m / 30 ft.</p>
+    </section>
+  </div>
+
+  <section class="pf1-ss-panel pf1-ss-map-movement">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-arrows-up-down-left-right"></i> Déplacement du token</h3>
+        <p class="hint">Ces boutons exécutent le déplacement obtenu après la résolution de l’action de navigation ; ils ne remplacent pas le test de navigation.</p>
+      </div>
+      <button type="button" data-action="resetRoundMovement"><i class="fa-solid fa-rotate-left"></i> Réinitialiser les compteurs</button>
+    </div>
+
+    {{#if movementBlocked}}
+      <p class="pf1-ss-result failure">Déplacement automatisé bloqué : navire coulé, en naufrage ou agrippé.</p>
+    {{/if}}
+
+    <div class="pf1-ss-map-budget-grid">
+      <div><span>Vitesse du round</span><strong>{{budgets.speedRemaining}} / {{budgets.speed}} case(s)</strong><small>{{budgets.speedSpent}} dépensée(s)</small></div>
+      <div><span>Ascendant</span><strong>{{budgets.advantageMoveRemaining}} / {{budgets.advantageMove}} case(s)</strong><small>{{budgets.advantageMoveSpent}} dépensée(s)</small></div>
+      <div><span>Round</span><strong>{{#if round}}{{round}}{{else}}hors combat{{/if}}</strong><small>les compteurs se réinitialisent au nouveau round</small></div>
+    </div>
+
+    <h4>Déplacement lié à la vitesse</h4>
+    <div class="pf1-ss-map-move-pad pf1-ss-map-speed-pad">
+      <button type="button" data-action="moveForwardPort" title="Avant-gauche"><i class="fa-solid fa-arrow-up fa-rotate-by" style="--fa-rotate-angle:-45deg"></i><span>Avant<br>bâbord</span></button>
+      <button type="button" class="primary" data-action="moveForward"><i class="fa-solid fa-arrow-up"></i><span>Avant</span></button>
+      <button type="button" data-action="moveForwardStarboard" title="Avant-droite"><i class="fa-solid fa-arrow-up fa-rotate-by" style="--fa-rotate-angle:45deg"></i><span>Avant<br>tribord</span></button>
+      <div></div><div class="pf1-ss-map-ship-icon"><i class="fa-solid fa-ship"></i><small>proue ↑</small></div><div></div>
+      <button type="button" data-action="moveBackwardPort"><i class="fa-solid fa-arrow-down fa-rotate-by" style="--fa-rotate-angle:45deg"></i><span>Arrière toute<br>bâbord</span></button>
+      <button type="button" data-action="moveBackward"><i class="fa-solid fa-arrow-down"></i><span>Arrière<br>toute</span></button>
+      <button type="button" data-action="moveBackwardStarboard"><i class="fa-solid fa-arrow-down fa-rotate-by" style="--fa-rotate-angle:-45deg"></i><span>Arrière toute<br>tribord</span></button>
+    </div>
+    <p class="hint">Le déplacement normal va vers l’avant, l’avant-bâbord ou l’avant-tribord. Les trois boutons arrière correspondent exclusivement à <em>Arrière toute !</em> : vitesse 0 obligatoire.</p>
+
+    <div class="pf1-ss-map-advantage-movement">
+      <h4><i class="fa-solid fa-clover"></i> Déplacement gratuit d’ascendant</h4>
+      <p class="hint">L’ascendant permet de déplacer chaque case gagnée <strong>dans la direction de ton choix</strong>, indépendamment de la proue.</p>
+      <div class="pf1-ss-map-move-pad pf1-ss-map-adv-pad">
+        <button type="button" data-action="advMoveForwardPort" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-up fa-rotate-by" style="--fa-rotate-angle:-45deg"></i></button>
+        <button type="button" data-action="advMoveForward" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-up"></i></button>
+        <button type="button" data-action="advMoveForwardStarboard" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-up fa-rotate-by" style="--fa-rotate-angle:45deg"></i></button>
+        <button type="button" data-action="advMovePort" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-left"></i></button>
+        <div class="pf1-ss-map-ship-icon"><i class="fa-solid fa-clover"></i><small>{{budgets.advantageMoveRemaining}} restante(s)</small></div>
+        <button type="button" data-action="advMoveStarboard" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-right"></i></button>
+        <button type="button" data-action="advMoveBackwardPort" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-down fa-rotate-by" style="--fa-rotate-angle:45deg"></i></button>
+        <button type="button" data-action="advMoveBackward" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-down"></i></button>
+        <button type="button" data-action="advMoveBackwardStarboard" {{#unless budgets.advantageMoveRemaining}}disabled{{/unless}}><i class="fa-solid fa-arrow-down fa-rotate-by" style="--fa-rotate-angle:-45deg"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-shear-planner">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-scissors"></i> Préparation du cisaillement</h3>
+        <p class="hint">La règle exige de commencer adjacent à la proue ou à la poupe de la cible, puis de longer un nombre de cases adjacentes égal à sa longueur.</p>
+      </div>
+      {{#if shearPlan.active}}
+        <button type="button" data-action="cancelShearPlan"><i class="fa-solid fa-xmark"></i> Annuler</button>
+      {{else}}
+        <button type="button" class="primary" data-action="beginShearPlan" {{#unless target.shearStartReady}}disabled{{/unless}}><i class="fa-solid fa-route"></i> Préparer</button>
+      {{/if}}
+    </div>
+
+    {{#if shearPlan.active}}
+      <div class="pf1-ss-map-shear-status {{#if shearPlan.complete}}complete{{else}}{{#unless shearPlan.valid}}invalid{{/unless}}{{/if}}">
+        <div><span>Cible</span><strong>{{shearPlan.targetName}}</strong></div>
+        <div><span>Progression</span><strong>{{shearPlan.progressLabel}}</strong></div>
+        <div><span>Flanc suivi</span><strong>{{#if shearPlan.sideLabel}}{{shearPlan.sideLabel}}{{else}}à engager{{/if}}</strong></div>
+      </div>
+      {{#if shearPlan.complete}}
+        <p class="pf1-ss-result success"><strong>TRAJET COMPLET.</strong> Ouvre Navigation puis utilise <em>Cisailler les rames</em> pour résoudre le test de manœuvre offensive.</p>
+      {{else}}
+        {{#unless shearPlan.valid}}
+          <p class="pf1-ss-result failure"><strong>TRAJET INVALIDE.</strong> {{shearPlan.reason}} Annule puis recommence depuis la proue ou la poupe.</p>
+        {{else}}
+          <p class="pf1-ss-result neutral">{{#if shearPlan.reason}}{{shearPlan.reason}}{{else}}Reste adjacent au même flanc de la cible. Chaque nouveau segment longé est compté automatiquement.{{/if}}</p>
+        {{/unless}}
+      {{/if}}
+    {{else}}
+      {{#if target}}
+        <p><strong>{{target.name}}</strong> occupe {{target.lengthSquares}} case(s) navale(s) de longueur.</p>
+        {{#if target.shearStartReady}}<p class="pf1-ss-result success">Position de départ valide : ton navire est adjacent à la proue ou à la poupe de la cible.</p>{{else}}<p class="pf1-ss-result neutral">Place d’abord ton navire adjacent à la proue ou à la poupe de la cible.</p>{{/if}}
+      {{else}}
+        <p class="hint">Cible un Vehicle adverse pour préparer un trajet.</p>
+      {{/if}}
+    {{/if}}
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-crosshairs"></i> Géométrie de la cible</h3>
+    {{#if target}}
+      <div class="pf1-ss-map-target-grid">
+        <div><span>Cible</span><strong>{{target.name}}</strong></div>
+        <div><span>Secteur vu depuis ton navire</span><strong>{{target.geometry.arcLabel}}</strong></div>
+        <div><span>Distance entre coques</span><strong>{{target.distanceLabel}}</strong></div>
+      </div>
+      <div class="pf1-ss-badges">
+        {{#if target.ramReady}}<span class="pf1-ss-badge ok">Position d’éperonnage plausible</span>{{else}}<span class="pf1-ss-badge warning">Éperonnage : cible non située devant la proue à portée</span>{{/if}}
+        {{#if target.grappleReady}}<span class="pf1-ss-badge ok">À portée d’agrippement</span>{{else}}<span class="pf1-ss-badge warning">Hors portée d’agrippement</span>{{/if}}
+        {{#if target.broadsidePort}}<span class="pf1-ss-badge ok">Bordée bâbord</span>{{/if}}
+        {{#if target.broadsideStarboard}}<span class="pf1-ss-badge ok">Bordée tribord</span>{{/if}}
+        {{#if target.shearStartReady}}<span class="pf1-ss-badge ok">Attaquant adjacent à la proue/poupe de la cible</span>{{/if}}
+      </div>
+      <p class="hint">{{target.geometry.note}}</p>
+    {{else}}
+      <p class="hint">Cible exactement un Vehicle adverse pour afficher automatiquement son secteur relatif, sa distance et les aides de placement.</p>
+    {{/if}}
+  </section>
+</div>

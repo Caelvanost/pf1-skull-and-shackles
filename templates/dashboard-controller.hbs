@@ -1,0 +1,101 @@
+<div class="pf1-ss-dashboard-root">
+  <header class="pf1-ss-dashboard-hero">
+    <div class="pf1-ss-dashboard-identity">
+      <span class="pf1-ss-kicker">PASSERELLE</span>
+      <h2><i class="fa-solid fa-anchor"></i> {{actor.name}}</h2>
+      <p>{{profileName}} · Cap {{headingLabel}} · Vent {{windLabel}}</p>
+      <div class="pf1-ss-badges">
+        {{#each status}}<span class="pf1-ss-badge {{className}}">{{label}}</span>{{/each}}
+      </div>
+    </div>
+    <div class="pf1-ss-dashboard-hero-actions">
+      <button type="button" data-action="refresh" title="Actualiser"><i class="fa-solid fa-rotate"></i></button>
+      <button type="button" data-action="openHelp"><i class="fa-solid fa-circle-question"></i> Aide rapide</button>
+      <button type="button" class="primary" data-action="openShip"><i class="fa-solid fa-compass"></i> Contrôleur naval</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-dashboard-stats">
+    <div><span>Structure</span><strong>{{hpLabel}}</strong></div>
+    <div><span>Vitesse</span><strong>{{speedLabel}}</strong><small>{{speedSquaresLabel}}</small></div>
+    <div><span>Équipage</span><strong>{{crewLabel}}</strong><small>minimum {{state.crewMinimum}}</small></div>
+    <div><span>Pilote</span><strong>{{driverName}}</strong><small>{{driverSkill}}</small></div>
+  </section>
+
+  {{#if state.sinking}}
+    <section class="pf1-ss-dashboard-alert danger">
+      <i class="fa-solid fa-water"></i>
+      <div><strong>Le navire est en plein naufrage.</strong><span>{{state.sinkingRoundsRemaining}} round(s) avant de sombrer.</span></div>
+    </section>
+  {{/if}}
+  {{#if state.fireActive}}
+    <section class="pf1-ss-dashboard-alert danger">
+      <i class="fa-solid fa-fire"></i>
+      <div><strong>Incendie en cours.</strong><span>{{state.fireRoundsElapsed}} round(s) écoulé(s).</span></div>
+    </section>
+  {{/if}}
+
+  <section class="pf1-ss-panel pf1-ss-dashboard-tools">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-toolbox"></i> Postes de commandement</h3>
+      <button type="button" data-action="openVehicleSheet"><i class="fa-solid fa-sheet-plastic"></i> Fiche PF1</button>
+    </div>
+    <div class="pf1-ss-dashboard-grid">
+      <button type="button" class="naval" data-action="openShip"><i class="fa-solid fa-compass"></i><strong>Navigation</strong><small>Vent, ascendant, manœuvres, dégâts</small></button>
+      <button type="button" class="naval" data-action="openNavalMap"><i class="fa-solid fa-map"></i><strong>Carte navale</strong><small>Déplacement, orientation et arcs</small></button>
+      <button type="button" class="naval" data-action="openHazards"><i class="fa-solid fa-cloud-bolt"></i><strong>Dangers & Régate</strong><small>Météo, tempêtes, récifs et course</small></button>
+      <button type="button" class="naval" data-action="openImprovements"><i class="fa-solid fa-hammer"></i><strong>Améliorations</strong><small>{{improvements.count}} installée(s) · navigation {{improvements.navigation}}</small></button>
+      <button type="button" class="naval" data-action="openVoyage"><i class="fa-solid fa-route"></i><strong>Voyages &amp; Poursuites</strong><small>{{voyage.speed}} · {{voyage.progress}}</small></button>
+      <button type="button" class="naval" data-action="openPiracy"><i class="fa-solid fa-skull-crossbones"></i><strong>Piraterie &amp; Prises</strong><small>Proies, cargaisons, captures et équipages</small></button>
+      <button type="button" data-action="openSiege"><i class="fa-solid fa-crosshairs"></i><strong>Artillerie</strong><small>Engins, munitions et bordées</small></button>
+      <button type="button" data-action="openReputation"><i class="fa-solid fa-skull-crossbones"></i><strong>Réputation</strong><small>Butin, Infamie et Déshonneur</small></button>
+      <button type="button" data-action="openFleet"><i class="fa-solid fa-flag"></i><strong>Flotte</strong><small>Escadrons et batailles navales</small></button>
+      <button type="button" data-action="openFleetRecruitment"><i class="fa-solid fa-users-viewfinder"></i><strong>Recrutement de flotte</strong><small>Mercenaires, alliés, coûts et délais</small></button>
+      <button type="button" data-action="openLife"><i class="fa-solid fa-bottle-droplet"></i><strong>Vie à bord</strong><small>Tâches, rhum, influence et punitions</small></button>
+      <button type="button" data-action="openEntertainment"><i class="fa-solid fa-masks-theater"></i><strong>Divertissements</strong><small>Jeux, paris et beuveries multijoueurs</small></button>
+      <button type="button" data-action="openBoarding"><i class="fa-solid fa-person-running"></i><strong>Abordage</strong><small>Transition vers le combat PF1 sur le pont</small></button>
+      <button type="button" data-action="openDisguise"><i class="fa-solid fa-masks-theater"></i><strong>Pétardage &amp; identité</strong><small>Rebaptême, silhouette, pavillon et historique</small></button>
+      <button type="button" data-action="openLibrary"><i class="fa-solid fa-book-open"></i><strong>Bibliothèque</strong><small>Références mécaniques</small></button>
+      <button type="button" data-action="openWizard"><i class="fa-solid fa-wand-magic-sparkles"></i><strong>Assistant</strong><small>Créer ou reconfigurer un navire</small></button>
+    </div>
+  </section>
+
+  <div class="pf1-ss-dashboard-columns">
+    <section class="pf1-ss-panel">
+      <h3><i class="fa-solid fa-bullseye"></i> Cible</h3>
+      {{#if target}}
+        <div class="pf1-ss-target-card">
+          <strong>{{target.name}}</strong>
+          <span>Structure : {{target.hpLabel}}</span>
+          <span>Vitesse : {{target.speedLabel}}</span>
+          <div class="pf1-ss-badges">{{#each target.status}}<span class="pf1-ss-badge {{className}}">{{label}}</span>{{/each}}</div>
+        </div>
+      {{else}}
+        <p class="hint">Cible exactement un token Vehicle pour afficher ici son état avant une manœuvre offensive.</p>
+      {{/if}}
+    </section>
+
+    <section class="pf1-ss-panel">
+      <h3><i class="fa-solid fa-list-ol"></i> Combat</h3>
+      {{#if combat}}
+        <p><strong>Round {{combat.round}}</strong>{{#if combat.started}} · tour {{combat.turn}}{{/if}}</p>
+        <p class="hint">Le compteur de naufrage est synchronisé avec les changements de round du Combat Tracker.</p>
+      {{else}}
+        <p class="hint">Aucun combat actif.</p>
+      {{/if}}
+    </section>
+  </div>
+
+  <section class="pf1-ss-panel pf1-ss-world-tools">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-screwdriver-wrench"></i> Outils de monde</h3>
+        <p class="hint">Macros : {{tools.installedMacros}} / {{tools.macroCount}} · Aide rapide : {{#if tools.journalReady}}installée{{else}}absente{{/if}}</p>
+      </div>
+      {{#if isGM}}
+        <button type="button" class="primary" data-action="installTools"><i class="fa-solid fa-download"></i> Installer / mettre à jour</button>
+      {{/if}}
+    </div>
+    <p class="hint">L’installation crée des macros prêtes à glisser dans la barre rapide, l’aide de règles et les compendiums de référence. Elle peut être relancée sans dupliquer les documents gérés par le module.</p>
+  </section>
+</div>

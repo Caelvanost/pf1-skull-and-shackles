@@ -1,0 +1,243 @@
+<div class="pf1-ss-controller pf1-ss-reputation-controller">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-skull-crossbones"></i> Réputation pirate — {{actor.name}}</h2>
+      <div class="pf1-ss-badges">
+        <span class="pf1-ss-badge">{{tier.title}}</span>
+        <span class="pf1-ss-badge">Infamie {{rep.infamy}} / {{cap}}</span>
+        <span class="pf1-ss-badge">Déshonneur {{rep.disrepute}}</span>
+        <span class="pf1-ss-badge">Butin {{rep.plunder}}</span>
+      </div>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Contrôleur naval</button>
+      <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-chart-line"></i> Infamie, Déshonneur et Butin</h3>
+    <div class="pf1-ss-grid four pf1-ss-reputation-summary">
+      <label>
+        <span>Butin</span>
+        <input type="number" name="rep.plunder" value="{{rep.plunder}}" min="0" step="1" data-dtype="Number">
+        <small>1 point ≈ 1 000 po et jusqu’à 10 tonnes de cargaison.</small>
+      </label>
+      <label>
+        <span>Infamie</span>
+        <input type="number" name="rep.infamy" value="{{rep.infamy}}" min="0" max="{{cap}}" step="1" data-dtype="Number">
+        <small>Maximum : 4 × NMG = {{cap}}.</small>
+      </label>
+      <label>
+        <span>Déshonneur</span>
+        <input type="number" name="rep.disrepute" value="{{rep.disrepute}}" min="0" max="{{rep.infamy}}" step="1" data-dtype="Number">
+        <small>Ressource dépensable ; jamais supérieure à l’Infamie.</small>
+      </label>
+      <label>
+        <span>Niveau moyen du groupe</span>
+        <input type="number" name="rep.averagePartyLevel" value="{{rep.averagePartyLevel}}" min="1" step="0.5" data-dtype="Number">
+        <small>Détermine le plafond d’Infamie et le DD.</small>
+      </label>
+    </div>
+
+    <div class="pf1-ss-progress-wrap">
+      <div class="pf1-ss-progress"><span style="width: {{infamyProgressPercent}}%"></span></div>
+      {{#if nextTier}}
+        <small>Prochain seuil : <strong>{{nextTier.title}}</strong> à {{nextTier.min}} — encore {{nextTierRemaining}} point(s).</small>
+      {{else}}
+        <small>Dernier seuil atteint.</small>
+      {{/if}}
+    </div>
+
+    <div class="pf1-ss-thresholds">
+      {{#each thresholds}}
+        <span class="pf1-ss-threshold {{#if reached}}reached{{/if}}">{{title}} {{min}}+</span>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-beer-mug-empty"></i> Gagner de l’Infamie</h3>
+    <div class="pf1-ss-note warning">
+      <strong>Note d’édition :</strong> le glossaire abrégé de la campagne affiche « 15 + 2 × NMG », tandis que la procédure détaillée « Gagner de l’Infamie et du Déshonneur » donne « 5 + 2 × NMG ». Le module utilise par défaut la procédure détaillée, mais le nombre de base reste éditable ci-dessous.
+    </div>
+
+    <div class="pf1-ss-grid three">
+      <label>
+        <span>Port actuel</span>
+        <input type="text" name="rep.currentPort" value="{{rep.currentPort}}" placeholder="Ex. Port-Péril">
+        <small>Une journée complète doit être passée au port.</small>
+      </label>
+      <label>
+        <span>Base du DD</span>
+        <input type="number" name="rep.infamyDcBase" value="{{rep.infamyDcBase}}" min="0" step="1" data-dtype="Number">
+        <small>DD actuel : <strong>{{infamyDc}}</strong>.</small>
+      </label>
+      <div class="pf1-ss-statbox">
+        <span>Gain dans ce port, seuil actuel</span>
+        <strong>{{port.earned}} / 5</strong>
+        <small>Il reste {{portRemaining}} point(s) disponibles.</small>
+      </div>
+
+      <label>
+        <span>Conteur principal</span>
+        <select name="rep.storytellerUuid">
+          <option value="">— Choisir —</option>
+          {{#each actorChoices}}
+            <option value="{{uuid}}" {{#if storytellerSelected}}selected{{/if}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Compétence</span>
+        <select name="rep.storytellerSkill">
+          <option value="">— Bluff / Intimidation / Représentation —</option>
+          {{#each storytellerSkills}}
+            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{modDisplay}})</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Modificateur circonstanciel</span>
+        <input type="number" name="rep.infamyManualModifier" value="{{rep.infamyManualModifier}}" step="1" data-dtype="Number">
+      </label>
+
+      <label>
+        <span>Butin dépensé avant le test</span>
+        <input type="number" name="rep.infamyPlunderSpend" value="{{rep.infamyPlunderSpend}}" min="0" max="{{rep.plunder}}" step="1" data-dtype="Number">
+        <small>+2 au test par point dépensé.</small>
+      </label>
+      <div class="pf1-ss-statbox">
+        <span>Bonus de port de prédilection</span>
+        <strong>{{displays.favoredBonus}}</strong>
+        <small>Selon le seuil d’Infamie et l’ordre des ports.</small>
+      </div>
+      <div class="pf1-ss-statbox">
+        <span>Compétence sélectionnée</span>
+        <strong>{{displays.storySkill}}</strong>
+        <small>Butin : {{displays.plunderBonus}} ; circonstances : {{displays.storyManual}}.</small>
+      </div>
+    </div>
+
+    <div class="pf1-ss-actions-row">
+      <button type="button" data-action="rollInfamy"><i class="fa-solid fa-dice-d20"></i> Faire le test d’Infamie</button>
+      <button type="button" data-action="resetPortProgress"><i class="fa-solid fa-rotate"></i> Réinitialiser les plafonds par port</button>
+    </div>
+
+    <p class="pf1-ss-rules-help">Réussite : +1 Infamie et Déshonneur ; DD dépassé de 5 : +2 ; dépassé de 10 : +3. Chaque port ne peut rapporter que 5 points par seuil d’Infamie. Le plafond se réinitialise automatiquement quand un nouveau seuil est atteint.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-map-location-dot"></i> Ports de prédilection</h3>
+    <p class="pf1-ss-rules-help">Honteux : 1 port (+2). Infâme : 2 ports (+4 au premier, +2 au second). Vil : 3 ports (+6 / +4 / +2).</p>
+    <div class="pf1-ss-grid three">
+      {{#each favoredPortFields}}
+        <label class="{{#unless enabled}}pf1-ss-disabled{{/unless}}">
+          <span>Port de prédilection n°{{number}}</span>
+          <input type="text" name="rep.favoredPorts.{{index}}" value="{{value}}" {{#unless enabled}}disabled{{/unless}} placeholder="{{#if enabled}}Nom du port{{else}}Seuil insuffisant{{/if}}">
+          {{#if current}}<small>Port actuel.</small>{{/if}}
+        </label>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-coins"></i> Vendre le butin</h3>
+    <p class="pf1-ss-rules-help">Vendre normalement 1 point de butin demande une journée complète. Le test peut utiliser Bluff, Diplomatie, Intimidation ou une Profession pertinente.</p>
+    <div class="pf1-ss-grid three">
+      <label>
+        <span>Taille de la communauté</span>
+        <select name="rep.sale.communitySize">
+          {{#each communityChoices}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} — base {{base}}%, max {{max}}%</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Marchandeur</span>
+        <select name="rep.sale.merchantUuid">
+          <option value="">— Choisir —</option>
+          {{#each actorChoices}}
+            <option value="{{uuid}}" {{#if merchantSelected}}selected{{/if}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Compétence de vente</span>
+        <select name="rep.sale.skill">
+          <option value="">— Choisir —</option>
+          {{#each merchantSkills}}
+            <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{modDisplay}})</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Modificateur circonstanciel</span>
+        <input type="number" name="rep.sale.manualModifier" value="{{rep.sale.manualModifier}}" step="1" data-dtype="Number">
+      </label>
+      <div class="pf1-ss-statbox">
+        <span>Bonus Répugnant (40+)</span>
+        <strong>{{displays.saleTierBonus}}</strong>
+        <small>+5 aux tests pour vendre le butin à 40+ Infamie.</small>
+      </div>
+      <div class="pf1-ss-statbox">
+        <span>Dernière offre</span>
+        {{#if lastOfferAvailable}}
+          <strong>{{rep.sale.lastOfferPercent}}% — {{rep.sale.lastOfferGp}} po</strong>
+          <small>Résultat du test : {{rep.sale.lastCheckTotal}}.</small>
+        {{else}}
+          <strong>—</strong>
+          <small>Aucune offre en attente.</small>
+        {{/if}}
+      </div>
+    </div>
+
+    <div class="pf1-ss-actions-row">
+      <button type="button" data-action="rollSale"><i class="fa-solid fa-scale-balanced"></i> Négocier 1 point de butin</button>
+      <button type="button" data-action="acceptSale" {{#unless lastOfferAvailable}}disabled{{/unless}}><i class="fa-solid fa-handshake"></i> Accepter la dernière offre</button>
+      <button type="button" data-action="rejectSale" {{#unless lastOfferAvailable}}disabled{{/unless}}><i class="fa-solid fa-xmark"></i> Refuser</button>
+      <button type="button" data-action="buyPlunder"><i class="fa-solid fa-cart-shopping"></i> Acheter 1 butin (1 000 po)</button>
+    </div>
+
+    <div class="pf1-ss-sale-table">
+      <table>
+        <thead><tr><th>Communauté</th><th>Base</th><th>Progression du test</th><th>Maximum</th></tr></thead>
+        <tbody>
+          <tr><td>Lieu-dit</td><td>10% / 100 po</td><td>DD 10 +5 par +5%</td><td>20% / 200 po (DD 20)</td></tr>
+          <tr><td>Hameau</td><td>20% / 200 po</td><td>DD 10 +5 par +5%</td><td>30% / 300 po (DD 20)</td></tr>
+          <tr><td>Village</td><td>30% / 300 po</td><td>DD 10 +5 par +5%</td><td>40% / 400 po (DD 20)</td></tr>
+          <tr><td>Petit bourg</td><td>40% / 400 po</td><td>DD 10 +5 par +5%</td><td>60% / 600 po (DD 30)</td></tr>
+          <tr><td>Gros bourg</td><td>60% / 600 po</td><td>DD 10 +5 par +5%</td><td>80% / 800 po (DD 30)</td></tr>
+          <tr><td>Petite ville</td><td>80% / 800 po</td><td>DD 10 +10 par +5%</td><td>90% / 900 po (DD 30)</td></tr>
+          <tr><td>Grande ville</td><td>90% / 900 po</td><td>DD 10 +10 par +10%</td><td>120% / 1 200 po (DD 40)</td></tr>
+          <tr><td>Métropole</td><td>100% / 1 000 po</td><td>DD 10 +10 par +10%</td><td>140% / 1 400 po (DD 50)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-crown"></i> Seuils et impositions</h3>
+    <p class="pf1-ss-rules-help">Les impositions sont achetées avec le Déshonneur. À 30+, les honteuses coûtent moitié prix ; à 40+, les méprisables coûtent moitié prix ; à 55+, les infâmes coûtent moitié prix et les honteuses sont gratuites.</p>
+
+    {{#each impositionGroups}}
+      <div class="pf1-ss-imposition-group {{#unless accessible}}locked{{/unless}}">
+        <h4>{{label}} <small>Infamie {{min}}+</small></h4>
+        {{#each entries}}
+          <article class="pf1-ss-imposition {{#unless accessible}}locked{{/unless}}">
+            <div class="pf1-ss-imposition-main">
+              <div class="pf1-ss-imposition-title">
+                <strong>{{name}}</strong>
+                <span class="pf1-ss-cost">{{effectiveCost}} Déshonneur{{#if discounted}} <del>{{cost}}</del>{{/if}}</span>
+              </div>
+              <p>{{description}}</p>
+            </div>
+            <button type="button" data-action="buyImposition" data-imposition-id="{{id}}" {{#unless canBuy}}disabled{{/unless}}>
+              <i class="fa-solid fa-skull"></i> Acheter
+            </button>
+          </article>
+        {{/each}}
+      </div>
+    {{/each}}
+  </section>
+</div>

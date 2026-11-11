@@ -1,0 +1,53 @@
+<div class="pf1-ss-disguise-root">
+  <header class="pf1-ss-titlebar">
+    <div><h2><i class="fa-solid fa-masks-theater"></i> Pétardage &amp; identité</h2><div class="pf1-ss-badges"><span class="pf1-ss-badge">{{statusLabel}}</span><span class="pf1-ss-badge">Perception DD {{data.recognitionDc}}</span></div></div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-ship"></i> Nouvelle identité</h3>
+    <p class="pf1-ss-rules-help">Le pétardage modifie silhouette, superstructure et gréement sans changer la taille, les caractéristiques ni la disposition du pont. Le nom, le pavillon et les notes ci-dessous servent au suivi de campagne.</p>
+    <div class="pf1-ss-grid two">
+      <label><span>Identité d'origine</span><input value="{{data.originalName}}" disabled></label>
+      <label><span>Identité actuelle</span><input value="{{data.currentIdentity}}" disabled></label>
+      <label><span>Nouveau nom</span><input name="disguise.proposedName" value="{{data.proposedName}}"></label>
+      <label><span>Pavillon / signes distinctifs</span><input name="disguise.flagDescription" value="{{data.flagDescription}}" placeholder="ex. crâne blanc sur champ noir"></label>
+    </div>
+    <label><span>Maquillage de silhouette / notes</span><textarea name="disguise.appearanceNotes" rows="4">{{data.appearanceNotes}}</textarea></label>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-hammer"></i> Devis des Pétards du Frêle</h3>
+    <div class="pf1-ss-grid four">
+      <label><span>Prix d'achat du navire</span><input type="number" name="disguise.purchasePrice" value="{{data.purchasePrice}}" min="0"><small>Base du calcul</small></label>
+      <label><span>Attitude de Frêle</span><select name="disguise.attitude"><option value="friendly" {{#if friendly}}selected{{/if}}>Amical — prix normal</option><option value="indifferent" {{#if indifferent}}selected{{/if}}>Indifférent — +10 %</option></select></label>
+      <label><span>Cachettes 1,50 m</span><input type="number" name="disguise.hiddenCompartments" value="{{data.hiddenCompartments}}" min="0"><small>500 po chacune, même durée</small></label>
+      <label><span>Artisanat (bateaux)</span><input type="number" name="disguise.builderModifier" value="{{data.builderModifier}}"><small>Frêle : +14 ; DD 15</small></label>
+    </div>
+    <div class="pf1-ss-grid three pf1-ss-disguise-costs">
+      <div><span>Pétardage</span><strong>{{data.baseCost}} po</strong><small>20 % du prix d'achat</small></div>
+      <div><span>Cachettes</span><strong>{{data.compartmentCost}} po</strong></div>
+      <div><span>Total</span><strong>{{data.totalCost}} po</strong></div>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" data-action="rollDuration"><i class="fa-solid fa-dice"></i> Tirer 1d4+4 jours</button>
+      <button type="button" data-action="startWork"><i class="fa-solid fa-anchor"></i> Entrer en cale sèche</button>
+      <button type="button" class="primary" data-action="completeWork" {{#unless canComplete}}disabled{{/unless}}><i class="fa-solid fa-check"></i> Résoudre le pétardage</button>
+    </div>
+    <p>Délai prévu : <strong>{{data.durationDays}} jour(s)</strong>{{#if data.lastCraftTotal}} · dernier test : <strong>{{data.lastCraftTotal}}</strong>{{/if}}.</p>
+    <p class="hint">Après un pétardage réussi, une personne qui connaissait déjà le bâtiment doit l'observer attentivement au moins 2 minutes puis réussir Perception DD 20 pour le reconnaître.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-coins"></i> Financement optionnel de Frêle Colin</h3>
+    <p class="pf1-ss-rules-help">Si les PJ n'ont pas assez de fonds, Frêle peut devenir actionnaire majoritaire : un tiers du butin lui revient jusqu'à remboursement de 150 % du montant des modifications, ramené à 133 % avec Diplomatie DD 20.</p>
+    <div class="pf1-ss-grid three"><div><span>Financement</span><strong>{{#if data.financing.enabled}}Actif{{else}}Inactif{{/if}}</strong></div><div><span>Objectif</span><strong>{{data.financing.repaymentPercent}} %</strong></div><div><span>Reste enregistré</span><strong>{{financingRemaining}} po</strong></div></div>
+    <div class="pf1-ss-grid two"><label><span>Bonus de Diplomatie</span><input type="number" name="disguise.financing.diplomacyModifier" value="{{data.financing.diplomacyModifier}}"><small>Test DD 20 pour passer de 150 % à 133 %</small></label><label><span>Paiement à enregistrer</span><input type="number" name="disguise.financing.paymentAmount" value="{{data.financing.paymentAmount}}" min="0"><small>Suivi comptable uniquement</small></label></div>
+    <div class="pf1-ss-header-actions"><button type="button" data-action="negotiateFinancing">Négocier / activer</button><button type="button" data-action="addPayment" {{#unless data.financing.enabled}}disabled{{/unless}}>Enregistrer le paiement</button></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-clock-rotate-left"></i> Historique des identités</h3><button type="button" data-action="resetIdentity">Réinitialiser le projet</button></div>
+    <div class="pf1-ss-log">{{#each historyRows}}<p><strong>{{date}}</strong> — {{text}}{{#if flag}} · Pavillon : {{flag}}{{/if}}</p>{{else}}<p class="hint">Aucun pétardage enregistré.</p>{{/each}}</div>
+  </section>
+  <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button></footer>
+</div>

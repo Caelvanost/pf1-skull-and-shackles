@@ -1,0 +1,65 @@
+<div class="pf1-ss-library-root">
+  <header class="pf1-ss-titlebar compact">
+    <div>
+      <h2><i class="fa-solid fa-book-open"></i> Bibliothèque Skull & Shackles</h2>
+      <p class="hint">Références mécaniques intégrées au module. Les textes sont volontairement condensés aux éléments utiles en jeu.</p>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" data-action="openWizard"><i class="fa-solid fa-wand-magic-sparkles"></i> Assistant de navire</button>
+      <button type="button" data-action="openQuickReference"><i class="fa-solid fa-circle-question"></i> Aide rapide</button>
+      {{#if isGM}}<button type="button" class="primary" data-action="installWorldTools"><i class="fa-solid fa-screwdriver-wrench"></i> Installer les outils</button>{{/if}}
+      {{#if isGM}}<button type="button" data-action="installPacks"><i class="fa-solid fa-box-archive"></i> Compendiums seuls</button>{{/if}}
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel compact pf1-ss-library-tools-status">
+    <strong>Outils de monde :</strong> macros {{worldTools.installedMacros}} / {{worldTools.macroCount}} · aide rapide {{#if worldTools.journalReady}}installée{{else}}absente{{/if}}.
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-sailboat"></i> Profils de navires</h3>
+    <p class="hint">DD de référence du monde : combat {{navigationCombatDc}} · hors combat {{navigationOutsideDc}}.</p>
+    <div class="pf1-ss-library-cards">
+      {{#each profiles}}
+      <article class="pf1-ss-reference-card">
+        <div class="pf1-ss-reference-head"><strong>{{name}}</strong><small>p. {{sourcePage}}</small></div>
+        <p>{{dimensions}} · {{navalSquares}} case(s) · {{costLabel}}</p>
+        <p><strong>Défense :</strong> {{hp}} PV, solidité {{hardness}}, sauvegarde +{{save}}.</p>
+        <p><strong>Combat :</strong> éperonnage {{ram}} · équipage {{crew}} · passagers {{passengers}}.</p>
+        <p><strong>Propulsion :</strong> {{propulsionLabel}} · {{navigation}}.</p>
+        <p class="hint">{{notes}}</p>
+        <div class="pf1-ss-inline-actions">
+          {{#if ../actor}}<button type="button" data-action="applyProfile" data-profile-id="{{id}}"><i class="fa-solid fa-download"></i> Appliquer</button>{{/if}}
+          {{#if ../isGM}}<button type="button" data-action="createFromProfile" data-profile-id="{{id}}"><i class="fa-solid fa-plus"></i> Créer</button>{{/if}}
+        </div>
+      </article>
+      {{/each}}
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-swords"></i> Armes de pirate</h3>
+    <div class="pf1-ss-reference-table"><table><thead><tr><th>Arme</th><th>Catégorie</th><th>Prix</th><th>Dégâts P/M</th><th>Critique</th><th>Portée</th><th>Type</th><th>Spécial</th></tr></thead><tbody>
+      {{#each weapons}}<tr><td>{{name}}</td><td>{{category}}</td><td>{{price}}</td><td>{{small}} / {{medium}}</td><td>{{crit}}</td><td>{{range}}</td><td>{{damageType}}</td><td>{{special}}</td></tr>{{/each}}
+    </tbody></table></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-scroll"></i> Traits de campagne</h3>
+    <div class="pf1-ss-library-cards two-col">
+      {{#each traits}}<article class="pf1-ss-reference-card"><div class="pf1-ss-reference-head"><strong>{{name}}</strong><small>p. {{sourcePage}}</small></div><p>{{mechanics}}</p></article>{{/each}}
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-skull"></i> Jambe de bois et cache-œil</h3>
+    {{#if criticalWoundsEnabled}}
+      <div class="pf1-ss-actions-row"><button type="button" class="primary" data-action="rollCriticalWound"><i class="fa-solid fa-dice-d20"></i> Tirer une blessure critique</button></div>
+    {{else}}
+      <p class="pf1-ss-alert warning">Règle optionnelle désactivée. Active-la dans <strong>Configuration → Paramètres du module</strong> pour autoriser les tirages.</p>
+    {{/if}}
+    <div class="pf1-ss-reference-table"><table><thead><tr><th>d20</th><th>Blessure</th><th>Effet</th></tr></thead><tbody>
+      {{#each wounds}}<tr><td>{{rangeLabel}}</td><td>{{label}}</td><td>{{effect}}</td></tr>{{/each}}
+    </tbody></table></div>
+  </section>
+</div>

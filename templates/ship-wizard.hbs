@@ -1,0 +1,27 @@
+<div class="pf1-ss-wizard-root">
+  <header class="pf1-ss-titlebar compact">
+    <div><h2><i class="fa-solid fa-wand-magic-sparkles"></i> Assistant de navire</h2><p class="hint">Choisis un profil officiel résumé du Guide du Joueur, puis crée un Vehicle PF1 ou applique-le au navire ouvert.</p></div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <label class="pf1-ss-wide-field"><span>Nom du navire</span><input type="text" name="shipName" value="{{shipName}}"></label>
+    <div class="pf1-ss-profile-grid">
+      {{#each profiles}}
+      <label class="pf1-ss-profile-card {{#if selected}}selected{{/if}}">
+        <input type="radio" name="profileId" value="{{id}}" {{#if selected}}checked{{/if}}>
+        <span class="pf1-ss-profile-title">{{name}}</span>
+        <span>{{dimensions}} · {{navalSquares}} case(s) navale(s)</span>
+        <span>{{hp}} PV · solidité {{hardness}} · éperonnage {{ram}}</span>
+        <span>{{speedLabel}}</span>
+        <span>Équipage {{crew}} · {{cargo}}</span>
+        <small>{{costLabel}} · Guide du Joueur p. {{sourcePage}}</small>
+      </label>
+      {{/each}}
+    </div>
+  </section>
+
+  <footer class="pf1-ss-actions-row">
+    <button type="button" class="primary" data-action="createShip"><i class="fa-solid fa-plus"></i> Créer un nouveau Vehicle</button>
+    {{#if actor}}<button type="button" data-action="applyProfile"><i class="fa-solid fa-arrows-rotate"></i> Appliquer à {{actor.name}}</button>{{/if}}
+  </footer>
+</div>

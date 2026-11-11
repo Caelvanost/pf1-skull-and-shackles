@@ -1,0 +1,199 @@
+<div class="pf1-ss-piracy-root">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-skull-crossbones"></i> Piraterie &amp; Prises</h2>
+      <p>{{actor.name}} · Butin {{reputation.plunder}} · Infamie {{reputation.infamy}} · Déshonneur {{reputation.disrepute}}</p>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" class="primary" data-action="openDashboard"><i class="fa-solid fa-compass"></i> Passerelle</button>
+      <button type="button" data-action="openVoyage"><i class="fa-solid fa-route"></i> Voyages</button>
+      <button type="button" data-action="openReputation"><i class="fa-solid fa-skull"></i> Réputation</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-binoculars"></i> Navire rencontré</h3>
+      <div class="pf1-ss-actions compact">
+        <button type="button" data-action="rollPrey"><i class="fa-solid fa-dice"></i> Tirer une proie</button>
+        <button type="button" data-action="useTarget"><i class="fa-solid fa-crosshairs"></i> Utiliser la cible</button>
+        {{#if isGM}}<button type="button" data-action="createPrey"><i class="fa-solid fa-sailboat"></i> Créer le Vehicle</button>{{/if}}
+      </div>
+    </div>
+
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Proie de l'évènement 7</span>
+        <select name="piracy.prey.selectedId">
+          {{#each preyChoices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Vehicle lié</span>
+        <input type="text" name="piracy.prey.linkedActorUuid" value="{{data.prey.linkedActorUuid}}" placeholder="UUID du Vehicle">
+      </label>
+    </div>
+
+    <div class="pf1-ss-target-card piracy-prey-card">
+      <div class="pf1-ss-panel-heading">
+        <div>
+          <strong>{{prey.name}}</strong>
+          <span>{{prey.subtitle}} · {{prey.profileName}} · FP {{prey.fp}}</span>
+        </div>
+        <div class="pf1-ss-badges">
+          {{#if prey.cargoClaimed}}<span class="pf1-ss-badge ok">Cargaison prise</span>{{/if}}
+          {{#if prey.sold}}<span class="pf1-ss-badge ok">Navire vendu</span>{{/if}}
+          {{#if prey.kept}}<span class="pf1-ss-badge warning">Prise conservée</span>{{/if}}
+          {{#if prey.refitPlanned}}<span class="pf1-ss-badge warning">À maquiller</span>{{/if}}
+        </div>
+      </div>
+      <div class="pf1-ss-grid three">
+        <div><span>Capitaine</span><strong>{{prey.captain}}</strong><small>Profession (marin) +{{prey.captainProfession}}</small></div>
+        <div><span>Équipage</span><strong>{{prey.crew}}</strong><small>minimum {{prey.minimumCrew}}{{#if prey.soldiers}} · {{prey.soldiers}} soldat(s){{/if}}</small></div>
+        <div><span>Structure</span><strong>{{prey.hp}} PV</strong><small>solidité {{prey.hardness}}</small></div>
+        <div><span>Combat publié</span><strong>CA {{prey.publishedAc}} · BMO +{{prey.publishedCmb}}</strong><small>DMD {{prey.publishedCmd}} · sauvegarde +{{prey.publishedSave}}</small></div>
+        <div><span>Éperonnage</span><strong>{{prey.publishedRam}}</strong><small>{{prey.weapons}}</small></div>
+        <div><span>Cargaison</span><strong>{{prey.cargoLabel}}</strong><small>{{prey.notes}}</small></div>
+      </div>
+      <p class="notes"><strong>Lié :</strong> {{prey.linkedName}} · <strong>Cible actuelle :</strong> {{prey.targetName}}</p>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-person-running"></i> Fuite de la proie et ruse</h3>
+    <p>Dans la rencontre répétable, les navires marchands cherchent normalement à fuir. Après avoir subi au moins une attaque, le pilote des PJ peut tenter de convaincre la proie qu'il n'est plus nécessaire de fuir.</p>
+    <div class="pf1-ss-grid two">
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="piracy.prey.ownShipTookAttack" {{#if data.prey.ownShipTookAttack}}checked{{/if}}>
+        <span>Le navire des PJ a subi au moins une attaque</span>
+      </label>
+      <label>
+        <span>Psychologie du capitaine adverse</span>
+        <input type="number" name="piracy.prey.enemySenseMotive" value="{{data.prey.enemySenseMotive}}" step="1">
+      </label>
+      <div>
+        <span>Pilote des PJ</span>
+        <strong>{{driver.name}}</strong>
+        <small>{{driver.bluffName}} {{driver.bluffMod}}{{#if driver.usesManual}} · modificateur manuel utilisé{{/if}}</small>
+      </div>
+      <label>
+        <span>Modificateur de Bluff manuel si non détecté</span>
+        <input type="number" name="piracy.prey.bluffManualModifier" value="{{data.prey.bluffManualModifier}}" step="1">
+      </label>
+    </div>
+    <div class="pf1-ss-actions">
+      <button type="button" class="primary" data-action="bluffToStand"><i class="fa-solid fa-masks-theater"></i> Bluff opposé à Psychologie</button>
+      {{#if lastBluffLabel}}<span>Dernier test : {{data.prey.lastBluffOwn}} contre {{data.prey.lastBluffEnemy}} — {{lastBluffLabel}}</span>{{/if}}
+    </div>
+  </section>
+
+  <div class="pf1-ss-dashboard-columns">
+    <section class="pf1-ss-panel">
+      <h3><i class="fa-solid fa-box-open"></i> Cargaison &amp; Butin</h3>
+      <div class="pf1-ss-grid two">
+        <div><span>Cales</span><strong>{{cargo.usedLabel}} / {{cargo.capacityLabel}}</strong><small>{{cargo.freeLabel}} libres · {{cargo.freePlunder}} point(s) de Butin disponibles</small></div>
+        <div><span>Contrebande</span><strong>{{cargo.hiddenPlunderPoints}} Butin dissimulable</strong><small>N'augmente pas la capacité totale.</small></div>
+      </div>
+      <p><strong>Proie :</strong> {{prey.cargoLabel}}</p>
+      <div class="pf1-ss-actions">
+        <button type="button" class="primary" data-action="claimCargo" {{#if prey.cargoClaimed}}disabled{{/if}}><i class="fa-solid fa-boxes-stacked"></i> Transférer la cargaison</button>
+        <button type="button" data-action="payCrewShare" {{#unless reputation.plunder}}disabled{{/unless}}><i class="fa-solid fa-hand-holding-dollar"></i> Verser la part de l’équipage (−1 Butin)</button>
+      </div>
+      <p class="notes">Lorsqu'un lot de Butin est vendu, la campagne recommande de retirer 1 point de Butin pour représenter la part versée à l'équipage, quel que soit le montant vendu.</p>
+      {{#if data.ledger.miscCargoGp}}<p class="notes">Marchandises diverses suivies hors Butin : {{data.ledger.miscCargoGp}} po.</p>{{/if}}
+      <label>
+        <span>Notes de cargaison</span>
+        <textarea name="piracy.ledger.notes" rows="2">{{data.ledger.notes}}</textarea>
+      </label>
+    </section>
+
+    <section class="pf1-ss-panel">
+      <h3><i class="fa-solid fa-people-group"></i> Survivants &amp; recrutement</h3>
+      <div class="pf1-ss-grid two">
+        <div><span>Ton équipage</span><strong>{{ownCrew.current}} / {{ownCrew.full}}</strong><small>minimum {{ownCrew.minimum}} · {{ownCrew.spareAboveMinimum}} détachable(s)</small></div>
+        <label>
+          <span>Pertes à remplacer</span>
+          <input type="number" name="piracy.capture.crewLosses" value="{{data.capture.crewLosses}}" min="0" step="1">
+        </label>
+      </div>
+      <button type="button" data-action="replaceLosses"><i class="fa-solid fa-user-shield"></i> Remplacer les pertes avec les survivants</button>
+      <hr>
+      <div class="pf1-ss-grid two">
+        <label>
+          <span>Recruteur</span>
+          <select name="piracy.capture.recruiterUuid">
+            <option value="">— Choisir —</option>
+            {{#each peopleChoices}}<option value="{{uuid}}" {{#if recruiterSelected}}selected{{/if}}>{{name}}</option>{{/each}}
+          </select>
+        </label>
+        <label>
+          <span>Bluff, Diplomatie ou Intimidation</span>
+          <select name="piracy.capture.recruiterSkillId">
+            <option value="">— Modificateur manuel —</option>
+            {{#each recruitSkills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{modLabel}})</option>{{/each}}
+          </select>
+        </label>
+        <label>
+          <span>Modificateur circonstanciel / manuel</span>
+          <input type="number" name="piracy.capture.recruitManualModifier" value="{{data.capture.recruitManualModifier}}" step="1">
+        </label>
+        <div><span>Règle</span><strong>DD 20 · 1 journée</strong><small>Réussite : 1d4+2 recrues.</small></div>
+      </div>
+      <div class="pf1-ss-actions">
+        <button type="button" data-action="recruitCrew"><i class="fa-solid fa-user-plus"></i> Recruter</button>
+        {{#if data.capture.lastRecruitTotal}}<span>Dernier test {{data.capture.lastRecruitTotal}} · {{data.capture.lastRecruits}} recrue(s)</span>{{/if}}
+      </div>
+    </section>
+  </div>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-flag"></i> Capturer et ramener le navire</h3>
+    <p>Pour ramener une prise au port, affecte-lui son <strong>équipage minimum</strong> et un <strong>officier de confiance</strong>. Ces marins sont retirés du navire des PJ.</p>
+    <div class="pf1-ss-grid three">
+      <label>
+        <span>Officier de prise</span>
+        <select name="piracy.capture.prizeOfficerUuid">
+          <option value="">— Choisir —</option>
+          {{#each peopleChoices}}<option value="{{uuid}}" {{#if officerSelected}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select>
+      </label>
+      <div><span>Marins nécessaires</span><strong>{{prey.minimumCrew}}</strong><small>{{#if data.capture.prizeCrewAssigned}}Déjà affectés : {{data.capture.assignedCrew}}{{else}}À détacher de ton équipage{{/if}}</small></div>
+      <button type="button" data-action="assignPrizeCrew" {{#if data.capture.prizeCrewAssigned}}disabled{{/if}}><i class="fa-solid fa-users-gear"></i> Affecter l'équipage de prise</button>
+    </div>
+
+    <div class="pf1-ss-grid three">
+      <label>
+        <span>Valeur de prise de base (Butin)</span>
+        <input type="number" name="piracy.capture.prizeBasePlunderManual" value="{{data.capture.prizeBasePlunderManual}}" min="0" step="1" placeholder="5">
+        <small>Les drakkars/bateaux à voiles de l'évènement utilisent 5 ; les autres valeurs restent au MJ.</small>
+      </label>
+      <label>
+        <span>Port de revente</span>
+        <input type="text" name="piracy.capture.salePort" value="{{data.capture.salePort}}">
+      </label>
+      <div><span>Prévision</span><strong>{{prize.saleLabel}}</strong><small>base {{prize.baseLabel}} · {{prize.multiplierLabel}}</small></div>
+    </div>
+
+    <div class="pf1-ss-actions">
+      <button type="button" class="primary" data-action="sellPrize" {{#if prey.sold}}disabled{{/if}}><i class="fa-solid fa-coins"></i> Vendre la prise</button>
+      <button type="button" data-action="keepPrize"><i class="fa-solid fa-anchor"></i> Conserver la prise</button>
+      <button type="button" data-action="planRefit"><i class="fa-solid fa-hammer"></i> {{#if prey.refitPlanned}}Annuler le maquillage{{else}}Prévoir un « pétard »{{/if}}</button>
+    </div>
+    <p class="notes">La vente ajoute des points de Butin au suivi de Réputation. Le Vehicle n'est pas supprimé automatiquement : il est marqué comme vendu afin que le MJ puisse l'archiver ou le réutiliser.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-sack-dollar"></i> Prisonniers &amp; rançons</h3>
+    <div class="pf1-ss-grid three">
+      <label><span>Prisonniers en bonne santé</span><input type="number" name="piracy.prisoners.healthy" value="{{data.prisoners.healthy}}" min="0" step="1"><small>75 po chacun</small></label>
+      <label><span>Sous la moitié des PV</span><input type="number" name="piracy.prisoners.badlyWounded" value="{{data.prisoners.badlyWounded}}" min="0" step="1"><small>moitié de la valeur</small></label>
+      <label><span>Niveaux de classe cumulés des personnages importants</span><input type="number" name="piracy.prisoners.importantLevels" value="{{data.prisoners.importantLevels}}" min="0" step="1"><small>rançon : 50 po / niveau</small></label>
+    </div>
+    <div class="pf1-ss-actions"><button type="button" data-action="valuePrisoners"><i class="fa-solid fa-calculator"></i> Calculer</button><strong>Total indicatif : {{prisoners.totalLabel}}</strong></div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-footer-actions">
+    <button type="submit" class="primary"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+    <button type="button" data-action="resetEncounter"><i class="fa-solid fa-rotate-left"></i> Nouvelle rencontre / réinitialiser</button>
+  </section>
+</div>

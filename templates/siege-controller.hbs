@@ -1,0 +1,288 @@
+<div class="pf1-ss-controller pf1-ss-siege-controller">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-crosshairs"></i> Artillerie — {{actor.name}}</h2>
+      <p class="hint">Engins de siège embarqués, chargement, visée, tirs directs/indirects, avaries, munitions spéciales et bordées.</p>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Contrôleur naval</button>
+      <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-bullseye"></i> Tir et cible</h3>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Composant visé</span>
+        <select name="siege.targetComponent">
+          {{#each componentChoices}}
+            <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Distance déclarée (ft PF1 ; 10 ft ≈ 3 m)</span>
+        <input type="number" name="siege.distanceFt" value="{{data.distanceFt}}" min="0" step="5" data-dtype="Number">
+      </label>
+      <label class="pf1-ss-checkbox">
+        <input type="checkbox" name="siege.autoApplyDamage" {{#if data.autoApplyDamage}}checked{{/if}}>
+        <span>Appliquer automatiquement les dégâts à la cible Vehicle</span>
+      </label>
+    </div>
+    {{#if target}}
+      <p class="pf1-ss-alert ok"><i class="fa-solid fa-crosshairs"></i> Cible actuelle : <strong>{{target.name}}</strong> — {{targetComponentLabel}}{{#if targetAc}} ; CA {{targetAc}}{{/if}} — distance déclarée {{distanceLabel}}.</p>
+    {{else}}
+      <p class="pf1-ss-alert warning"><i class="fa-solid fa-hand-pointer"></i> Cible exactement un token <strong>Vehicle</strong> adverse pour résoudre automatiquement la CA et appliquer les dégâts.</p>
+    {{/if}}
+    <p class="hint">Le module utilise la distance déclarée pour les facteurs de portée. Elle reste volontairement indépendante de la distance graphique du token afin de ne pas supposer que la scène emploie une grille navale particulière.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-plus"></i> Ajouter un engin</h3>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Modèle</span>
+        <select name="siege.addModelId">
+          {{#each modelChoices}}
+            <option value="{{id}}" {{#if addSelected}}selected{{/if}}>{{name}} — {{modeLabel}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <div class="pf1-ss-wind-actions">
+        <span>Nouvel emplacement</span>
+        <button type="button" data-action="addWeapon"><i class="fa-solid fa-plus"></i> Ajouter au navire</button>
+      </div>
+    </div>
+    <p class="hint">Les profils ci-dessous reprennent la table des engins de siège du Guide du joueur. Le DD de visée de l'onagre n'étant pas donné dans ce guide, il reste à renseigner manuellement.</p>
+  </section>
+
+  <section class="pf1-ss-panel compact">
+    <h3><i class="fa-solid fa-users"></i> Équipes d'artillerie</h3>
+    <p><strong>{{assignedCrew}}</strong> membres affectés aux engins sur <strong>{{shipCrew}}</strong> membres d'équipage actuellement présents sur le Vehicle.</p>
+    {{#if crewOverbooked}}
+      <p class="pf1-ss-alert warning">Le nombre de servants affectés dépasse l'effectif actuel du navire. Le module l'indique mais ne retire pas automatiquement ces personnes de l'équipage nécessaire à la navigation.</p>
+    {{/if}}
+  </section>
+
+  {{#each weapons}}
+    <section class="pf1-ss-panel pf1-ss-siege-weapon {{#if isBroken}}is-broken{{/if}}" data-weapon-id="{{id}}">
+      <div class="pf1-ss-siege-heading">
+        <div>
+          <h3><i class="fa-solid fa-crosshairs"></i> {{displayName}}</h3>
+          <div class="pf1-ss-badges">
+            <span class="pf1-ss-badge {{#if destroyed}}danger{{else}}{{#if isBroken}}warning{{else}}ok{{/if}}{{/if}}">{{#if destroyed}}Détruit{{else}}{{#if sabotaged}}Saboté{{else}}{{#if isBroken}}Brisé{{else}}Opérationnel{{/if}}{{/if}}{{/if}}</span>
+            <span class="pf1-ss-badge">{{modeLabel}}</span>
+            <span class="pf1-ss-badge">{{sideLabel}}</span>
+          </div>
+        </div>
+        <button type="button" class="danger" data-action="removeWeapon" data-weapon-id="{{id}}"><i class="fa-solid fa-trash"></i> Retirer</button>
+      </div>
+
+      <div class="pf1-ss-siege-profile">
+        <div><span>Dégâts</span><strong>{{model.damage}}</strong></div>
+        <div><span>Critique</span><strong>{{#if model.critMultiplier}}{{#if model.critThreshold}}{{model.critThreshold}}-20/×{{model.critMultiplier}}{{else}}—{{/if}}{{else}}—{{/if}}</strong></div>
+        <div><span>Portée</span><strong>{{rangeLabel}}</strong><small>{{#if model.minRangeFt}}min. {{minRangeLabel}}{{/if}}</small></div>
+        <div><span>Équipe</span><strong>{{model.crew}}</strong></div>
+        <div><span>Visée</span><strong>{{model.aimActions}}</strong><small>action(s) de base</small></div>
+        <div><span>Chargement</span><strong>{{model.loadActions}}</strong><small>action(s)</small></div>
+        <div><span>PV</span><strong>{{hp}} / {{maxHp}}</strong></div>
+        <div><span>Solidité</span><strong>{{hardness}}</strong></div>
+      </div>
+
+      <div class="pf1-ss-grid two">
+        <label>
+          <span>Nom personnalisé</span>
+          <input type="text" name="weapons.{{id}}.customName" value="{{customName}}">
+        </label>
+        <label>
+          <span>Emplacement</span>
+          <select name="weapons.{{id}}.side">
+            {{#each sideChoices}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label>
+          <span>Servants affectés</span>
+          <input type="number" name="weapons.{{id}}.crewAssigned" value="{{crewAssigned}}" min="0" step="1" data-dtype="Number">
+        </label>
+        <label>
+          <span>Munition</span>
+          <select name="weapons.{{id}}.ammunitionId">
+            {{#each ammoChoices}}
+              <option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label>
+          <span>Munitions restantes</span>
+          <input type="number" name="weapons.{{id}}.ammunitionCount" value="{{ammunitionCount}}" min="0" step="1" data-dtype="Number">
+        </label>
+        <label>
+          <span>Bonus d'altération / maître</span>
+          <input type="number" name="weapons.{{id}}.enhancementBonus" value="{{enhancementBonus}}" step="1" data-dtype="Number">
+        </label>
+        <label class="pf1-ss-checkbox">
+          <input type="checkbox" name="weapons.{{id}}.proficient" {{#if proficient}}checked{{/if}}>
+          <span>Formé au maniement de cet engin</span>
+        </label>
+        <label class="pf1-ss-checkbox">
+          <input type="checkbox" name="weapons.{{id}}.siegeEngineer" {{#if siegeEngineer}}checked{{/if}}>
+          <span>Chef d'équipe avec Ingénieur de siège</span>
+        </label>
+      </div>
+
+      <h4><i class="fa-solid fa-gears"></i> État et préparation</h4>
+      <div class="pf1-ss-grid two">
+        <label>
+          <span>PV actuels</span>
+          <input type="number" name="weapons.{{id}}.hp" value="{{hp}}" min="0" step="1" data-dtype="Number">
+        </label>
+        <label>
+          <span>PV maximum</span>
+          <input type="number" name="weapons.{{id}}.maxHp" value="{{maxHp}}" min="1" step="1" data-dtype="Number">
+        </label>
+        <label>
+          <span>Solidité</span>
+          <input type="number" name="weapons.{{id}}.hardness" value="{{hardness}}" min="0" step="1" data-dtype="Number">
+        </label>
+        <label class="pf1-ss-checkbox">
+          <input type="checkbox" name="weapons.{{id}}.broken" {{#if broken}}checked{{/if}}>
+          <span>Forcer Brisé (−2 attaque/visée/dégâts)</span>
+        </label>
+        <label class="pf1-ss-checkbox">
+          <input type="checkbox" name="weapons.{{id}}.sabotaged" {{#if sabotaged}}checked{{/if}}>
+          <span>Saboté / inutilisable</span>
+        </label>
+        <label>
+          <span>Bonus au test de réparation</span>
+          <input type="number" name="weapons.{{id}}.repairModifier" value="{{repairModifier}}" step="1" data-dtype="Number">
+        </label>
+      </div>
+
+      <div class="pf1-ss-siege-progress">
+        <div>
+          <span>Chargement</span>
+          <strong>{{loadProgress}} / {{model.loadActions}}</strong>
+          <small>Chaque unité = 1 {{engineerActionLabel}}</small>
+          <div class="pf1-ss-actions wrap">
+            <button type="button" data-action="workLoad" data-weapon-id="{{id}}"><i class="fa-solid fa-box-open"></i> +1 chargement</button>
+            <button type="button" data-action="resetLoad" data-weapon-id="{{id}}"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button>
+          </div>
+        </div>
+        <div>
+          <span>Visée</span>
+          <strong>{{aimProgress}} / {{requiredAim}}</strong>
+          <small>{{#if model.aimActions}}{{#if aimReady}}Prêt{{else}}À compléter{{/if}}{{else}}Aucune action de visée requise{{/if}}</small>
+          <div class="pf1-ss-actions wrap">
+            <button type="button" data-action="workAim" data-weapon-id="{{id}}"><i class="fa-solid fa-bullseye"></i> +1 visée</button>
+            <button type="button" data-action="resetAim" data-weapon-id="{{id}}"><i class="fa-solid fa-arrows-rotate"></i> Changer de cible / effacer</button>
+          </div>
+        </div>
+      </div>
+      {{#if model.aimActions}}
+        {{#unless aimReady}}
+          <p class="pf1-ss-alert warning">Visée incomplète. Si l'équipe est moins nombreuse que l'effectif requis, le nombre d'actions de visée est doublé automatiquement.</p>
+        {{/unless}}
+      {{/if}}
+
+      {{#if model.mode}}
+        <h4><i class="fa-solid fa-dice-d20"></i> Réglages du tir</h4>
+      {{/if}}
+      {{#if model.aimDc}}
+      {{/if}}
+      <div class="pf1-ss-grid two">
+        <label>
+          <span>Bonus du jet d'attaque direct</span>
+          <input type="number" name="weapons.{{id}}.directModifier" value="{{directModifier}}" step="1" data-dtype="Number">
+          <small>Utilise le bonus à distance approprié du chef d'équipe.</small>
+        </label>
+        <label>
+          <span>Malus de taille direct</span>
+          <input type="number" name="weapons.{{id}}.sizePenalty" value="{{sizePenalty}}" max="0" step="2" data-dtype="Number">
+          <small>−2 par catégorie de différence ; 0 si le tireur possède des rangs en Connaissances (ingénierie).</small>
+        </label>
+        <label>
+          <span>Bonus du test de visée indirecte</span>
+          <input type="number" name="weapons.{{id}}.indirectModifier" value="{{indirectModifier}}" step="1" data-dtype="Number">
+          <small>BBA + Int, ou modificateur de Connaissances (ingénierie) si formé.</small>
+        </label>
+        <label>
+          <span>DD de visée indirecte</span>
+          <input type="number" name="weapons.{{id}}.aimDc" value="{{aimDc}}" min="0" step="1" data-dtype="Number">
+        </label>
+        <label class="pf1-ss-checkbox">
+          <input type="checkbox" name="weapons.{{id}}.noLineOfSight" {{#if noLineOfSight}}checked{{/if}}>
+          <span>Pas de ligne de mire vers la case ciblée (−6 indirect)</span>
+        </label>
+        <label>
+          <span>Tir successif</span>
+          <select name="weapons.{{id}}.successiveMode">
+            {{#each successiveChoices}}
+              <option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>
+            {{/each}}
+          </select>
+        </label>
+        <label>
+          <span>Nombre d'échecs successifs concernés</span>
+          <input type="number" name="weapons.{{id}}.successiveCount" value="{{successiveCount}}" min="0" step="1" data-dtype="Number">
+        </label>
+      </div>
+
+      <div class="pf1-ss-nav-summary">
+        <div><strong>Direct :</strong> {{directTotal}}</div>
+        <div><strong>Indirect :</strong> {{indirectTotal}}</div>
+        <div><strong>État :</strong> {{#if loadReady}}chargé{{else}}à charger{{/if}} / {{#if aimReady}}visé{{else}}à viser{{/if}}</div>
+      </div>
+
+      <div class="pf1-ss-actions wrap">
+        <button type="button" class="primary" data-action="fireWeapon" data-weapon-id="{{id}}"><i class="fa-solid fa-burst"></i> Tirer</button>
+        <button type="button" data-action="repairWeapon" data-weapon-id="{{id}}"><i class="fa-solid fa-screwdriver-wrench"></i> Réparer — DD 20</button>
+      </div>
+    </section>
+  {{else}}
+    <section class="pf1-ss-panel compact">
+      <p>Aucun engin de siège n'est encore enregistré sur ce navire.</p>
+    </section>
+  {{/each}}
+
+  <section class="pf1-ss-panel pf1-ss-broadside-panel">
+    <h3><i class="fa-solid fa-angles-right"></i> Bordée</h3>
+    <p class="hint">Tous les engins de même type placés sur le même bord tirent avec un seul jet. En cas de réussite, le module additionne leurs <strong>dégâts moyens</strong>. Une bordée ne peut viser que la structure ou un système de propulsion.</p>
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Bord</span>
+        <select name="siege.broadsideSide">
+          {{#each sideChoices}}
+            <option value="{{value}}" {{#if broadsideSelected}}selected{{/if}}>{{label}}</option>
+          {{/each}}
+        </select>
+      </label>
+      <label>
+        <span>Type d'engin</span>
+        <select name="siege.broadsideModelId">
+          {{#each modelChoices}}
+            <option value="{{id}}" {{#if broadsideSelected}}selected{{/if}}>{{name}}</option>
+          {{/each}}
+        </select>
+      </label>
+    </div>
+    <p><strong>{{broadsideReady}}</strong> engin(s) prêt(s) sur <strong>{{broadsideCandidates}}</strong> correspondant au choix actuel. Le module limite volontairement les bordées aux munitions normales.</p>
+    <div class="pf1-ss-actions">
+      <button type="button" class="primary" data-action="broadside"><i class="fa-solid fa-angles-right"></i> Tirer la bordée</button>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel compact">
+    <h3><i class="fa-solid fa-book"></i> Rappels de règles automatisées</h3>
+    <ul>
+      <li>Un engin de siège est une arme exotique : l'absence de formation applique le malus habituel de −4.</li>
+      <li>Un engin Brisé subit −2 aux jets d'attaque, tests de visée et dégâts.</li>
+      <li>Un 1 naturel provoque une avarie et rend généralement l'engin Brisé ; Ingénieur de siège évite cette avarie.</li>
+      <li>Les tirs indirects ratés lancent 1d8 pour la direction puis 1d4 par facteur de portée pour la distance de déviation.</li>
+      <li>Les engins de siège peuvent infliger des coups critiques aux objets.</li>
+      <li>Ingénieur de siège transforme les actions complexes de chargement en actions de mouvement ; la fenêtre affiche cette différence mais laisse la répartition exacte des actions aux joueurs.</li>
+    </ul>
+  </section>
+</div>

@@ -1,0 +1,151 @@
+<div class="pf1-ss-hazards-root">
+  <header class="pf1-ss-hazards-hero">
+    <div>
+      <span class="pf1-ss-kicker">NAVIGATION DANGEREUSE</span>
+      <h2><i class="fa-solid fa-cloud-bolt"></i> {{actor.name}}</h2>
+      <p>Météo des Chaînes · tempêtes · récifs · Régate des Capitaines libres</p>
+    </div>
+    <button type="button" data-action="openDashboard"><i class="fa-solid fa-compass"></i> Passerelle</button>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-cloud-sun-rain"></i> Météo des Chaînes</h3>
+        <p class="hint">d100 + proximité de l’Œil − test de Profession (marin) ou Survie.</p>
+      </div>
+      <button type="button" class="primary" data-action="rollWeather"><i class="fa-solid fa-dice"></i> Déterminer la météo</button>
+    </div>
+    <div class="pf1-ss-form-grid pf1-ss-hazards-grid">
+      <label>Proximité de l’Œil
+        <select name="hazards.weather.eyeBand">{{#each eyeChoices}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}} ({{#if modifier}}+{{modifier}}{{else}}+0{{/if}})</option>{{/each}}</select>
+      </label>
+      <label>Capitaine / navigateur
+        <select name="hazards.weather.characterUuid"><option value="">— bonus manuel —</option>{{#each crewChoices}}<option value="{{uuid}}" {{#if weatherSelected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+      </label>
+      <label>Compétence
+        <select name="hazards.weather.skillMode">{{#each weatherSkillChoices}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+      </label>
+      <label>Bonus manuel si compétence introuvable <input type="number" name="hazards.weather.manualSkillModifier" value="{{hazards.weather.manualSkillModifier}}"></label>
+    </div>
+    <div class="pf1-ss-weather-card">
+      <div><span>Météo actuelle</span><strong>{{weather.label}}{{#if hazards.weather.currentDetail}} — {{hazards.weather.currentDetail}}{{/if}}</strong></div>
+      <div><span>Fréquence des dangers</span><strong>{{weather.frequency}}</strong></div>
+      <div><span>Modificateur danger</span><strong>{{dangerModifierDisplay}}</strong></div>
+      <div><span>Dernier calcul</span><strong>{{hazards.weather.lastFinal}}</strong><small>d100 {{hazards.weather.lastRaw}} + {{hazards.weather.lastEyeModifier}} − {{hazards.weather.lastSkillTotal}}</small></div>
+    </div>
+    <div class="pf1-ss-action-row">
+      <button type="button" data-action="rollStormDanger" {{#unless dangerAvailable}}disabled{{/unless}}><i class="fa-solid fa-cloud-bolt"></i> Dangers des tempêtes</button>
+      <button type="button" data-action="toggleAnchored"><i class="fa-solid fa-anchor"></i> {{#if hazards.active.anchored}}Lever l’ancre{{else}}Jeter l’ancre{{/if}}</button>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-triangle-exclamation"></i> Avaries environnementales actives</h3>
+    <div class="pf1-ss-hazard-status-grid">
+      <div class="{{#if hazards.active.rudderJammed}}warning{{else}}ok{{/if}}"><span>Gouvernail</span><strong>{{activeLabels.rudder}}</strong>{{#if hazards.active.rudderJammed}}<button type="button" data-action="clearRudderJam">Marquer réparé</button>{{/if}}</div>
+      <div class="{{#if hazards.active.speedHalved}}warning{{else}}ok{{/if}}"><span>Mer croisée</span><strong>{{activeLabels.speed}}</strong>{{#if hazards.active.speedHalved}}<button type="button" data-action="clearSpeedHalf">Fin de l’effet</button>{{/if}}</div>
+      <div class="{{#if hazards.active.grounded}}danger{{else}}ok{{/if}}"><span>Échouage</span><strong>{{activeLabels.grounded}}</strong><button type="button" data-action="toggleGrounded">{{#if hazards.active.grounded}}Déséchouer{{else}}Marquer échoué{{/if}}</button></div>
+      <div class="{{#if hazards.active.majorBreach}}danger{{else}}ok{{/if}}"><span>Coque</span><strong>{{activeLabels.breach}}</strong>{{#if hazards.active.majorBreach}}<button type="button" data-action="clearMajorBreach">Marquer colmatée</button>{{/if}}</div>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-reef-panel">
+    <div class="pf1-ss-panel-heading">
+      <div><h3><i class="fa-solid fa-water"></i> Récifs éventreurs</h3><p class="hint">Moteur spécial de l’étape F : repérage, DD selon distance/vitesse, dégâts et échouage.</p></div>
+      <button type="button" data-action="reefReset"><i class="fa-solid fa-rotate-left"></i> Réinitialiser les 5 récifs</button>
+    </div>
+    <div class="pf1-ss-form-grid pf1-ss-hazards-grid">
+      <label>Observateur
+        <select name="hazards.reef.observerUuid"><option value="">— bonus manuel —</option>{{#each crewChoices}}<option value="{{uuid}}" {{#if observerSelected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+      </label>
+      <label>Bonus Perception manuel <input type="number" name="hazards.reef.manualPerceptionModifier" value="{{hazards.reef.manualPerceptionModifier}}"></label>
+      <label>DD d’évitement manuel (0 = automatique) <input type="number" min="0" name="hazards.reef.manualAvoidDc" value="{{hazards.reef.manualAvoidDc}}"></label>
+      <label>Vitesse moyenne sur l’étape (m) <input type="number" min="0" step="1" name="hazards.reef.averageSpeedM" value="{{hazards.reef.averageSpeedM}}"></label>
+    </div>
+    <div class="pf1-ss-reef-readout">
+      <div><span>Récif</span><strong>{{hazards.reef.currentIndex}}</strong><small>{{hazards.reef.remaining}} restant(s)</small></div>
+      <div><span>Vitesse actuelle</span><strong>{{currentSpeedM}} m</strong></div>
+      <div><span>Dernier repérage</span><strong>{{hazards.reef.lastSpotDistanceM}} m</strong><small>Perception {{hazards.reef.lastPerceptionTotal}}</small></div>
+      <div><span>DD suggéré</span><strong>{{#if reefAuto}}Aucun{{else}}{{reefSuggestedDc}}{{/if}}</strong></div>
+    </div>
+    <p class="hint">{{reefBandNote}}</p>
+    <div class="pf1-ss-action-row">
+      <button type="button" class="primary" data-action="reefSpot"><i class="fa-solid fa-binoculars"></i> Repérer le récif</button>
+      <button type="button" data-action="reefAvoid"><i class="fa-solid fa-ship"></i> Bâbord/Tribord toute !</button>
+      <button type="button" data-action="reefImpact"><i class="fa-solid fa-burst"></i> Récif non repéré</button>
+      <button type="button" data-action="reefSpeedScore"><i class="fa-solid fa-gauge-high"></i> Appliquer score de vitesse</button>
+      <button type="button" data-action="reefBypass"><i class="fa-solid fa-route"></i> Contourner (−7)</button>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel pf1-ss-regatta-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-flag-checkered"></i> Régate des Capitaines libres</h3>
+        <p class="hint">Pour chaque tranche complète de 5 points au-dessus du DD : +1 au score ; pour chaque tranche complète de 5 en dessous : −1.</p>
+      </div>
+      <div class="pf1-ss-regatta-score"><span>Score</span><strong>{{hazards.regatta.score}}</strong></div>
+    </div>
+    <div class="pf1-ss-action-row">
+      <button type="button" class="primary" data-action="startRegatta">Démarrer</button>
+      <button type="button" data-action="resetRegatta">Réinitialiser</button>
+      <button type="button" data-action="adjustScore" data-amount="-5">−5</button><button type="button" data-action="adjustScore" data-amount="-1">−1</button><button type="button" data-action="adjustScore" data-amount="1">+1</button><button type="button" data-action="adjustScore" data-amount="5">+5</button>
+    </div>
+    <div class="pf1-ss-regatta-stage">
+      <label>Étape
+        <select name="hazards.regatta.stage">{{#each stageChoices}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{key}} — {{name}}</option>{{/each}}</select>
+      </label>
+      <button type="button" data-action="setStage">Charger l’étape</button>
+      <div><strong>{{stage.key}} — {{stage.name}}</strong><p>{{stage.note}}</p></div>
+    </div>
+
+    <div class="pf1-ss-dashboard-columns">
+      <div class="pf1-ss-subpanel">
+        <h4>Tests de navigation pour le score</h4>
+        <div class="pf1-ss-form-grid">
+          <label>DD manuel (0 = DD de l’étape) <input type="number" min="0" name="hazards.regatta.navDcOverride" value="{{hazards.regatta.navDcOverride}}"></label>
+          <label>Modificateur manuel <input type="number" name="hazards.regatta.navigationManualModifier" value="{{hazards.regatta.navigationManualModifier}}"></label>
+          <label>Aides réussies (0–3) <input type="number" min="0" max="3" name="hazards.regatta.aidCount" value="{{hazards.regatta.aidCount}}"></label>
+          <label class="pf1-ss-checkbox"><input type="checkbox" name="hazards.regatta.goodWindsChart" {{#if hazards.regatta.goodWindsChart}}checked{{/if}}><span>Carte des bons vents (départ +3)</span></label>
+          <label class="pf1-ss-checkbox"><input type="checkbox" name="hazards.regatta.jalhazarRudder" {{#if hazards.regatta.jalhazarRudder}}checked{{/if}}><span>Gouvernail de Jalhazar (+5)</span></label>
+        </div>
+        <p>DD utilisé : <strong>{{regattaDc}}</strong> · tests de score restants : <strong>{{navChecksRemaining}}</strong></p>
+        <button type="button" class="primary" data-action="regattaNav"><i class="fa-solid fa-dice-d20"></i> Test de navigation de score</button>
+      </div>
+
+      <div class="pf1-ss-subpanel">
+        <h4>Test de compétence d’étape</h4>
+        <div class="pf1-ss-form-grid">
+          <label>Personnage
+            <select name="hazards.regatta.skillActorUuid"><option value="">— bonus manuel —</option>{{#each crewChoices}}<option value="{{uuid}}" {{#if raceSelected}}selected{{/if}}>{{name}}</option>{{/each}}</select>
+          </label>
+          <label>Compétence
+            <select name="hazards.regatta.skillMode">{{#each regattaSkillChoices}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select>
+          </label>
+          <label>DD <input type="number" min="0" name="hazards.regatta.skillDc" value="{{hazards.regatta.skillDc}}"></label>
+          <label>Bonus manuel <input type="number" name="hazards.regatta.skillManualModifier" value="{{hazards.regatta.skillManualModifier}}"></label>
+          <label>Perte sur échec <input type="number" min="0" name="hazards.regatta.skillFailPenalty" value="{{hazards.regatta.skillFailPenalty}}"></label>
+          <label>Perte en plus sur échec de 5+ <input type="number" min="0" name="hazards.regatta.skillSeverePenalty" value="{{hazards.regatta.skillSeverePenalty}}"></label>
+        </div>
+        <button type="button" data-action="regattaSkill"><i class="fa-solid fa-person-running"></i> Résoudre le test d’étape</button>
+      </div>
+    </div>
+
+    <div class="pf1-ss-regatta-quick-actions">
+      <button type="button" data-action="atollCrossing"><i class="fa-solid fa-mountain"></i> J : récif DD 30 (8d8 sur échec)</button>
+      <button type="button" data-action="hurricaneLightning"><i class="fa-solid fa-bolt"></i> I : foudre 10d8 aux voiles</button>
+      <button type="button" data-action="uncontrolledPenalty"><i class="fa-solid fa-arrow-down"></i> L : round incontrôlé (−1)</button>
+      <button type="button" class="primary" data-action="finishRegatta"><i class="fa-solid fa-trophy"></i> Résultat final</button>
+    </div>
+
+    <div class="pf1-ss-regatta-outcome">
+      <span>Projection actuelle</span><strong>{{outcome.label}}</strong><small>{{outcome.xp}} PX · +{{outcome.infamy}} Infamie · +{{outcome.disrepute}} Déshonneur</small>
+    </div>
+    {{#if regattaHistory.length}}
+      <details><summary>Historique récent</summary><ol class="pf1-ss-history">{{#each regattaHistory}}<li>{{label}} : {{#if delta}}{{delta}}{{else}}0{{/if}} → <strong>{{score}}</strong></li>{{/each}}</ol></details>
+    {{/if}}
+  </section>
+
+  <footer class="form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button></footer>
+</div>

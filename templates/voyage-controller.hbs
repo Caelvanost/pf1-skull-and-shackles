@@ -1,0 +1,133 @@
+<div class="pf1-ss-voyage-root">
+  <header class="pf1-ss-hazards-hero pf1-ss-voyage-hero">
+    <div>
+      <span class="pf1-ss-kicker">HAUTE MER</span>
+      <h2><i class="fa-solid fa-route"></i> Voyages &amp; Poursuites</h2>
+      <p>{{actor.name}} · {{profileName}} · pilote {{driverName}} ({{driverModifier}})</p>
+    </div>
+    <div class="pf1-ss-actions">
+      <button type="button" data-action="openHazards"><i class="fa-solid fa-cloud-bolt"></i> Dangers</button>
+      <button type="button" data-action="openDashboard"><i class="fa-solid fa-anchor"></i> Passerelle</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-compass"></i> Déplacement sur longue distance</h3>
+        <p class="hint">Un jour à la rame représente 10 h ; un navire à voiles peut naviguer 24 h. Les profils qui ne donnent pas eux-mêmes une vitesse de voyage chiffrée restent manuels.</p>
+      </div>
+      {{#if preset}}
+        <button type="button" data-action="applyProfilePreset"><i class="fa-solid fa-wand-magic-sparkles"></i> Appliquer {{preset.label}}</button>
+      {{/if}}
+    </div>
+
+    {{#if preset}}
+      <p class="pf1-ss-alert ok"><strong>Valeur publiée disponible :</strong> {{preset.kmPerHour}} km/h · {{preset.kmPerDay}} km/jour ({{preset.source}}).</p>
+    {{else}}
+      <p class="pf1-ss-alert warning">Le profil actuel ne contient pas de vitesse de voyage chiffrée directement dans le Guide du Joueur utilisé par le module. Renseigne l’allure de référence ci-dessous.</p>
+    {{/if}}
+
+    <div class="pf1-ss-grid four pf1-ss-voyage-grid">
+      <label><span>Vitesse de base (km/h)</span><input type="number" name="voyage.travel.baseKmPerHour" value="{{data.travel.baseKmPerHour}}" min="0" step="0.1" data-dtype="Number"></label>
+      <label><span>Heures de navigation / jour</span><input type="number" name="voyage.travel.hoursPerDay" value="{{data.travel.hoursPerDay}}" min="0" max="24" step="0.5" data-dtype="Number"></label>
+      <label><span>Distance prévue (km)</span><input type="number" name="voyage.travel.distanceKm" value="{{data.travel.distanceKm}}" min="0" step="0.1" data-dtype="Number"></label>
+      <label><span>Conditions (% manuel)</span><input type="number" name="voyage.travel.conditionPercent" value="{{data.travel.conditionPercent}}" min="-100" step="5" data-dtype="Number"></label>
+    </div>
+
+    <div class="pf1-ss-voyage-readout">
+      <div><span>Base</span><strong>{{travel.baseLabel}}</strong></div>
+      <div><span>Améliorations</span><strong>{{travel.improvementSigned}}</strong><small>blindage, renforts, voiles de soie</small></div>
+      <div><span>Conditions</span><strong>{{travel.conditionSigned}}</strong><small>ajustement choisi par le MJ</small></div>
+      <div><span>Allure effective</span><strong>{{travel.effectiveLabel}}</strong></div>
+      <div><span>Distance / jour</span><strong>{{travel.dailyLabel}}</strong></div>
+      <div><span>Progression</span><strong>{{travel.progressLabel}}</strong><small>jour {{data.travel.daysElapsed}}</small></div>
+      <div><span>Reste</span><strong>{{travel.remainingLabel}}</strong></div>
+      <div><span>Temps restant</span><strong>{{travel.etaLabel}}</strong></div>
+    </div>
+
+    <div class="pf1-ss-voyage-progress"><span style="width: {{travel.progressPercent}}%"></span></div>
+    {{#if weatherSpeedHalved}}
+      <p class="pf1-ss-alert warning"><i class="fa-solid fa-wind"></i> Un danger de tempête a actuellement marqué la vitesse comme divisée par deux pendant 1 heure. Ce modificateur temporaire n’est pas étendu automatiquement à toute la journée ; utilise le champ Conditions si nécessaire.</p>
+    {{/if}}
+
+    <label><span>Notes de voyage</span><textarea name="voyage.travel.notes" rows="2">{{data.travel.notes}}</textarea></label>
+    <div class="pf1-ss-actions">
+      <button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button>
+      <button type="button" class="primary" data-action="advanceDay"><i class="fa-solid fa-sun"></i> Avancer d’un jour</button>
+      <button type="button" data-action="resetTrip"><i class="fa-solid fa-rotate-left"></i> Réinitialiser le trajet</button>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-dice"></i> Rencontres aléatoires en mer</h3>
+    <p class="hint">Les trois tables ci-dessous proviennent de la campagne Skull &amp; Shackles. La probabilité qu’une rencontre se produise n’est pas fixée par ces tables : le MJ choisit la fréquence et la chance appropriées.</p>
+    <div class="pf1-ss-grid three">
+      <label><span>Table</span><select name="voyage.encounters.tier">{{#each tierChoices}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+      <label><span>Chance par vérification (%)</span><input type="number" name="voyage.encounters.chance" value="{{data.encounters.chance}}" min="0" max="100" step="1" data-dtype="Number"></label>
+      <label><span>Vérifications automatiques / jour</span><input type="number" name="voyage.encounters.checksPerDay" value="{{data.encounters.checksPerDay}}" min="0" max="24" step="1" data-dtype="Number"></label>
+    </div>
+    <div class="pf1-ss-actions">
+      <button type="button" data-action="checkEncounter"><i class="fa-solid fa-percent"></i> Vérifier une rencontre</button>
+      <button type="button" class="primary" data-action="rollEncounter"><i class="fa-solid fa-dice-d20"></i> Tirer directement sur la table</button>
+    </div>
+    {{#if data.encounters.lastEncounterText}}<p class="hint">Dernière rencontre : d100 {{data.encounters.lastEncounterRoll}} — <strong>{{data.encounters.lastEncounterText}}</strong>.</p>{{/if}}
+    <details class="pf1-ss-voyage-table">
+      <summary>{{tier.source}} — afficher le d100</summary>
+      <table>
+        <thead><tr><th>d100</th><th>Résultat</th><th>FP moy.</th><th>Source</th></tr></thead>
+        <tbody>{{#each encounterTable}}<tr><td>{{min}}–{{max}}</td><td>{{result}}</td><td>{{cr}}</td><td>{{source}}</td></tr>{{/each}}</tbody>
+      </table>
+    </details>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-compass-drafting"></i> Navigation hors combat</h3>
+    <p class="hint">Le DD de base est 5 hors combat. Le Guide indique que l’on peut normalement faire 10, et qu’un jet n’est utile que dans les situations particulières.</p>
+    <div class="pf1-ss-grid two">
+      <label><span>DD</span><input type="number" name="voyage.navigation.dc" value="{{data.navigation.dc}}" min="0" step="1" data-dtype="Number"></label>
+      <label><span>Modificateur circonstanciel supplémentaire</span><input type="number" name="voyage.navigation.extraModifier" value="{{data.navigation.extraModifier}}" step="1" data-dtype="Number"></label>
+    </div>
+    <div class="pf1-ss-actions"><button type="button" data-action="rollNavigation"><i class="fa-solid fa-dice-d20"></i> Faire le test</button></div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-flag-checkered"></i> Fuite et poursuite</h3>
+        <p class="hint">Résolution Skull &amp; Shackles : trois tests de navigation opposés ; il faut en remporter au moins deux.</p>
+      </div>
+      {{#if targeted}}<button type="button" data-action="useTarget"><i class="fa-solid fa-crosshairs"></i> Utiliser la cible : {{targeted.name}}</button>{{/if}}
+    </div>
+
+    <div class="pf1-ss-grid two">
+      <label>
+        <span>Navire adverse</span>
+        <select name="voyage.chase.opponentUuid">
+          <option value="">— Choisir —</option>
+          {{#each vehicleChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select>
+      </label>
+      <label><span>Rôle de {{actor.name}}</span><select name="voyage.chase.ownRole">{{#each chaseRoleChoices}}<option value="{{key}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+    </div>
+
+    {{#if opponent}}
+      <div class="pf1-ss-voyage-opponent">
+        <div><span>Adversaire</span><strong>{{opponent.name}}</strong></div>
+        <div><span>Pilote</span><strong>{{opponent.driverName}}</strong><small>{{opponent.driverModifier}}</small></div>
+        <div><span>Allure de voyage renseignée</span><strong>{{opponent.travelSpeed}}</strong></div>
+      </div>
+    {{/if}}
+
+    <div class="pf1-ss-actions">
+      <button type="button" class="primary" data-action="rollChase"><i class="fa-solid fa-dice"></i> Lancer les 3 tests opposés</button>
+      <button type="button" data-action="rollChaseDays"><i class="fa-solid fa-calendar-days"></i> Durée optionnelle 1d4 jours</button>
+    </div>
+    {{#if data.chase.lastOutcome}}
+      <p class="pf1-ss-alert {{#if data.chase.lastOwnWins}}ok{{else}}warning{{/if}}"><strong>Dernière série :</strong> {{actor.name}} {{data.chase.lastOwnWins}} — adversaire {{data.chase.lastOpponentWins}}. {{data.chase.lastOutcome}}</p>
+    {{/if}}
+    {{#if data.chase.lastDays}}<p class="hint">Dernière durée tirée : {{data.chase.lastDays}} jour(s).</p>{{/if}}
+
+    <p class="hint">Si le poursuivant gagne, il rattrape le navire en fuite et le combat naval commence. Si le fuyard gagne, il s’échappe. Le MJ peut aussi décider qu’un navire manifestement plus rapide rattrape automatiquement un navire plus lent, en tenant compte du vent, des courants ou du littoral.</p>
+  </section>
+</div>

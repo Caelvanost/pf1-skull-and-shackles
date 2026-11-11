@@ -1,0 +1,87 @@
+<div class="pf1-ss-entertainment-root">
+  <header class="pf1-ss-toolbar">
+    <button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Navire</button>
+    <div class="pf1-ss-toolbar-title"><strong>Divertissements pirates</strong> — {{actor.name}}</div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-music"></i> Chansons, histoires et Représentation</h3>
+    <p class="hint">DD 20. Réussite : +2 de circonstance aux tests de compétence basés sur le Charisme envers les auditeurs pendant 24 h. Sur 9 ou moins, la prochaine tentative est ignorée jusqu’à une réussite de Bluff ou Intimidation DD 15.</p>
+    <div class="pf1-ss-grid three">
+      <label><span>Artiste</span><select name="entertainment.performance.actorUuid"><option value="">— choisir —</option>{{#each performanceActorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>Représentation</span><select name="entertainment.performance.skillId"><option value="">— meilleure / Charisme —</option>{{#each performanceSkills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{modDisplay}})</option>{{/each}}</select></label>
+      <label><span>Modificateur circonstanciel</span><input type="number" name="entertainment.performance.manualModifier" value="{{data.performance.manualModifier}}" step="1"></label>
+    </div>
+    <div class="pf1-ss-life-status">
+      <span class="{{#if performanceBlocked}}bad{{else}}good{{/if}}"><i class="fa-solid fa-ear-listen"></i> {{#if performanceBlocked}}Équipage qui ignore l’artiste{{else}}Auditoire disponible{{/if}}</span>
+      {{#if performanceActive}}<span class="good"><i class="fa-solid fa-star"></i> Bonus +2 actif, environ {{performanceHours}} h restantes</span>{{/if}}
+    </div>
+    <div class="pf1-ss-inline-actions">
+      <button type="button" class="primary" data-action="rollPerformance"><i class="fa-solid fa-dice-d20"></i> Divertir l’équipage</button>
+      <select name="entertainment.performance.recoverySkillId">{{#each recoverySkills}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{modDisplay}})</option>{{/each}}</select>
+      <button type="button" data-action="recoverAudience"><i class="fa-solid fa-bullhorn"></i> Bluff / Intimidation DD 15</button>
+    </div>
+    <p class="hint">Le bonus réussi est exposé aux autres outils du module sur ce navire ; la tentative d’Influence de « Vie à bord » l’ajoute automatiquement.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-hand-fist"></i> Bras de fer</h3><button type="button" data-action="toggleArmOpen" class="{{#if armOpen}}good{{/if}}"><i class="fa-solid fa-users"></i> {{#if armOpen}}Fermer les inscriptions{{else}}Ouvrir aux joueurs{{/if}}</button></div>
+    <p class="hint">Test de Force opposé. Le perdant reçoit 1d2 + modificateur de Force du vainqueur. Le texte ne donne pas de règle de départage en cas d’égalité.</p>
+    <div class="pf1-ss-grid four">
+      <label><span>Participant A</span><select name="entertainment.arm.actorAUuid"><option value="">—</option>{{#each armAChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select><small>For {{armAStr}}</small></label>
+      <label><span>Participant B</span><select name="entertainment.arm.actorBUuid"><option value="">—</option>{{#each armBChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select><small>For {{armBStr}}</small></label>
+      <label><span>Mise par personne (po)</span><input type="number" name="entertainment.arm.stake" value="{{data.arm.stake}}" min="1" step="1"><small>Pot théorique {{armPot}} po</small></label>
+      <div class="pf1-ss-static-field"><span>Modificateurs manuels</span><div class="pf1-ss-inline-actions"><input type="number" name="entertainment.arm.manualA" value="{{data.arm.manualA}}" step="1" title="A"><input type="number" name="entertainment.arm.manualB" value="{{data.arm.manualB}}" step="1" title="B"></div></div>
+    </div>
+    <div class="pf1-ss-inline-actions">
+      <label class="pf1-ss-checkbox"><input type="checkbox" name="entertainment.arm.aLowRankNpc" {{#if data.arm.aLowRankNpc}}checked{{/if}}><span>A est un PNJ de rang inférieur</span></label>
+      <label class="pf1-ss-checkbox"><input type="checkbox" name="entertainment.arm.bLowRankNpc" {{#if data.arm.bLowRankNpc}}checked{{/if}}><span>B est un PNJ de rang inférieur</span></label>
+      <button type="button" class="primary" data-action="rollArmWrestling"><i class="fa-solid fa-dice-d20"></i> Résoudre le bras de fer</button>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><div><h3><i class="fa-solid fa-piggy-bank"></i> Lancer de cochon</h3><p class="hint">Jet d’attaque avec le BMO. −4 pour arme improvisée sauf avec Lancer improvisé. La distance en mètres est égale au résultat final du jet. Les joueurs peuvent s’inscrire et lancer eux-mêmes depuis leur HUD.</p></div><div class="pf1-ss-inline-actions"><button type="button" data-action="togglePigOpen" class="{{#if pigOpen}}good{{/if}}"><i class="fa-solid fa-users"></i> {{#if pigOpen}}Fermer inscriptions{{else}}Ouvrir aux joueurs{{/if}}</button><button type="button" data-action="newPigRound"><i class="fa-solid fa-rotate"></i> Nouvelle manche ({{pigRound}})</button><button type="button" data-action="addPigParticipant"><i class="fa-solid fa-plus"></i> Participant</button></div></div>
+    <label class="pf1-ss-compact-field"><span>Mise par participant (po)</span><input type="number" name="entertainment.pig.stake" value="{{data.pig.stake}}" min="1" step="1"><small>Pot théorique : {{pigPot}} po</small></label>
+    <div class="pf1-ss-game-participants">
+      {{#each pigParticipants}}
+      <div class="pf1-ss-game-row" data-pig-id="{{id}}">
+        <input type="hidden" name="entertainment.pig.participants.{{index}}.id" value="{{id}}">
+        <label class="grow"><span>Participant</span><select name="entertainment.pig.participants.{{index}}.actorUuid"><option value="">—</option>{{#each actorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <div class="pf1-ss-static-field"><span>BMO</span><strong>{{cmb}}</strong><small>{{#if detected}}Lancer improvisé détecté{{else}}malus {{penalty}}{{/if}}</small></div>
+        <label><span>Mod. manuel</span><input type="number" name="entertainment.pig.participants.{{index}}.manualModifier" value="{{manualModifier}}" step="1"></label>
+        <label class="pf1-ss-checkbox"><input type="checkbox" name="entertainment.pig.participants.{{index}}.improvisedThrowOverride" {{#if improvisedThrowOverride}}checked{{/if}}><span>Ignorer −4</span></label>
+        <label class="pf1-ss-checkbox"><input type="checkbox" name="entertainment.pig.participants.{{index}}.lowRankNpc" {{#if lowRankNpc}}checked{{/if}}><span>PNJ rang inférieur</span></label>
+        <button type="button" class="danger" data-action="removePigParticipant"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      {{/each}}
+    </div>
+    <button type="button" class="primary" data-action="rollPigToss"><i class="fa-solid fa-dice"></i> Lancer le cochon</button>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><div><h3><i class="fa-solid fa-martini-glass-citrus"></i> Haut les cœurs !</h3><p class="hint">Chaque joueur peut choisir de participer puis lancer lui-même ses dés depuis le HUD. Chaque rasade : Vigueur DD 15, puis +3 par rasade consécutive.</p></div><div class="pf1-ss-inline-actions"><button type="button" data-action="toggleDrinkOpen" class="{{#if drinkOpen}}good{{/if}}"><i class="fa-solid fa-users"></i> {{#if drinkOpen}}Fermer inscriptions{{else}}Ouvrir aux joueurs{{/if}}</button><button type="button" data-action="addDrinkParticipant"><i class="fa-solid fa-plus"></i> Participant</button><button type="button" data-action="resetDrinking"><i class="fa-solid fa-rotate"></i> Réinitialiser</button></div></div>
+    <div class="pf1-ss-grid three"><label><span>Mise par participant (po)</span><input type="number" name="entertainment.drinking.stake" value="{{data.drinking.stake}}" min="1" step="1"></label><div class="pf1-ss-static-field"><span>Ronde</span><strong>{{data.drinking.round}}</strong></div><div class="pf1-ss-static-field"><span>Encore debout</span><strong>{{activeDrinkers}}</strong><small>Pot théorique {{drinkingPot}} po</small></div></div>
+    <div class="pf1-ss-game-participants">
+      {{#each drinkParticipants}}
+      <div class="pf1-ss-game-row drinking" data-drink-id="{{id}}">
+        <input type="hidden" name="entertainment.drinking.participants.{{index}}.id" value="{{id}}">
+        <label class="grow"><span>Buveur</span><select name="entertainment.drinking.participants.{{index}}.actorUuid"><option value="">—</option>{{#each actorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+        <label class="pf1-ss-checkbox"><input type="checkbox" name="entertainment.drinking.participants.{{index}}.active" {{#if active}}checked{{/if}}><span>Encore debout</span></label>
+        <label class="pf1-ss-checkbox"><input type="checkbox" name="entertainment.drinking.participants.{{index}}.lowRankNpc" {{#if lowRankNpc}}checked{{/if}}><span>PNJ rang inférieur</span></label>
+        <div class="pf1-ss-static-field"><span>Rasades</span><strong>{{drinks}}</strong><small>prochain DD {{nextDc}}</small></div>
+        <div class="pf1-ss-static-field"><span>Dégâts Con cumulés</span><strong>{{conDamage}}</strong><small>Vig {{fort}}</small></div>
+        <button type="button" data-action="rollDrinkParticipant" title="Le MJ lance pour ce participant"><i class="fa-solid fa-dice-d20"></i></button><button type="button" class="danger" data-action="removeDrinkParticipant"><i class="fa-solid fa-trash"></i></button>
+      </div>
+      {{/each}}
+    </div>
+    <button type="button" class="primary" data-action="nextDrinkRound"><i class="fa-solid fa-wine-bottle"></i> Ouvrir la prochaine rasade</button>
+    <p class="hint">Le module ne retranche pas automatiquement les dégâts de Constitution aux fiches PF1 et ne décide pas quand quelqu’un tombe. Quand une ronde est ouverte, les joueurs inscrits voient apparaître « Boire et lancer » dans leur HUD S&S ; le MJ garde un bouton de lancer sur chaque ligne pour les PNJ.</p>
+  </section>
+
+  <section class="pf1-ss-note">
+    <strong>Paris :</strong> la mise de départ est au minimum de 1 po. Un PNJ de rang inférieur ne peut espérer gagner plus de 20 po en liquide. Le module affiche les pots théoriques mais ne modifie pas automatiquement les monnaies des fiches.
+  </section>
+
+  <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button></footer>
+</div>

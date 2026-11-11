@@ -1,0 +1,53 @@
+<div class="pf1-ss-fleet-battle-sheet">
+  <header class="pf1-ss-titlebar fleet-battle-title">
+    <div><h2><i class="fa-solid fa-ship"></i> Affrontement entre flottes</h2><div class="pf1-ss-badges"><span class="pf1-ss-badge">Round {{state.round}}</span><span class="pf1-ss-badge">{{phaseLabel}}</span><span class="pf1-ss-badge">1 round = 10 minutes</span></div></div>
+    <div class="pf1-ss-header-actions"><button type="button" data-action="newRound"><i class="fa-solid fa-forward-step"></i> Nouveau round</button><button type="button" data-action="applyPhaseAdvantages" {{#unless battleActive}}disabled{{/unless}}><i class="fa-solid fa-chess"></i> Appliquer avantages</button><button type="button" data-action="routPhase" {{#unless battleActive}}disabled{{/unless}}><i class="fa-solid fa-flag-white"></i> Phase de déroute</button><button type="button" data-action="resetBattle"><i class="fa-solid fa-rotate-left"></i> Réinitialiser</button></div>
+  </header>
+
+  {{#if ended}}<section class="pf1-ss-victory-banner"><h3>Bataille terminée</h3>{{#if state.winner}}<p>Résultat enregistré. Le vaisseau amiral de la flotte vaincue devient vulnérable si une flotte a remporté la bataille.</p>{{/if}}{{#unless state.victoryApplied}}<button type="button" data-action="victoryMorale"><i class="fa-solid fa-trophy"></i> Appliquer le moral de victoire</button>{{/unless}}</section>{{/if}}
+
+  <section class="pf1-ss-battle-initiative">
+    <div class="{{#if sideA.winner}}winner{{/if}}"><strong>{{sideA.fleet.name}}</strong><span>Amiral : {{sideA.admiral.name}} — Profession {{sideA.admiral.profession}}</span><b>Initiative : {{sideA.initiative}}</b>{{#if sideA.winner}}<em>Ascendant : +1 attaque</em>{{/if}}</div>
+    <div class="vs">VS</div>
+    <div class="{{#if sideB.winner}}winner{{/if}}"><strong>{{sideB.fleet.name}}</strong><span>Amiral : {{sideB.admiral.name}} — Profession {{sideB.admiral.profession}}</span><b>Initiative : {{sideB.initiative}}</b>{{#if sideB.winner}}<em>Ascendant : +1 attaque</em>{{/if}}</div>
+  </section>
+
+  <div class="pf1-ss-fleet-columns">
+    <section class="pf1-ss-panel pf1-ss-battle-side" data-side="a">
+      <div class="pf1-ss-panel-heading"><h3>{{sideA.fleet.name}}</h3><button type="button" data-action="openFleetA"><i class="fa-solid fa-pen"></i> Fiche</button></div>
+      {{#if sideA.vengeance}}<p class="pf1-ss-callout danger"><strong>Vengeance :</strong> +2 attaque et moral pour ce round.</p>{{/if}}
+      {{#if sideA.phaseChoiceRows.length}}<div class="pf1-ss-phase-advantages"><h4>Choix d'avantages pour la phase</h4>{{#each sideA.phaseChoiceRows}}<label><span>{{label}}</span><select data-phase-choice-side="a" data-choice-key="{{key}}"><option value="">— Aucun —</option>{{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select><small>{{description}}</small></label>{{/each}}</div>{{/if}}
+      {{#if sideA.rapidRepairsAvailable}}<div class="pf1-ss-rapid-repair" data-side="a"><select data-role="repair-target">{{#each sideA.repairChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select><button type="button" data-action="rapidRepair"><i class="fa-solid fa-hammer"></i> Réparations rapides 1d6</button></div>{{/if}}
+      <div class="pf1-ss-battle-squadrons">
+      {{#each sideA.squadrons}}
+        <article class="pf1-ss-battle-squadron {{#if derived.eliminated}}eliminated{{/if}}" data-side="a" data-squadron-id="{{id}}">
+          <div class="row"><strong>{{name}}</strong><span>{{statusLabel}}</span>{{#if acted}}<i>Déjà agi</i>{{/if}}</div>
+          <div class="stats"><span>PR {{derived.currentPr}}/{{derived.maxPr}}</span><span>Moral {{morale}}</span><span>VD {{defenseTotal}}</span><span>VA {{attackDisplay}}</span><span>Dégâts 1d6+{{damageBonusTotal}}</span><span>Moral {{moraleModDisplay}}</span></div>
+          {{#unless derived.eliminated}}<div class="attack-row"><select data-role="target"><option value="">— Cible —</option>{{#each targetChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select><button type="button" data-action="attack" {{#unless canAttack}}disabled{{/unless}}><i class="fa-solid fa-crosshairs"></i> Attaquer</button></div>{{/unless}}
+        </article>
+      {{/each}}
+      </div>
+      <div class="pf1-ss-actions-row" data-side="a"><button type="button" data-action="flee"><i class="fa-solid fa-person-running"></i> Tenter de fuir</button></div>
+    </section>
+
+    <section class="pf1-ss-panel pf1-ss-battle-side" data-side="b">
+      <div class="pf1-ss-panel-heading"><h3>{{sideB.fleet.name}}</h3><button type="button" data-action="openFleetB"><i class="fa-solid fa-pen"></i> Fiche</button></div>
+      {{#if sideB.vengeance}}<p class="pf1-ss-callout danger"><strong>Vengeance :</strong> +2 attaque et moral pour ce round.</p>{{/if}}
+      {{#if sideB.phaseChoiceRows.length}}<div class="pf1-ss-phase-advantages"><h4>Choix d'avantages pour la phase</h4>{{#each sideB.phaseChoiceRows}}<label><span>{{label}}</span><select data-phase-choice-side="b" data-choice-key="{{key}}"><option value="">— Aucun —</option>{{#each choices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select><small>{{description}}</small></label>{{/each}}</div>{{/if}}
+      {{#if sideB.rapidRepairsAvailable}}<div class="pf1-ss-rapid-repair" data-side="b"><select data-role="repair-target">{{#each sideB.repairChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select><button type="button" data-action="rapidRepair"><i class="fa-solid fa-hammer"></i> Réparations rapides 1d6</button></div>{{/if}}
+      <div class="pf1-ss-battle-squadrons">
+      {{#each sideB.squadrons}}
+        <article class="pf1-ss-battle-squadron {{#if derived.eliminated}}eliminated{{/if}}" data-side="b" data-squadron-id="{{id}}">
+          <div class="row"><strong>{{name}}</strong><span>{{statusLabel}}</span>{{#if acted}}<i>Déjà agi</i>{{/if}}</div>
+          <div class="stats"><span>PR {{derived.currentPr}}/{{derived.maxPr}}</span><span>Moral {{morale}}</span><span>VD {{defenseTotal}}</span><span>VA {{attackDisplay}}</span><span>Dégâts 1d6+{{damageBonusTotal}}</span><span>Moral {{moraleModDisplay}}</span></div>
+          {{#unless derived.eliminated}}<div class="attack-row"><select data-role="target"><option value="">— Cible —</option>{{#each targetChoices}}<option value="{{value}}">{{label}}</option>{{/each}}</select><button type="button" data-action="attack" {{#unless canAttack}}disabled{{/unless}}><i class="fa-solid fa-crosshairs"></i> Attaquer</button></div>{{/unless}}
+        </article>
+      {{/each}}
+      </div>
+      <div class="pf1-ss-actions-row" data-side="b"><button type="button" data-action="flee"><i class="fa-solid fa-person-running"></i> Tenter de fuir</button></div>
+    </section>
+  </div>
+
+  <section class="pf1-ss-panel"><h3><i class="fa-solid fa-scroll"></i> Journal de bataille</h3>{{#if log.length}}<div class="pf1-ss-battle-log">{{#each log}}<p><small>{{at}}</small> {{text}}</p>{{/each}}</div>{{else}}<p>Aucun événement enregistré.</p>{{/if}}</section>
+  <p class="pf1-ss-rules-help">Assignation des dégâts : sur une attaque normale le module les répartit défensivement pour préserver les bateaux actifs ; sur un 20 naturel ou avec Tactique évoluée il les concentre offensivement. La fiche de flotte permet ensuite d'ajuster manuellement la répartition bateau par bateau si le MJ ou le joueur préfère une autre assignation autorisée par les règles.</p>
+</div>

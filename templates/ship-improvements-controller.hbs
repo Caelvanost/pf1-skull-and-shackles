@@ -1,0 +1,144 @@
+<div class="pf1-ss-improvements-root">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-hammer"></i> Améliorations — {{actor.name}}</h2>
+      <div class="pf1-ss-badges">
+        <span class="pf1-ss-badge ok">{{effective.count}} installation(s)</span>
+        <span class="pf1-ss-badge">{{profileName}}</span>
+        <span class="pf1-ss-badge warning">Dépenses suivies : {{spentLabel}}</span>
+      </div>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" class="primary" data-action="openDashboard"><i class="fa-solid fa-compass"></i> Passerelle</button>
+      <button type="button" data-action="recalculate"><i class="fa-solid fa-rotate"></i> Recalculer</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div>
+        <h3><i class="fa-solid fa-ruler-combined"></i> Valeurs de base et résultat</h3>
+        <p class="hint">Les valeurs de base représentent le navire sans modification. Les effets sont recalculés depuis cette base pour éviter les cumuls accidentels.</p>
+      </div>
+      {{#if hasProfile}}<button type="button" data-action="resetBaseline"><i class="fa-solid fa-ship"></i> Recharger depuis le profil</button>{{/if}}
+    </div>
+
+    <div class="pf1-ss-improvement-summary-grid">
+      <div><span>Coque</span><strong>{{baseline.hp}} → {{effective.hp}} PV</strong></div>
+      <div><span>Solidité</span><strong>{{baseline.hardness}} → {{effective.hardness}}</strong></div>
+      <div><span>Cargaison</span><strong>{{baseline.cargo}} → {{effective.cargo}} t</strong></div>
+      <div><span>Passagers</span><strong>{{baseline.passengers}} → {{effective.passengers}}</strong></div>
+      <div><span>Dimensions</span><strong>{{baseline.length}} × {{baseline.width}} m → {{effective.length}} × {{effective.width}} m</strong></div>
+      <div><span>Navigation</span><strong>{{effective.navigation}}</strong><small>hors bonus exclusif d’ascendant</small></div>
+      <div><span>Ascendant</span><strong>{{effective.advantage}}</strong><small>bonus des voiles de soie</small></div>
+      <div><span>Voyage</span><strong>{{effective.travel}}</strong><small>estimation cumulative du module</small></div>
+      <div><span>Contrebande</span><strong>{{effective.hiddenPlunder}} point(s) de butin</strong></div>
+      <div><span>Sabords dissimulés</span><strong>{{effective.hiddenGunports}}</strong></div>
+    </div>
+
+    <details class="pf1-ss-improvement-baseline">
+      <summary>Modifier les valeurs de base / navire personnalisé</summary>
+      <div class="pf1-ss-form-grid pf1-ss-improvements-grid">
+        <label>Prix de base (po)<input type="number" min="0" step="1" name="data.base.costGp" value="{{data.base.costGp}}"></label>
+        <label>PV de coque<input type="number" min="0" step="1" name="data.base.hullHp" value="{{data.base.hullHp}}"></label>
+        <label>Solidité<input type="number" min="0" step="1" name="data.base.hardness" value="{{data.base.hardness}}"></label>
+        <label>Cargaison (tonnes)<input type="number" min="0" step="0.01" name="data.base.cargoTons" value="{{data.base.cargoTons}}"></label>
+        <label>Passagers<input type="number" min="0" step="1" name="data.base.passengers" value="{{data.base.passengers}}"></label>
+        <label>Longueur (m)<input type="number" min="0" step="0.1" name="data.base.lengthM" value="{{data.base.lengthM}}"></label>
+        <label>Largeur (m)<input type="number" min="0" step="0.1" name="data.base.widthM" value="{{data.base.widthM}}"></label>
+        <label>Cases de coque (1,50 m)<input type="number" min="0" step="1" name="data.base.shipSquares" value="{{data.base.shipSquares}}"></label>
+        <label>PV voiles<input type="number" min="0" step="1" name="data.base.sailsHp" value="{{data.base.sailsHp}}"></label>
+        <label>Solidité voiles<input type="number" min="0" step="1" name="data.base.sailsHardness" value="{{data.base.sailsHardness}}"></label>
+        <label>Cases de voilure<input type="number" min="0" step="1" name="data.base.sailSquares" value="{{data.base.sailSquares}}"></label>
+        <label>PV rames<input type="number" min="0" step="1" name="data.base.oarsHp" value="{{data.base.oarsHp}}"></label>
+        <label>Solidité rames<input type="number" min="0" step="1" name="data.base.oarsHardness" value="{{data.base.oarsHardness}}"></label>
+        <label>Nombre de rames<input type="number" min="0" step="1" name="data.base.oarCount" value="{{data.base.oarCount}}"></label>
+        <label>PV pilotage<input type="number" min="0" step="1" name="data.base.steeringHp" value="{{data.base.steeringHp}}"></label>
+        <label>Solidité pilotage<input type="number" min="0" step="1" name="data.base.steeringHardness" value="{{data.base.steeringHardness}}"></label>
+      </div>
+    </details>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-user-gear"></i> Constructeur</h3>
+    <div class="pf1-ss-form-grid pf1-ss-improvements-grid">
+      <label>Constructeur
+        <select name="data.builderUuid">
+          <option value="">— bonus manuel —</option>
+          {{#each actorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}
+        </select>
+      </label>
+      <label>Compétence utilisée
+        <select name="data.builderSkillId">
+          <option value="">— bonus manuel —</option>
+          {{#each skillChoices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{display}})</option>{{/each}}
+        </select>
+      </label>
+      <label>Bonus manuel<input type="number" step="1" name="data.manualModifier" value="{{data.manualModifier}}"></label>
+      <label>Prix manuel figure de proue (100–1 000 po)<input type="number" min="100" max="1000" step="1" name="data.manualPrice" value="{{data.manualPrice}}"></label>
+      <label class="pf1-ss-checkbox"><input type="checkbox" name="data.constructionMode" {{#if data.constructionMode}}checked{{/if}}><span>Construction initiale</span></label>
+    </div>
+    <p class="hint">Constructeur actuel : <strong>{{builderName}}</strong> · {{skillName}} {{skillMod}} · modificateur de chantier différent : <strong>{{builderPenaltyDisplay}}</strong>.</p>
+    <p class="hint">Le +2 s’applique lorsqu’un autre constructeur a déjà installé des modifications. Après un échec, le même constructeur ne peut plus terminer cette amélioration tant que le MJ n’efface pas cet historique.</p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <div><h3><i class="fa-solid fa-screwdriver-wrench"></i> Catalogue des modifications</h3><p class="hint">Clique une entrée pour la sélectionner, puis lance son test d’installation.</p></div>
+    </div>
+
+    <input type="hidden" name="data.selectedId" value="{{data.selectedId}}">
+    <div class="pf1-ss-improvement-catalog">
+      {{#each improvements}}
+        <article class="pf1-ss-improvement-card {{#if selected}}selected{{/if}} {{#if installed}}installed{{/if}}" data-improvement-id="{{id}}">
+          <button type="button" class="pf1-ss-improvement-select" data-action="selectImprovement" data-improvement-id="{{id}}">
+            <span class="name">{{name}}</span>
+            <span class="meta">DD {{dc}} · {{priceLabel}}</span>
+          </button>
+          <p>{{summary}}</p>
+          <div class="pf1-ss-improvement-tags">
+            <span>{{skill}}</span>
+            {{#if constructionOnly}}<span>Construction uniquement</span>{{/if}}
+            {{#if magic}}<span>Magique</span>{{/if}}
+            {{#if installed}}<span class="ok">Installé ×{{quantity}}</span>{{/if}}
+          </div>
+          {{#if magicFeatWarning}}<p class="pf1-ss-alert warning">Le module ne détecte pas « Création d’objets merveilleux » sur le constructeur sélectionné : cette installation sera bloquée.</p>{{/if}}
+          {{#if constructionBlocked}}<p class="pf1-ss-alert warning">Active « Construction initiale » pour l’installer.</p>{{/if}}
+          {{#if failedThisBuilder}}<p class="pf1-ss-alert danger">Ce constructeur a déjà échoué sur cette amélioration.</p>{{/if}}
+          <div class="pf1-ss-action-row">
+            <button type="button" class="primary" data-action="installImprovement" data-improvement-id="{{id}}" {{#unless canInstall}}disabled{{/unless}}><i class="fa-solid fa-hammer"></i> Installer</button>
+            {{#if canRemove}}<button type="button" data-action="removeImprovement" data-improvement-id="{{id}}"><i class="fa-solid fa-trash"></i> Retirer 1</button>{{/if}}
+            {{#if failedThisBuilder}}<button type="button" data-action="clearFailure" data-improvement-id="{{id}}"><i class="fa-solid fa-eraser"></i> Effacer l’échec</button>{{/if}}
+          </div>
+        </article>
+      {{/each}}
+    </div>
+  </section>
+
+  {{#if selected}}
+  <section class="pf1-ss-panel pf1-ss-selected-improvement">
+    <h3><i class="fa-solid fa-circle-info"></i> Installation sélectionnée : {{selected.name}}</h3>
+    <div class="pf1-ss-improvement-summary-grid compact">
+      <div><span>DD publié</span><strong>{{selected.dc}}</strong></div>
+      <div><span>DD actuel</span><strong>{{selected.finalDc}}</strong></div>
+      <div><span>Prix</span><strong>{{selected.priceLabel}}</strong></div>
+      <div><span>Installée</span><strong>×{{selected.quantity}}</strong></div>
+    </div>
+    <p><strong>Condition :</strong> {{selected.skill}}</p>
+    <p>{{selected.summary}}</p>
+  </section>
+  {{/if}}
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-scale-balanced"></i> Notes d’automatisation</h3>
+    <ul class="pf1-ss-compact-list">
+      <li>Un échec dépense automatiquement la moitié du prix dans le <strong>registre de dépenses</strong>, mais le module ne retire pas l’argent d’une fiche de personnage.</li>
+      <li>Les améliorations de coque recalculent les PV maximum et la solidité en conservant les dégâts déjà subis.</li>
+      <li>Les traitements magiques doublent les valeurs après les bonus structurels déjà installés. C’est un choix d’implémentation pour les combinaisons que le texte ne détaille pas.</li>
+      <li>Les pourcentages de vitesse de voyage sont affichés comme une estimation cumulative ; la vitesse tactique de combat n’est pas modifiée par le blindage, les renforts en bois ou les voiles de soie.</li>
+      <li>Un sabord dissimulé retire 5 tonnes de capacité de cargaison ; l’espace physique occupé par l’arme reste à gérer dans l’Artillerie.</li>
+    </ul>
+  </section>
+
+  <footer class="form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer</button></footer>
+</div>

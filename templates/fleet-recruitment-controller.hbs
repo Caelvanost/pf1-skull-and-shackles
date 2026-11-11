@@ -1,0 +1,52 @@
+<div class="pf1-ss-fleet-recruitment-root">
+  <header class="pf1-ss-titlebar">
+    <div><h2><i class="fa-solid fa-users-viewfinder"></i> Constitution de la flotte</h2>
+      <div class="pf1-ss-badges"><span class="pf1-ss-badge">Jour {{recruitment.day}}</span><span class="pf1-ss-badge">{{fleetCount}} / {{fleetMax}} escadrons</span><span class="pf1-ss-badge">Infamie {{infamy}}</span><span class="pf1-ss-badge">Butin {{plunder}}</span><span class="pf1-ss-badge">Déshonneur {{disrepute}}</span></div>
+    </div>
+    <div class="pf1-ss-header-actions"><button type="button" data-action="openFleet"><i class="fa-solid fa-flag"></i> Fiche de flotte</button><button type="button" data-action="advanceDay">+1 jour</button><button type="button" data-action="advanceWeek">+1 semaine</button></div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-coins"></i> Escadrons mercenaires</h3>
+    <p class="pf1-ss-rules-help">Un recrutement exige 1d4 jours dans une ville d’au moins 2 001 habitants, puis Bluff, Diplomatie ou Intimidation DD 30. Les cinq ports des Chaînes disponibles sont suivis séparément.</p>
+    <div class="pf1-ss-grid four">
+      <label><span>Port</span><select name="recruitment.currentPort">{{#each portRows}}<option value="{{name}}" {{#if selected}}selected{{/if}}>{{name}}{{#unless available}} — indisponible {{cooldown}} j.{{/unless}}</option>{{/each}}</select></label>
+      <label><span>Recruteur</span><select name="recruitment.recruiterUuid"><option value="">— choisir —</option>{{#each recruiterChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>Compétence</span><select name="recruitment.recruiterSkill"><option value="">— auto —</option>{{#each skillChoices}}<option value="{{id}}" {{#if selected}}selected{{/if}}>{{name}} ({{mod}})</option>{{/each}}</select></label>
+      <label><span>Type</span><select name="recruitment.mercenaryShipType"><option value="sailingShip" {{#if mercenarySailingSelected}}selected{{/if}}>3 voiliers</option><option value="longship" {{#if mercenaryLongshipSelected}}selected{{/if}}>3 drakkars</option></select></label>
+    </div>
+    <div class="pf1-ss-grid three">
+      <label><span>Aides réussies (DD 10)</span><input type="number" name="recruitment.aidSuccesses" value="{{recruitment.aidSuccesses}}" min="0" max="5"><small>+2 chacune</small></label>
+      <label><span>Modificateur manuel</span><input type="number" name="recruitment.manualModifier" value="{{recruitment.manualModifier}}"></label>
+      <div class="pf1-ss-action-cell"><button type="button" data-action="attemptMercenary"><i class="fa-solid fa-dice-d20"></i> Chercher et recruter</button></div>
+    </div>
+
+    {{#if pending}}
+      <div class="pf1-ss-dashboard-alert warning"><i class="fa-solid fa-file-signature"></i><div><strong>Contrat trouvé à {{pending.port}}</strong><span>Le test a réussi avec {{pending.roll}}. Choisis maintenant le paiement.</span></div></div>
+      <div class="pf1-ss-recruitment-payments">
+        <button type="button" data-action="payMercenaryGold"><strong>40 000 po</strong><small>La dépense est enregistrée mais pas retirée d’un Actor.</small></button>
+        <button type="button" data-action="payMercenaryPlunder" data-disrepute="0"><strong>40 Butin</strong></button>
+        {{#if canDiscount1}}<button type="button" data-action="payMercenaryPlunder" data-disrepute="1"><strong>35 Butin + 1 Déshonneur</strong></button>{{/if}}
+        {{#if canDiscount2}}<button type="button" data-action="payMercenaryPlunder" data-disrepute="2"><strong>30 Butin + 2 Déshonneur</strong></button>{{/if}}
+        {{#if canDiscount3}}<button type="button" data-action="payMercenaryPlunder" data-disrepute="3"><strong>25 Butin + 3 Déshonneur</strong></button>{{/if}}
+        <button type="button" class="danger" data-action="cancelPending">Abandonner</button>
+      </div>
+    {{/if}}
+
+    <div class="pf1-ss-port-status-grid">{{#each portRows}}<div class="pf1-ss-port-status {{#unless available}}cooldown{{/unless}}"><strong>{{name}}</strong>{{#if recruited}}<span>Déjà recruté ici</span>{{else}}<span>Aucun recrutement encore</span>{{/if}}{{#unless available}}<small>Nouvel escadron dans {{cooldown}} jour(s)</small>{{/unless}}</div>{{/each}}</div>
+    <p class="hint">Profil mercenaire : 3 voiliers ou 3 drakkars ; contre-amiral Profession (marin) +10, CHA +0 ; moral 3 ; −2 aux tests de moral. Après une bataille notable, le contrat prend fin et il faut les engager de nouveau.</p><p><strong>{{mercenaryCount}}</strong> escadron(s) mercenaire(s) actuellement sous contrat. <button type="button" data-action="releaseMercenaries">Clore les contrats après une bataille notable</button></p>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-handshake"></i> Alliés de campagne</h3>
+    <p class="pf1-ss-rules-help">Un allié ne demande ni test de recrutement, ni coût d’embauche ou d’entretien. En revanche, un escadron allié détruit ne peut pas être remplacé. Le MJ peut désactiver un allié mort, déjà compagnon des PJ ou autrement indisponible.</p>
+    <div class="pf1-ss-allies-list">{{#each allyRows}}<article class="pf1-ss-ally-card {{#unless available}}disabled{{/unless}}" data-ally-key="{{key}}"><div><h4>{{label}}</h4><p>{{location}}</p><p>{{note}}</p><small>Profession (marin) {{viceAdmiralProfession}} · CHA {{viceAdmiralCha}} · Moral {{morale}}</small></div><div class="pf1-ss-ally-actions">{{#if recruited}}<span class="pf1-ss-badge ok">Recruté</span>{{else}}<button type="button" data-action="recruitAlly" {{#unless available}}disabled{{/unless}}>Recruter</button>{{/if}}<button type="button" data-action="toggleAlly">{{#if available}}Rendre indisponible{{else}}Rendre disponible{{/if}}</button></div></article>{{/each}}</div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading"><h3><i class="fa-solid fa-book"></i> Registre</h3><button type="button" data-action="clearLog">Effacer le journal</button></div>
+    <div class="pf1-ss-grid four"><div><span>Or dépensé</span><strong>{{recruitment.goldSpent}} po</strong></div><div><span>Butin dépensé</span><strong>{{recruitment.plunderSpent}}</strong></div><div><span>Déshonneur dépensé</span><strong>{{recruitment.disreputeSpent}}</strong></div><div><span>PX d’histoire</span><strong>{{recruitment.storyXp}}</strong></div></div>
+    <div class="pf1-ss-log">{{#each logRows}}<p><strong>Jour {{day}}</strong> — {{text}}</p>{{else}}<p class="hint">Aucune opération de recrutement enregistrée.</p>{{/each}}</div>
+  </section>
+  <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer les réglages</button></footer>
+</div>

@@ -1,0 +1,150 @@
+<div class="pf1-ss-fleet-sheet">
+  <header class="pf1-ss-titlebar">
+    <div>
+      <h2><i class="fa-solid fa-flag"></i> {{fleet.name}}</h2>
+      <div class="pf1-ss-badges">
+        <span class="pf1-ss-badge">{{squadronCount}} / {{maxSquadrons}} escadrons</span>
+        <span class="pf1-ss-badge">Infamie {{infamy}}</span>
+        {{#if overFleetLimit}}<span class="pf1-ss-badge danger">Limite dépassée</span>{{/if}}
+      </div>
+    </div>
+    <div class="pf1-ss-header-actions">
+      <button type="button" data-action="openShipController"><i class="fa-solid fa-anchor"></i> Navire</button>
+      <button type="button" data-action="syncOfficers"><i class="fa-solid fa-arrows-rotate"></i> Actualiser officiers</button>
+      <button type="button" data-action="openRecruitment"><i class="fa-solid fa-users-viewfinder"></i> Recrutement</button>
+      <button type="button" data-action="openBattle"><i class="fa-solid fa-burst"></i> Affronter la flotte ciblée</button>
+    </div>
+  </header>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-compass"></i> Profil de la flotte</h3>
+    <div class="pf1-ss-grid three">
+      <label><span>Nom de la flotte</span><input type="text" name="fleet.name" value="{{fleet.name}}"></label>
+      <label><span>Port d'attache</span><input type="text" name="fleet.homePort" value="{{fleet.homePort}}"></label>
+      <label><span>Vaisseau amiral</span><input type="text" name="fleet.flagshipName" value="{{fleet.flagshipName}}" placeholder="{{actor.name}}"></label>
+    </div>
+    <div class="pf1-ss-grid four">
+      <label class="pf1-ss-checkbox"><input type="checkbox" name="fleet.npcFleet" {{#if fleet.npcFleet}}checked{{/if}}> <span>Flotte de PNJ</span></label>
+      <label class="pf1-ss-checkbox"><input type="checkbox" name="fleet.useReputationInfamy" {{#if fleet.useReputationInfamy}}checked{{/if}}> <span>Utiliser l'Infamie de Réputation</span></label>
+      <label><span>Infamie manuelle</span><input type="number" name="fleet.manualInfamy" value="{{fleet.manualInfamy}}" min="0" step="1"></label>
+      <div class="pf1-ss-statbox"><span>Escadrons maximum</span><strong>{{maxSquadrons}}</strong><small>Joueurs : ⌊Infamie/10⌋ + CHA amiral ; PNJ : 3 + CHA. Grand nombre s'ajoute.</small></div>
+    </div>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <h3><i class="fa-solid fa-crown"></i> Amiral</h3>
+    <div class="pf1-ss-grid four">
+      <label><span>Fiche PF1</span><select name="fleet.admiralUuid"><option value="">— Saisie manuelle —</option>{{#each actorChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+      <label><span>Nom manuel</span><input type="text" name="fleet.admiralName" value="{{fleet.admiralName}}"></label>
+      <label><span>Mod. CHA</span><input type="number" name="fleet.admiralCha" value="{{fleet.admiralCha}}" step="1"><small>Effectif : {{admiralChaDisplay}}</small></label>
+      <label><span>Profession (marin)</span><input type="number" name="fleet.admiralProfession" value="{{fleet.admiralProfession}}" step="1"><small>Effectif : {{admiralProfessionDisplay}}</small></label>
+    </div>
+    <label><span>Modificateur d'initiative manuel</span><input type="number" name="fleet.admiralInitiativeManual" value="{{fleet.admiralInitiativeManual}}" step="1"></label>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-user-group"></i> Personnages importants et avantages</h3>
+      <button type="button" data-action="addImportant"><i class="fa-solid fa-plus"></i> Ajouter</button>
+    </div>
+    <p class="pf1-ss-rules-help">Chaque personnage important apporte un avantage. Les conditions sont laissées sous contrôle du MJ ; les avantages inactifs si leur escadron est perdu cessent automatiquement d'être pris en compte.</p>
+    {{#if importants.length}}
+      <div class="pf1-ss-important-list">
+      {{#each importants}}
+        <article class="pf1-ss-important" data-important-id="{{id}}">
+          <input type="hidden" name="fleet.importantCharacters.{{index}}.id" value="{{id}}">
+          <label class="pf1-ss-checkbox"><input type="checkbox" name="fleet.importantCharacters.{{index}}.enabled" {{#if enabled}}checked{{/if}}> <span>Actif</span></label>
+          <label><span>Nom</span><input type="text" name="fleet.importantCharacters.{{index}}.name" value="{{name}}"></label>
+          <label><span>Emplacement</span><select name="fleet.importantCharacters.{{index}}.location">{{#each locationChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}}</option>{{/each}}</select></label>
+          <label class="wide"><span>Avantage</span><select name="fleet.importantCharacters.{{index}}.advantage">{{#each advantageChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}} title="{{requirement}}">{{label}}</option>{{/each}}</select></label>
+          <button type="button" data-action="removeImportant" class="danger"><i class="fa-solid fa-trash"></i></button>
+        </article>
+      {{/each}}
+      </div>
+    {{else}}<p>Aucun personnage important enregistré.</p>{{/if}}
+    <details class="pf1-ss-rules-details"><summary>Rappel des avantages</summary>{{#each advantageList}}<p><strong>{{label}}.</strong> {{description}} <em>Conditions : {{requirement}}</em></p>{{/each}}</details>
+  </section>
+
+  <section class="pf1-ss-panel">
+    <div class="pf1-ss-panel-heading">
+      <h3><i class="fa-solid fa-ship"></i> Escadrons</h3>
+      <button type="button" data-action="addSquadron"><i class="fa-solid fa-plus"></i> Recruter / ajouter</button>
+    </div>
+    <p class="pf1-ss-rules-help">Un escadron regroupe des bateaux du même type. Maximum : 3 + modificateur de Charisme du contre-amiral. Un contre-amiral important donne +2 aux attaques, dégâts et tests de moral.</p>
+
+    {{#each squadrons}}
+      <article class="pf1-ss-squadron-card {{#if derived.eliminated}}eliminated{{/if}}" data-squadron-id="{{id}}">
+        <input type="hidden" name="fleet.squadrons.{{index}}.id" value="{{id}}">
+        <div class="pf1-ss-squadron-head">
+          <label class="grow"><span>Nom</span><input type="text" name="fleet.squadrons.{{index}}.name" value="{{name}}"></label>
+          <div class="pf1-ss-badges">
+            <span class="pf1-ss-badge">PR {{derived.currentPr}} / {{derived.maxPr}}</span>
+            <span class="pf1-ss-badge">Moral {{morale}} / 10</span>
+            <span class="pf1-ss-badge">Pertes {{derived.losses}}</span>
+            {{#if derived.overShipLimit}}<span class="pf1-ss-badge danger">Trop de bateaux</span>{{/if}}
+          </div>
+          <button type="button" data-action="resetSquadron" title="Remettre l'escadron à neuf"><i class="fa-solid fa-wand-magic-sparkles"></i></button>
+          <button type="button" data-action="removeSquadron" class="danger"><i class="fa-solid fa-trash"></i></button>
+        </div>
+
+        <div class="pf1-ss-grid four">
+          <label><span>Type de bateau</span><select name="fleet.squadrons.{{index}}.shipType">{{#each shipTypeChoices}}<option value="{{value}}" {{#if selected}}selected{{/if}}>{{label}} ({{pr}} PR)</option>{{/each}}</select></label>
+          <label><span>Nom si « Autre »</span><input type="text" name="fleet.squadrons.{{index}}.customShipName" value="{{customShipName}}"></label>
+          <label><span>PR si « Autre »</span><input type="number" name="fleet.squadrons.{{index}}.customPr" value="{{customPr}}" min="1" step="1"></label>
+          <label><span>Nombre de bateaux</span><input type="number" name="fleet.squadrons.{{index}}.shipCount" value="{{shipCount}}" min="1" step="1"><small>Max contre-amiral : {{derived.maxShips}}</small></label>
+        </div>
+
+        <div class="pf1-ss-grid four">
+          <label><span>Contre-amiral PF1</span><select name="fleet.squadrons.{{index}}.viceAdmiralUuid"><option value="">— Saisie manuelle —</option>{{#each officerChoices}}<option value="{{uuid}}" {{#if selected}}selected{{/if}}>{{name}}</option>{{/each}}</select></label>
+          <label><span>Nom manuel</span><input type="text" name="fleet.squadrons.{{index}}.viceAdmiralName" value="{{viceAdmiralName}}"></label>
+          <label><span>Mod. CHA</span><input type="number" name="fleet.squadrons.{{index}}.viceAdmiralCha" value="{{viceAdmiralCha}}" step="1"><small>Effectif : {{chaDisplay}}</small></label>
+          <label><span>Profession (marin)</span><input type="number" name="fleet.squadrons.{{index}}.viceAdmiralProfession" value="{{viceAdmiralProfession}}" step="1"><small>Effectif : {{professionDisplay}}</small></label>
+        </div>
+
+        <div class="pf1-ss-grid four">
+          <label><span>Moral actuel</span><input type="number" name="fleet.squadrons.{{index}}.morale" value="{{morale}}" min="0" max="10" step="1"></label>
+          <label class="pf1-ss-checkbox"><input type="checkbox" name="fleet.squadrons.{{index}}.counterAdmiralImportant" {{#if counterAdmiralImportant}}checked{{/if}}> <span>Contre-amiral important (+2)</span></label>
+          <label><span>Bonus Loyauté</span><input type="number" name="fleet.squadrons.{{index}}.loyaltyBonus" value="{{loyaltyBonus}}" min="0" max="2" step="1"></label>
+          <label class="pf1-ss-checkbox"><input type="checkbox" name="fleet.squadrons.{{index}}.mutinied" {{#if mutinied}}checked{{/if}}> <span>Mutiné / perdu</span></label>
+        </div>
+
+        <div class="pf1-ss-combat-summary">
+          <span>VD <strong>{{derived.defense}}</strong></span>
+          <span>VA <strong>{{attackDisplay}}</strong></span>
+          <span>Dégâts <strong>1d6 + {{derived.damageBonus}}</strong></span>
+          <span>Test moral <strong>{{moraleModDisplay}}</strong> (base {{derived.moraleBase}} − pertes {{derived.losses}})</span>
+          <span>Bateaux <strong>{{derived.counts.active}}</strong> actifs / {{derived.counts.disabled}} HC / {{derived.counts.sunk}} coulés</span>
+        </div>
+
+        <details class="pf1-ss-ship-tracker"><summary>État individuel des bateaux</summary>
+          <div class="pf1-ss-ship-grid">
+          {{#each shipRows}}
+            <div class="pf1-ss-fleet-ship {{status}}">
+              <strong>#{{index}}</strong>
+              <label>Dégâts <input type="number" name="fleet.squadrons.{{../index}}.ships.{{index}}.damage" value="{{damage}}" min="0" max="{{pr}}" step="1"></label>
+              <select name="fleet.squadrons.{{../index}}.ships.{{index}}.status">
+                <option value="active" {{#if active}}selected{{/if}}>Actif</option>
+                <option value="disabled" {{#if disabled}}selected{{/if}}>Hors de combat</option>
+                <option value="sunk" {{#if sunk}}selected{{/if}}>Coulé</option>
+              </select>
+              <input type="hidden" name="fleet.squadrons.{{../index}}.ships.{{index}}.id" value="{{id}}">
+            </div>
+          {{/each}}
+          </div>
+        </details>
+
+        <details><summary>Modificateurs manuels</summary><div class="pf1-ss-grid five">
+          <label>Pertes <input type="number" name="fleet.squadrons.{{index}}.manualLosses" value="{{manualLosses}}" min="0"></label>
+          <label>VA <input type="number" name="fleet.squadrons.{{index}}.manualAttack" value="{{manualAttack}}"></label>
+          <label>VD <input type="number" name="fleet.squadrons.{{index}}.manualDefense" value="{{manualDefense}}"></label>
+          <label>Dégâts <input type="number" name="fleet.squadrons.{{index}}.manualDamage" value="{{manualDamage}}"></label>
+          <label>Moral <input type="number" name="fleet.squadrons.{{index}}.manualMorale" value="{{manualMorale}}"></label>
+        </div></details>
+      </article>
+    {{else}}
+      <p>Aucun escadron. Ajoute-en un pour donner corps à la flotte.</p>
+    {{/each}}
+  </section>
+
+  <footer class="pf1-ss-form-footer"><button type="submit"><i class="fa-solid fa-floppy-disk"></i> Enregistrer la flotte</button></footer>
+</div>
