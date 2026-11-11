@@ -1,3 +1,10 @@
+# 1.21.1 — Correctif zones de token
+
+- Suppression temporaire de l’overlay visuel **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire.
+- Suppression du bouton **Secteurs** dans la Carte navale.
+- Les calculs internes de proue, poupe et bordées restent inchangés pour les manœuvres et la logique navale.
+- Les zones visuelles seront réintroduites plus tard lorsqu’elles pourront suivre correctement la rotation réelle du token.
+
 # 1.21.0 — Cycle journalier & journal de bord
 
 - Nouveau contrôleur **Cycle journalier** accessible depuis la Passerelle et par macro.
