@@ -77,6 +77,7 @@ export class NavalMapController extends HandlebarsApplicationMixin(ApplicationV2
       advMoveBackward: this.#advMoveBackward,
       advMoveBackwardPort: this.#advMoveBackwardPort,
       advMoveBackwardStarboard: this.#advMoveBackwardStarboard,
+      toggleZones: this.#toggleZones,
       toggleReachable: this.#toggleReachable,
       beginShearPlan: this.#beginShearPlan,
       cancelShearPlan: this.#cancelShearPlan,
@@ -173,7 +174,7 @@ export class NavalMapController extends HandlebarsApplicationMixin(ApplicationV2
         reverseUsed: spent.reverseUsed
       },
       movementBlocked: Boolean(state.sunk || state.sinking || ss.combat?.grappledWithUuid),
-      visuals: { showReachable: Boolean(ss.map?.showReachable) },
+      visuals: { showZones: Boolean(ss.map?.showZones), showReachable: Boolean(ss.map?.showReachable), tokenRotation: Number(token?.document?.rotation ?? 0), visualHullRotation: ((Number(token?.document?.rotation ?? 0) - Number(ss.map?.rotationOffset ?? 0)) % 360 + 360) % 360 },
       shearPlan: {
         ...(ss.map?.shearPlan ?? {}),
         active: Boolean(ss.map?.shearPlan?.active),
@@ -374,6 +375,7 @@ export class NavalMapController extends HandlebarsApplicationMixin(ApplicationV2
     await this.render();
   }
 
+  static async #toggleZones() { await this.#toggleMapBoolean("showZones", "Secteurs autour du navire"); }
   static async #toggleReachable() { await this.#toggleMapBoolean("showReachable", "Cases atteignables"); }
 
   static async #beginShearPlan() {
