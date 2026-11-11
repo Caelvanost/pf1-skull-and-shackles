@@ -1,5 +1,17 @@
 # PF1 — Skull & Shackles v1.22.0
 
+## Nouveautés v1.22 — Rotation libre des navires
+
+La v1.22 réintroduit les secteurs **Proue / Poupe / Bâbord / Tribord** avec une géométrie basée sur la rotation réelle du token.
+
+- Les secteurs tournent avec l’image du token.
+- Le `rotationOffset` permet de corriger l’orientation propre de l’illustration et accepte désormais des valeurs au degré près.
+- Les cases atteignables et les déplacements automatisés suivent également l’axe réel du token.
+- Un navire peut donc être orienté à 15°, 30°, 45° ou tout autre angle sans que les aides visuelles restent bloquées sur la grille.
+- L’empreinte Foundry reste rectangulaire et approximative : le module ne tente pas de faire pivoter la collision native d’un token 3×1.
+- Pour un grand navire, un encombrement carré approximatif, par exemple **3×3**, reste une bonne solution pratique si l’on veut éviter qu’une empreinte 3×1 devienne trompeuse lorsqu’elle est orientée en diagonale.
+- Le cap logique cardinal reste utilisé pour les règles existantes de vent ; cette version ne remplace pas encore ces règles par un cap continu en degrés.
+
 ## Nouveautés v1.22 — Rotation libre des secteurs navals
 
 Les zones visuelles **Proue / Poupe / Bâbord / Tribord** sont de nouveau disponibles et suivent maintenant la rotation réelle du token.
