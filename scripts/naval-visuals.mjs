@@ -198,8 +198,7 @@ function drawReachableCell(container, rect, scale, dxSquares, dySquares, color, 
 function drawReachable(container, token, actor, ss, scale) {
   if (!ss.map?.showReachable) return;
   const rect = tokenRect(token, scale);
-  const heading = ss.navigation?.heading ?? "N";
-  const forward = CARDINAL_DIRECTIONS[heading] ?? CARDINAL_DIRECTIONS.N;
+  const forward = vectorFromDegrees(normalizedTokenRotation(token, ss));
   const right = rightVector(forward);
   const speedRemaining = Math.min(12, speedMovementRemaining(actor, ss));
 
