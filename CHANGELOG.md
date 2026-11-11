@@ -1,3 +1,14 @@
+# 1.22.0 — Rotation libre des secteurs navals
+
+- Réactivation des zones visuelles **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire.
+- Les secteurs sont désormais dessinés dans un conteneur PIXI centré sur le token et tournent avec la **rotation réelle du token**.
+- Le champ **Décalage graphique du token** corrige l’axe d’une texture dont la proue n’est pas orientée vers le haut à 0°.
+- Les rotations intermédiaires sont prises en charge : 15°, 37°, 45°, 128°, etc.
+- Le hook Foundry `updateToken` redessine automatiquement l’overlay après une rotation manuelle.
+- L’encombrement mécanique du token reste volontairement **approximatif** et n’est pas redimensionné lors de la rotation.
+- Les calculs internes de navigation, de mouvement et de manœuvres restent basés sur le cap logique existant ; cette version ne remplace pas encore la géométrie mécanique par une coque orientée.
+- Restauration du bouton **Secteurs** dans la Carte navale et de la légende colorée correspondante.
+
 # 1.21.1 — Correctif zones de token
 
 - Suppression temporaire de l’overlay visuel **Proue / Poupe / Bâbord / Tribord** autour des tokens de navire.
