@@ -1,4 +1,4 @@
-# PF1 — Skull & Shackles v1.22.5
+# PF1 — Skull & Shackles v1.22.6
 
 Le **HUD Bateau** peut être affiché ou masqué à tout moment depuis le groupe **Tokens** des contrôles de scène Foundry.
 
