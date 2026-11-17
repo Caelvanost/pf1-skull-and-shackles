@@ -1,4 +1,4 @@
-# PF1 — Skull & Shackles v1.22.2
+# PF1 — Skull & Shackles v1.22.3
 
 **Auteurs : Gélik, Caelvanost**
 
