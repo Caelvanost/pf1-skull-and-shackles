@@ -1,3 +1,10 @@
+# 1.22.4 — Affichage du HUD Bateau
+
+- Ajout d’un bouton **Afficher / masquer le HUD Bateau** dans les contrôles de scène Foundry v13, dans le groupe **Tokens**.
+- Le bouton est un vrai toggle et reflète l’état actuel du HUD.
+- L’état est mémorisé côté client : si le HUD est masqué, il reste masqué après rechargement.
+- Le réglage existant est renommé **Afficher le HUD Bateau** pour être plus clair.
+
 # 1.22.3 — Position de l’indicateur de vent
 
 - Déplacement de l’indicateur de vent en haut à gauche du Canvas, juste à droite de la barre d’outils Foundry.
