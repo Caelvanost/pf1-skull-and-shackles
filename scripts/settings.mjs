@@ -118,8 +118,8 @@ export function registerSettings() {
   });
 
   game.settings.register(MODULE_ID, SETTINGS.showResourceHud, {
-    name: "Afficher le HUD Butin / Infamie / Déshonneur",
-    hint: "Affiche en haut à droite de l’écran les trois ressources de réputation du navire de campagne, ainsi que les jeux ouverts aux joueurs.",
+    name: "Afficher le HUD Bateau",
+    hint: "Affiche ou masque le HUD Bateau du navire de campagne. Ce réglage peut aussi être basculé directement depuis les contrôles de scène.",
     scope: "client",
     config: true,
     type: Boolean,
