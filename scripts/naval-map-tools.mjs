@@ -243,6 +243,50 @@ export function removeWindOverlay() {
   document.getElementById("pf1-ss-wind-overlay")?.remove();
 }
 
+function viewedSceneNavigationElement() {
+  const nav = document.querySelector("#scene-navigation");
+  if (!nav) return null;
+
+  const viewedId = String(canvas?.scene?.id ?? "");
+  if (viewedId) {
+    const byId = nav.querySelector(
+      `[data-scene-id="${CSS.escape(viewedId)}"], [data-document-id="${CSS.escape(viewedId)}"], [data-entry-id="${CSS.escape(viewedId)}"]`
+    );
+    if (byId) return byId;
+  }
+
+  return nav.querySelector(
+    ".scene.view, .scene.active, .scene.viewed, [data-scene-id].view, [data-scene-id].active, [aria-current='true']"
+  );
+}
+
+function positionWindOverlay(el) {
+  if (!el?.isConnected) return;
+
+  const sceneEl = viewedSceneNavigationElement();
+  if (sceneEl) {
+    const rect = sceneEl.getBoundingClientRect();
+    const top = Math.max(4, Math.round(rect.top + (rect.height - el.offsetHeight) / 2));
+    let left = Math.round(rect.right + 8);
+
+    // Ne jamais empiéter sur la Sidebar droite.
+    const sidebar = document.querySelector("#sidebar");
+    const sidebarLeft = sidebar?.getBoundingClientRect?.().left ?? window.innerWidth;
+    const maxLeft = Math.max(8, sidebarLeft - el.offsetWidth - 8);
+    left = Math.min(left, maxLeft);
+
+    el.style.top = `${top}px`;
+    el.style.left = `${Math.max(8, left)}px`;
+    el.style.right = "auto";
+    return;
+  }
+
+  // Repli de sécurité si la navigation de scène est masquée.
+  el.style.top = "8px";
+  el.style.left = "220px";
+  el.style.right = "auto";
+}
+
 /** Petit indicateur HTML non intrusif : il n'altère ni la scène ni ses dessins. */
 export function refreshWindOverlay() {
   removeWindOverlay();
@@ -257,6 +301,8 @@ export function refreshWindOverlay() {
   el.className = "pf1-ss-wind-overlay";
   el.innerHTML = `
     <div class="pf1-ss-wind-arrow">${WIND_ARROWS[wind] ?? "↑"}</div>
-    <div><strong>Vent vers ${foundry.utils.escapeHTML(getDirectionLabel(wind))}</strong><small>1 case navale = ${scale.metric ? "9 m" : "30 ft"}</small></div>`;
+    <div><strong>Vent vers ${foundry.utils.escapeHTML(getDirectionLabel(wind))}</strong><small>${scale.metric ? "9 m" : "30 ft"} / case navale</small></div>`;
   document.body.appendChild(el);
+
+  requestAnimationFrame(() => positionWindOverlay(el));
 }
