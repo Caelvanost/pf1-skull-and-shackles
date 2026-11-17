@@ -1,3 +1,8 @@
+# 1.22.6 — Badge de vent simplifié
+
+- Suppression du rappel « 9 m / case navale » dans l’indicateur de vent.
+- Le badge n’affiche plus que la direction du vent, par exemple « Vent vers Nord ».
+
 # 1.22.5 — Indicateur de vent compact
 
 - L’indicateur de vent est désormais positionné dynamiquement juste à droite du nom de la scène actuellement affichée.
