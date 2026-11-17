@@ -1,3 +1,11 @@
+# 1.22.5 — Indicateur de vent compact
+
+- L’indicateur de vent est désormais positionné dynamiquement juste à droite du nom de la scène actuellement affichée.
+- Son placement s’adapte à la longueur du nom de scène.
+- Réduction de la taille générale : icône, marges, largeur, typographie et ombre.
+- Garde-fou pour éviter de déborder sur la Sidebar droite.
+- Repli sûr si la navigation de scène est masquée.
+
 # 1.22.4 — Affichage du HUD Bateau
 
 - Ajout d’un bouton **Afficher / masquer le HUD Bateau** dans les contrôles de scène Foundry v13, dans le groupe **Tokens**.
