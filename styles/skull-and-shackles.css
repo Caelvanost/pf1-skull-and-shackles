@@ -905,7 +905,8 @@
   position: fixed;
   z-index: 70;
   top: 88px;
-  right: 18px;
+  left: 64px;
+  right: auto;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1004,7 +1005,13 @@
   .pf1-ss-map-budget-grid,
   .pf1-ss-map-target-grid { grid-template-columns: 1fr; }
   .pf1-ss-map-move-pad { grid-template-columns: repeat(3, minmax(78px, 1fr)); }
-  .pf1-ss-wind-overlay { top: 78px; right: 8px; min-width: 140px; }
+  .pf1-ss-wind-overlay {
+    top: 72px;
+    left: 56px;
+    right: auto;
+    min-width: 140px;
+    max-width: min(210px, calc(100vw - 68px));
+  }
 }
 
 /* -------------------------------------------------------------------------
