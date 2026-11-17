@@ -295,13 +295,12 @@ export function refreshWindOverlay() {
   if (!sceneHasSSShip(canvas.scene)) return;
 
   const wind = getSceneWindDirection(canvas.scene);
-  const scale = getNavalScaleInfo(canvas.scene);
   const el = document.createElement("div");
   el.id = "pf1-ss-wind-overlay";
   el.className = "pf1-ss-wind-overlay";
   el.innerHTML = `
     <div class="pf1-ss-wind-arrow">${WIND_ARROWS[wind] ?? "↑"}</div>
-    <div><strong>Vent vers ${foundry.utils.escapeHTML(getDirectionLabel(wind))}</strong><small>${scale.metric ? "9 m" : "30 ft"} / case navale</small></div>`;
+    <div><strong>Vent vers ${foundry.utils.escapeHTML(getDirectionLabel(wind))}</strong></div>`;
   document.body.appendChild(el);
 
   requestAnimationFrame(() => positionWindOverlay(el));
