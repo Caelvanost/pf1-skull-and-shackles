@@ -1,3 +1,9 @@
+# 1.22.3 — Position de l’indicateur de vent
+
+- Déplacement de l’indicateur de vent en haut à gauche du Canvas, juste à droite de la barre d’outils Foundry.
+- L’indicateur ne recouvre plus le panneau de chat à droite.
+- Ajustement spécifique pour les petits écrans afin de conserver une largeur raisonnable.
+
 # 1.22.2 — Auteurs du module
 
 - Ajout de **Caelvanost** aux auteurs du module aux côtés de **Gélik**.
