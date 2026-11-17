@@ -71,6 +71,13 @@ Hooks.once("init", () => {
       refreshWindOverlay: () => refreshWindOverlay(),
       refreshNavalVisuals: (actor = null) => refreshNavalVisualOverlay(actor),
       refreshCampaignHud: () => refreshCampaignHud(),
+      toggleCampaignHud: async (visible = null) => {
+        const current = Boolean(getSetting(SETTINGS.showResourceHud, true));
+        const next = visible === null ? !current : Boolean(visible);
+        await game.settings.set(MODULE_ID, SETTINGS.showResourceHud, next);
+        await refreshCampaignHud();
+        return next;
+      },
       openMultiplayerHistory: (actor) => MultiplayerHistory.open(actor),
       setPrimaryShip: (actor) => setPrimaryShip(actor),
       broadcastHudRefresh: () => broadcastHudRefresh(),
@@ -302,6 +309,27 @@ Hooks.on("updateCombat", async (combat, changes) => {
       console.warn(`${MODULE_ID} | Erreur pendant le compteur de naufrage de ${actor.name}`, error);
     }
   }
+});
+
+
+// v1.22.4 — Bouton officiel Foundry v13 pour afficher / masquer le HUD Bateau.
+Hooks.on("getSceneControlButtons", (controls) => {
+  const tokenControls = controls?.tokens;
+  if (!tokenControls?.tools) return;
+
+  tokenControls.tools.pf1SsHudToggle = {
+    name: "pf1SsHudToggle",
+    title: "Afficher / masquer le HUD Bateau",
+    icon: "fa-solid fa-ship",
+    order: Object.keys(tokenControls.tools).length,
+    toggle: true,
+    active: Boolean(getSetting(SETTINGS.showResourceHud, true)),
+    visible: true,
+    onChange: async (_event, active) => {
+      await game.settings.set(MODULE_ID, SETTINGS.showResourceHud, Boolean(active));
+      await refreshCampaignHud();
+    }
+  };
 });
 
 
