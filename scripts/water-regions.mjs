@@ -90,6 +90,109 @@ export function getTokenWaterState(token) {
   return { underwater: false, region: null, surface: null, elevation };
 }
 
+function sceneDistance2D(scene, a, b) {
+  const grid = scene?.grid;
+  const canvasGrid = globalThis.canvas?.grid;
+  try {
+    if (scene?.id === canvas?.scene?.id && typeof canvasGrid?.measurePath === "function") {
+      const measured = Number(canvasGrid.measurePath([a, b])?.distance);
+      if (Number.isFinite(measured) && measured >= 0) return measured;
+    }
+  } catch (_) {}
+
+  const size = n(grid?.size ?? canvas?.dimensions?.size, 0);
+  const distance = n(grid?.distance, 0);
+  if (size <= 0 || distance <= 0) return null;
+  return Math.hypot(b.x - a.x, b.y - a.y) / size * distance;
+}
+
+function pointInsideWaterRegion2D(point, region) {
+  if (!region || !point) return false;
+  try {
+    return Boolean(region.testPoint({
+      x: point.x,
+      y: point.y,
+      elevation: n(region.elevation, 0)
+    }));
+  } catch (_) {
+    return false;
+  }
+}
+
+/**
+ * Mesure la longueur 3D du trajet d'un projectile située dans l'eau.
+ * Le segment relie le centre horizontal des deux tokens et interpole
+ * linéairement leurs élévations Foundry/Levels.
+ *
+ * Retourne une distance dans l'unité de grille de la scène.
+ */
+export function measureProjectileWaterDistance({ source, target, samplesPerGrid = 8 } = {}) {
+  const sourceDoc = source?.document ?? source;
+  const targetDoc = target?.document ?? target;
+  const scene = sourceDoc?.parent;
+
+  if (!sourceDoc || !targetDoc || !scene || targetDoc.parent?.id !== scene.id) {
+    return { distance: 0, unit: null, fraction: 0, totalDistance: 0, samples: 0 };
+  }
+
+  const a = tokenCenter(sourceDoc);
+  const b = tokenCenter(targetDoc);
+  const z0 = n(sourceDoc.elevation, 0);
+  const z1 = n(targetDoc.elevation, 0);
+  const horizontal = sceneDistance2D(scene, a, b);
+  if (!Number.isFinite(horizontal)) {
+    return { distance: 0, unit: scene.grid?.units ?? null, fraction: 0, totalDistance: 0, samples: 0 };
+  }
+
+  const totalDistance = Math.hypot(horizontal, z1 - z0);
+  if (totalDistance <= 0) {
+    return { distance: 0, unit: scene.grid?.units ?? null, fraction: 0, totalDistance: 0, samples: 0 };
+  }
+
+  const waterRegions = [...(scene.regions ?? [])].filter(isWaterRegion);
+  if (!waterRegions.length) {
+    return { distance: 0, unit: scene.grid?.units ?? null, fraction: 0, totalDistance, samples: 0 };
+  }
+
+  const gridSize = n(scene.grid?.size ?? canvas?.dimensions?.size, 100);
+  const projectedPixels = Math.hypot(b.x - a.x, b.y - a.y);
+  const requested = Math.max(1, Math.ceil((projectedPixels / Math.max(1, gridSize)) * Math.max(1, samplesPerGrid)));
+  const samples = Math.min(2048, Math.max(16, requested));
+
+  let underwaterSamples = 0;
+  const touchedRegionIds = new Set();
+
+  for (let i = 0; i < samples; i++) {
+    const t = (i + 0.5) / samples;
+    const point = {
+      x: a.x + (b.x - a.x) * t,
+      y: a.y + (b.y - a.y) * t
+    };
+    const elevation = z0 + (z1 - z0) * t;
+
+    let submerged = false;
+    for (const region of waterRegions) {
+      const data = getWaterRegionData(region);
+      if (elevation >= data.surface) continue;
+      if (!pointInsideWaterRegion2D(point, region)) continue;
+      submerged = true;
+      touchedRegionIds.add(region.id);
+      break;
+    }
+    if (submerged) underwaterSamples++;
+  }
+
+  const fraction = underwaterSamples / samples;
+  return {
+    distance: totalDistance * fraction,
+    unit: scene.grid?.units ?? null,
+    fraction,
+    totalDistance,
+    samples,
+    touchedRegionIds: [...touchedRegionIds]
+  };
+}
+
 export function isTokenUnderwater(token) {
   return Boolean(token?.getFlag?.(UNDERWATER_SCOPE, UNDERWATER_KEY));
 }
@@ -246,6 +349,7 @@ export const WATER_AUTOMATION = Object.freeze({
   flagKey: UNDERWATER_KEY,
   getState: getTokenWaterState,
   isUnderwater: isTokenUnderwater,
+  measureProjectileWaterDistance,
   syncToken: syncTokenUnderwaterFlag,
   syncScene: syncSceneUnderwaterFlags,
   configureSelectedRegions: configureSelectedWaterRegions,
