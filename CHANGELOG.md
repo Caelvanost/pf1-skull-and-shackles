@@ -1,3 +1,11 @@
+# 1.23.1 — Trajet immergé des projectiles
+
+- L’API `waterAutomation` expose désormais `measureProjectileWaterDistance({ source, target })`.
+- Le calcul mesure en 3D la portion du segment tireur → cible réellement située dans les Regions d’eau et sous leur niveau de surface.
+- Les élévations Foundry/Levels sont interpolées le long du trajet.
+- Les Regions d’eau qui se chevauchent ne sont comptées qu’une fois.
+- Cette API permet à PF1 Automation Engine d’appliquer les malus de tir sous l’eau sans dépendre de la configuration interne des Regions.
+
 # 1.23.0 — Zones d’eau, Levels et flag underwater
 
 - Ajout de zones d’eau basées sur les **Regions natives de Foundry v13**.
