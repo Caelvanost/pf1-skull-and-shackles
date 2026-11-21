@@ -1,6 +1,10 @@
-# PF1 — Skull & Shackles v1.23.0
+# PF1 — Skull & Shackles v1.23.1
 
 ## Nouveautés v1.23 — Zones d’eau & Levels
+### Trajet immergé des projectiles
+
+L’API publique `waterAutomation.measureProjectileWaterDistance({ source, target })` mesure la longueur 3D du trajet située réellement sous la surface des Regions d’eau. Elle est destinée notamment à PF1 Automation Engine pour automatiser les malus de tir sous l’eau.
+
 
 Une **Region Foundry v13** peut désormais être déclarée comme zone d’eau et recevoir une altitude de surface.
 
