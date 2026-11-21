@@ -30,6 +30,11 @@ import { refreshNavalVisualOverlay, removeNavalVisualOverlay } from "./naval-vis
 import { refreshCampaignHud, autoBindPrimaryShip, setPrimaryShip } from "./campaign-hud.mjs";
 import { initMultiplayerSocket, broadcastHudRefresh, installMultiplayerRecoveryHooks, requestMultiplayerSync } from "./multiplayer.mjs";
 import { MultiplayerHistory } from "./multiplayer-history.mjs";
+import {
+  WATER_AUTOMATION,
+  registerWaterRegionHooks,
+  registerWaterRegionSceneControls
+} from "./water-regions.mjs";
 
 function getSelectedVehicle() {
   const selected = canvas?.tokens?.controlled?.[0]?.actor ?? null;
@@ -40,6 +45,7 @@ function getSelectedVehicle() {
 
 Hooks.once("init", () => {
   registerSettings();
+  registerWaterRegionHooks();
   const module = game.modules.get(MODULE_ID);
   if (module) {
     module.api = {
@@ -79,6 +85,7 @@ Hooks.once("init", () => {
         return next;
       },
       openMultiplayerHistory: (actor) => MultiplayerHistory.open(actor),
+      waterAutomation: WATER_AUTOMATION,
       setPrimaryShip: (actor) => setPrimaryShip(actor),
       broadcastHudRefresh: () => broadcastHudRefresh(),
       openSelectedNavalMap: () => {
@@ -314,6 +321,8 @@ Hooks.on("updateCombat", async (combat, changes) => {
 
 // v1.22.4 — Bouton officiel Foundry v13 pour afficher / masquer le HUD Bateau.
 Hooks.on("getSceneControlButtons", (controls) => {
+  registerWaterRegionSceneControls(controls);
+
   const tokenControls = controls?.tokens;
   if (!tokenControls?.tools) return;
 
