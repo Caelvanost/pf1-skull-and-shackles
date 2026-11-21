@@ -1,4 +1,17 @@
-# PF1 — Skull & Shackles v1.22.6
+# PF1 — Skull & Shackles v1.23.0
+
+## Nouveautés v1.23 — Zones d’eau & Levels
+
+Une **Region Foundry v13** peut désormais être déclarée comme zone d’eau et recevoir une altitude de surface.
+
+1. Dessiner ou sélectionner une Region sur la couche Regions.
+2. Cliquer sur **Définir le niveau de l’eau**.
+3. Saisir l’altitude de surface dans la même référence que Levels.
+4. Tout token à l’intérieur de cette zone avec une élévation strictement inférieure à la surface reçoit automatiquement :
+   `flags.world.underwater = true`
+5. En quittant la zone ou en remontant à la surface, le flag repasse à `false`.
+
+Le flag est stocké sur le TokenDocument et volontairement générique afin que **PF1 Automation Engine** ou une autre automatisation puisse le lire sans dépendre du nom du module.
 
 Le **HUD Bateau** peut être affiché ou masqué à tout moment depuis le groupe **Tokens** des contrôles de scène Foundry.
 
