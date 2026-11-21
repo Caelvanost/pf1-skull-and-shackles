@@ -1,3 +1,16 @@
+# 1.23.0 — Zones d’eau, Levels et flag underwater
+
+- Ajout de zones d’eau basées sur les **Regions natives de Foundry v13**.
+- Nouveau bouton **Définir le niveau de l’eau** dans les contrôles de la couche Regions.
+- Une ou plusieurs Regions sélectionnées peuvent recevoir une altitude de surface compatible avec les élévations utilisées par Levels.
+- Nouveau bouton **Retirer le niveau de l’eau** pour désactiver cette configuration sur les Regions sélectionnées.
+- Lorsqu’un token est dans l’emprise 2D d’une zone d’eau et que son élévation est strictement inférieure à la surface, le module écrit automatiquement le flag générique **`flags.world.underwater = true`**.
+- Le flag repasse automatiquement à `false` quand le token quitte l’eau ou remonte à la surface.
+- Synchronisation sur déplacement, changement d’élévation, création de token, modification/suppression d’une Region et chargement du Canvas.
+- L’état est stocké sur le **TokenDocument**, pas sur l’Actor, afin que plusieurs tokens d’un même Actor puissent avoir des états différents.
+- API publique `waterAutomation` pour interroger ou resynchroniser l’état depuis PF1AE ou d’autres automatisations.
+- Le flag consommable est volontairement indépendant du nom du module : `token.document.getFlag("world", "underwater")`.
+
 # 1.22.6 — Badge de vent simplifié
 
 - Suppression du rappel « 9 m / case navale » dans l’indicateur de vent.
