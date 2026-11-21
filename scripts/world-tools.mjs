@@ -336,6 +336,19 @@ function quickReferencePages() {
       </ul>
       <p>Le registre est un outil d’organisation : il n’ajoute pas de bonus mécanique automatique.</p>
     `),
+    page("Zones d’eau & Levels", `
+      <h1>Zones d’eau, Levels &amp; automatisations</h1>
+      <p>Le module peut transformer une <strong>Region native Foundry v13</strong> en zone d’eau avec une altitude de surface.</p>
+      <ol>
+        <li>Passe sur la couche <strong>Regions</strong> de Foundry et dessine la zone occupée par l’eau.</li>
+        <li>Sélectionne la Region puis clique sur <strong>Définir le niveau de l’eau</strong>.</li>
+        <li>Saisis l’altitude de la surface avec la même unité et la même référence que Levels.</li>
+        <li>Lorsqu’un token est dans l’emprise 2D de cette Region et que son élévation est strictement inférieure à la surface, il reçoit automatiquement <code>flags.world.underwater = true</code>.</li>
+        <li>Quand le token remonte à la surface ou quitte la Region, le flag repasse à <code>false</code>.</li>
+      </ol>
+      <p>Le flag est volontairement générique : PF1 Automation Engine peut le lire avec <code>token.document.getFlag("world", "underwater")</code> sans dépendre du nom de ce module.</p>
+      <p>Le bouton <strong>Retirer le niveau de l’eau</strong> supprime la configuration d’eau de la ou des Regions sélectionnées et resynchronise les tokens.</p>
+    `),
     page("Cycle journalier", `
       <h1>Cycle journalier &amp; journal de bord</h1>
       <p>Le contrôleur <strong>Cycle journalier</strong> orchestre les outils existants sans ajouter de nouvelle règle PF1.</p>
