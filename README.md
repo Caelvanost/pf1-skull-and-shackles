@@ -1,9 +1,9 @@
-# PF1 — Skull & Shackles v1.24.0
+# PF1 — Skull & Shackles v1.24.1
 
 ## Nouveautés v1.23 — Zones d’eau & Levels
 ### Hauteur de nage automatique
 
-Un token non volant qui entre dans une Region d’eau est placé à `surface − hauteur/2`, puis son mode de mouvement natif passe à **Nage (`swim`)**. Il peut plonger librement sous cette altitude, mais ne remonte pas au-dessus de la hauteur de nage tant qu’il reste dans l’eau. Un token en **Vol (`fly`)** n’est pas contraint par cette logique.
+Un token non volant qui entre dans une Region d’eau est placé à `surface − hauteur/2`, puis son mode de mouvement natif passe à **Nage (`swim`)**. Le statut PF1 natif **Nager** est également activé automatiquement. Il peut plonger librement sous cette altitude, mais ne remonte pas au-dessus de la hauteur de nage tant qu’il reste dans l’eau. Un token en **Vol (`fly`)** n’est pas contraint par cette logique.
 
 ### Trajet immergé des projectiles
 
