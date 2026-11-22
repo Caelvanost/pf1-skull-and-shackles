@@ -114,6 +114,67 @@ function validMovementAction(action) {
   return CONFIG?.Token?.movement?.actions?.[key] ? key : null;
 }
 
+
+function normalizeLabel(value) {
+  return String(value ?? "")
+    .trim()
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+}
+
+function nativeSwimmingStatusId() {
+  const statuses = Array.isArray(CONFIG?.statusEffects) ? CONFIG.statusEffects : [];
+  const direct = statuses.find((effect) =>
+    ["swim", "swimming"].includes(String(effect?.id ?? "").toLowerCase())
+  );
+  if (direct?.id) return direct.id;
+
+  const byKey = statuses.find((effect) => {
+    const name = String(effect?.name ?? effect?.label ?? "");
+    return /swim/i.test(name);
+  });
+  if (byKey?.id) return byKey.id;
+
+  const byLocalizedName = statuses.find((effect) => {
+    const raw = effect?.name ?? effect?.label ?? "";
+    let localized = raw;
+    try { localized = game.i18n?.localize?.(raw) ?? raw; } catch (_) {}
+    const label = normalizeLabel(localized);
+    return ["nager", "nage", "natation", "swim", "swimming"].includes(label);
+  });
+  return byLocalizedName?.id ?? null;
+}
+
+function actorHasStatus(actor, statusId) {
+  if (!actor || !statusId) return false;
+  return actor.statuses?.has?.(statusId) === true ||
+    [...(actor.effects ?? [])].some((effect) => effect.statuses?.has?.(statusId));
+}
+
+async function setNativeSwimmingStatus(token, active, { onlyIfManaged = false } = {}) {
+  const actor = token?.actor;
+  const statusId = nativeSwimmingStatusId();
+  if (!actor || !statusId || typeof actor.toggleStatusEffect !== "function") {
+    return { available: false, statusId: null, changed: false, wasActive: false };
+  }
+
+  const wasActive = actorHasStatus(actor, statusId);
+  if (onlyIfManaged && !active && !wasActive) {
+    return { available: true, statusId, changed: false, wasActive };
+  }
+  if (wasActive === active) {
+    return { available: true, statusId, changed: false, wasActive };
+  }
+
+  await actor.toggleStatusEffect(statusId, {
+    active,
+    overlay: false,
+    interaction: false
+  });
+  return { available: true, statusId, changed: true, wasActive };
+}
+
 /**
  * Gère la posture de nage d'un Token.
  *
@@ -142,9 +203,13 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     if (wasInWater || stored.forcedSwim) {
       WATER_MOVEMENT_UPDATES.add(token.uuid);
       try {
+        if (stored.forcedStatus) {
+          await setNativeSwimmingStatus(token, false, { onlyIfManaged: true });
+        }
         await token.setFlag(MODULE_ID, WATER_MOVEMENT_FLAG, {
           inWater: Boolean(region),
           forcedSwim: false,
+          forcedStatus: false,
           previousAction: stored.previousAction ?? null
         });
       } finally {
@@ -171,6 +236,9 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     WATER_MOVEMENT_UPDATES.add(token.uuid);
     try {
       if (Object.keys(update).length) await token.update(update);
+      if (stored.forcedStatus) {
+        await setNativeSwimmingStatus(token, false, { onlyIfManaged: true });
+      }
       await token.unsetFlag(MODULE_ID, WATER_MOVEMENT_FLAG);
     } finally {
       WATER_MOVEMENT_UPDATES.delete(token.uuid);
@@ -198,9 +266,18 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     ? (validMovementAction(currentAction) ?? null)
     : (stored.previousAction ?? null);
 
+  const nativeStatusId = nativeSwimmingStatusId();
+  const statusAlreadyActive = actorHasStatus(token.actor, nativeStatusId);
+  let forcedStatus = Boolean(stored.forcedStatus);
+  if (!statusAlreadyActive) {
+    const statusResult = await setNativeSwimmingStatus(token, true);
+    forcedStatus = Boolean(statusResult.changed);
+  }
+
   const nextStored = {
     inWater: true,
     forcedSwim: Boolean(stored.forcedSwim || forcedSwim),
+    forcedStatus,
     previousAction,
     regionId: region.id,
     surface: getWaterRegionData(region).surface,
@@ -513,6 +590,7 @@ export const WATER_AUTOMATION = Object.freeze({
   isUnderwater: isTokenUnderwater,
   getTokenPhysicalHeight,
   getSwimElevation: getTokenSwimElevation,
+  getNativeSwimmingStatusId: nativeSwimmingStatusId,
   syncMovement: syncTokenWaterMovement,
   measureProjectileWaterDistance,
   syncToken: syncTokenUnderwaterFlag,
