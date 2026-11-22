@@ -1,27 +1,14 @@
-# PF1 — Skull & Shackles v1.24.1
+# PF1 — Skull & Shackles v1.26.0
 
-## Nouveautés v1.23 — Zones d’eau & Levels
-### Hauteur de nage automatique
+## Gestion de l'eau transférée vers PF1 Waters
 
-Un token non volant qui entre dans une Region d’eau est placé à `surface − hauteur/2`, puis son mode de mouvement natif passe à **Nage (`swim`)**. Le statut PF1 natif **Nager** est également activé automatiquement. Il peut plonger librement sous cette altitude, mais ne remonte pas au-dessus de la hauteur de nage tant qu’il reste dans l’eau. Un token en **Vol (`fly`)** n’est pas contraint par cette logique.
+Depuis v1.26.0, le module générique de gestion des corps d'eau de Foundry VTT v13 se trouve dans **[PF1 Waters](https://github.com/Caelvanost/pf1-waters)**. Il gère les Regions aquatiques, surface/profondeur/fond, hauteur de nage, immersion réelle des tokens, marqueurs de surface, projectiles et flags underwater.
 
-### Trajet immergé des projectiles
-
-L’API publique `waterAutomation.measureProjectileWaterDistance({ source, target })` mesure la longueur 3D du trajet située réellement sous la surface des Regions d’eau. Elle est destinée notamment à PF1 Automation Engine pour automatiser les malus de tir sous l’eau.
-
-
-Une **Region Foundry v13** peut désormais être déclarée comme zone d’eau et recevoir une altitude de surface.
-
-1. Dessiner ou sélectionner une Region sur la couche Regions.
-2. Cliquer sur **Définir le niveau de l’eau**.
-3. Saisir l’altitude de surface dans la même référence que Levels.
-4. Tout token à l’intérieur de cette zone avec une élévation strictement inférieure à la surface reçoit automatiquement :
-   `flags.world.underwater = true`
-5. En quittant la zone ou en remontant à la surface, le flag repasse à `false`.
-
-Le flag est stocké sur le TokenDocument et volontairement générique afin que **PF1 Automation Engine** ou une autre automatisation puisse le lire sans dépendre du nom du module.
-
-Le **HUD Bateau** peut être affiché ou masqué à tout moment depuis le groupe **Tokens** des contrôles de scène Foundry.
+- **Installation facultative recommandée** : https://raw.githubusercontent.com/Caelvanost/pf1-waters/main/module.json
+- Les anciennes Regions de Skull & Shackles sont automatiquement reconnues et migrées sans suppression de données.
+- Les mécaniques navales, d'équipage, de campagne et le HUD fonctionnent sans PF1 Waters.
+- Les anciens consommateurs de `game.modules.get("pf1-skull-and-shackles")?.api?.waterAutomation` conservent un **pont de compatibilité** vers l'API de PF1 Waters lorsqu'il est actif. Sans PF1 Waters, seul un relevé historique du flag world.underwater reste accessible ; l'automatisation géométrique n'est plus fournie par Skull & Shackles.
+- Pour de nouvelles intégrations, utiliser directement `game.modules.get("pf1-waters")?.api`.
 
 **Auteurs : Gélik, Caelvanost**
 

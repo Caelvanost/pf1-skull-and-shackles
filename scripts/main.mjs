@@ -30,11 +30,27 @@ import { refreshNavalVisualOverlay, removeNavalVisualOverlay } from "./naval-vis
 import { refreshCampaignHud, autoBindPrimaryShip, setPrimaryShip } from "./campaign-hud.mjs";
 import { initMultiplayerSocket, broadcastHudRefresh, installMultiplayerRecoveryHooks, requestMultiplayerSync } from "./multiplayer.mjs";
 import { MultiplayerHistory } from "./multiplayer-history.mjs";
-import {
-  WATER_AUTOMATION,
-  registerWaterRegionHooks,
-  registerWaterRegionSceneControls
-} from "./water-regions.mjs";
+// Legacy API bridge: old PF1AE versions read Skull & Shackles waterAutomation.
+// The generic water engine lives exclusively in the optional PF1 Waters module.
+const LEGACY_WATER_BRIDGE = new Proxy(Object.create(null), {
+  get(_target, property) {
+    const waters = game.modules.get("pf1-waters");
+    const api = waters?.active ? waters.api?.waterAutomation : null;
+    if (api && property in api) return api[property];
+    if (property === "flagScope") return "world";
+    if (property === "flagKey") return "underwater";
+    if (property === "getState" || property === "isUnderwater") {
+      const legacyState = (token) => {
+        const doc = token?.document ?? token;
+        const submerged = Boolean(doc?.getFlag?.("world", "underwater"));
+        return { inWater: false, underwater: submerged, fullySubmerged: submerged };
+      };
+      return property === "getState" ? legacyState :
+        (token) => legacyState(token).underwater;
+    }
+    return undefined;
+  }
+});
 
 function getSelectedVehicle() {
   const selected = canvas?.tokens?.controlled?.[0]?.actor ?? null;
@@ -45,7 +61,6 @@ function getSelectedVehicle() {
 
 Hooks.once("init", () => {
   registerSettings();
-  registerWaterRegionHooks();
   const module = game.modules.get(MODULE_ID);
   if (module) {
     module.api = {
@@ -85,7 +100,7 @@ Hooks.once("init", () => {
         return next;
       },
       openMultiplayerHistory: (actor) => MultiplayerHistory.open(actor),
-      waterAutomation: WATER_AUTOMATION,
+      waterAutomation: LEGACY_WATER_BRIDGE,
       setPrimaryShip: (actor) => setPrimaryShip(actor),
       broadcastHudRefresh: () => broadcastHudRefresh(),
       openSelectedNavalMap: () => {
@@ -321,8 +336,6 @@ Hooks.on("updateCombat", async (combat, changes) => {
 
 // v1.22.4 — Bouton officiel Foundry v13 pour afficher / masquer le HUD Bateau.
 Hooks.on("getSceneControlButtons", (controls) => {
-  registerWaterRegionSceneControls(controls);
-
   const tokenControls = controls?.tokens;
   if (!tokenControls?.tools) return;
 

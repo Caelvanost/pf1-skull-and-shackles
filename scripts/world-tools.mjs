@@ -337,21 +337,18 @@ function quickReferencePages() {
       <p>Le registre est un outil d’organisation : il n’ajoute pas de bonus mécanique automatique.</p>
     `),
     page("Zones d’eau & Levels", `
-      <h1>Zones d’eau, Levels &amp; automatisations</h1>
-      <p>Le module peut transformer une <strong>Region native Foundry v13</strong> en zone d’eau avec une altitude de surface.</p>
+      <h1>Corps d’eau : module PF1 Waters</h1>
+      <p>La gestion générique des Regions aquatiques a été transférée dans le module autonome <strong>PF1 Waters</strong>. Il est conseillé, mais <strong>non obligatoire</strong> pour Skull &amp; Shackles.</p>
       <ol>
-        <li>Passe sur la couche <strong>Regions</strong> de Foundry et dessine la zone occupée par l’eau.</li>
-        <li>Sélectionne la Region puis clique sur <strong>Définir le niveau de l’eau</strong>.</li>
-        <li>Saisis l’altitude de la surface avec la même unité et la même référence que Levels.</li>
-        <li>Lorsqu’un token est dans l’emprise 2D de cette Region et que son élévation est strictement inférieure à la surface, il reçoit automatiquement <code>flags.world.underwater = true</code>.</li>
-        <li>Quand le token remonte à la surface ou quitte la Region, le flag repasse à <code>false</code>.</li>
-        <li>À l'entrée dans une zone d'eau, un token non volant est automatiquement placé à la <strong>hauteur de nage</strong> : le bas du token se trouve une demi-hauteur de créature sous la surface.</li>
-        <li>La hauteur physique suit la convention PF1AE : le plus grand côté du gabarit du token × la distance de grille (1×1 = 1,5 m sur une grille PF1 standard).</li>
-        <li>Une fois dans l'eau, le token peut descendre librement sous cette hauteur ; il ne peut pas remonter au-dessus de la hauteur de nage tant qu'il reste dans la zone.</li>
-        <li>Le mode de mouvement natif Foundry passe automatiquement à <strong>Nage / swim</strong>. Le mode <strong>Vol / fly</strong> désactive l'ajustement de hauteur et le passage automatique en nage.</li>
+        <li>Installe et active <strong>PF1 Waters</strong> avec le système Pathfinder 1.</li>
+        <li>Sur la couche <strong>Regions</strong>, sélectionne la zone d’eau puis utilise <strong>PF1 Waters — Corps d’eau</strong>.</li>
+        <li>Définis l’altitude de la surface et, facultativement, la profondeur : le fond vaut surface moins profondeur.</li>
+        <li>Les tokens non volants sont limités à une posture de nage à moitié immergée et au fond. Les tokens volants ne sont pas repositionnés.</li>
+        <li>Le statut natif <strong>Nager</strong> n’est présent que si le token nage sans avoir pied.</li>
+        <li>Le flag <code>flags.pf1-waters.underwater</code> indique uniquement une immersion <strong>complète</strong> ; <code>flags.world.underwater</code> reste synchronisé pour les anciennes macros.</li>
       </ol>
-      <p>Le flag est volontairement générique : PF1 Automation Engine peut le lire avec <code>token.document.getFlag("world", "underwater")</code> sans dépendre du nom de ce module.</p>
-      <p>Le bouton <strong>Retirer le niveau de l’eau</strong> supprime la configuration d’eau de la ou des Regions sélectionnées et resynchronise les tokens.</p>
+      <p>Les anciennes Regions Skull &amp; Shackles sont détectées et migrées sans suppression de leurs données. Levels, Wall Height et Better Roofs ne sont pas obligatoires. Les tests de rendu 2D restent soumis aux limitations documentées dans le README de PF1 Waters.</p>
+      <p>Sans PF1 Waters, les outils et automatismes aquatiques ne sont plus proposés par Skull &amp; Shackles, mais les autres sous-systèmes restent disponibles.</p>
     `),
     page("Cycle journalier", `
       <h1>Cycle journalier &amp; journal de bord</h1>

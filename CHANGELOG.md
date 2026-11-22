@@ -1,3 +1,11 @@
+# 1.26.0 — Extraction du système aquatique vers PF1 Waters
+
+- Le moteur générique de Regions d'eau est déplacé vers **PF1 Waters v1.0.0** (module facultatif recommandé).
+- Suppression du fichier `scripts/water-regions.mjs`, de ses hooks et de ses boutons natifs au profit de PF1 Waters.
+- Conservation d'un pont `waterAutomation` pour les anciennes macros et versions de PF1 Automation Engine ; aucune logique aquatique n'est dupliquée.
+- Mise à jour du guide intégré pour expliquer la migration non destructive des flags et le nouveau sens de `underwater` (immersion complète).
+- Toutes les fonctions non aquatiques de Skull & Shackles restent accessibles si PF1 Waters est désactivé.
+
 # 1.25.0 — Profondeur des étendues d’eau et appui sur le fond
 
 - Les Regions d’eau peuvent désormais recevoir une **profondeur** en plus de leur niveau de surface.
