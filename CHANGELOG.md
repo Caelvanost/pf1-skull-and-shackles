@@ -1,3 +1,11 @@
+# 1.24.1 — Effet PF1 natif « Nager »
+
+- Lorsqu’un token passe automatiquement en mode de mouvement `swim`, Skull & Shackles active également l’effet/statut **PF1 natif « Nager »**.
+- Aucun effet ou icône personnalisé n’est ajouté par le module.
+- Si l’effet « Nager » était déjà actif avant l’entrée dans l’eau, le module le conserve sans le considérer comme sien.
+- En quittant l’eau ou en passant en mode `fly`, l’effet n’est retiré que s’il avait été activé automatiquement par Skull & Shackles.
+- Résolution robuste du statut natif via `CONFIG.statusEffects`, avec prise en charge des identifiants/labels anglais et français.
+
 # 1.24.0 — Hauteur et mode de nage automatiques
 
 - Lorsqu’un token non volant entre dans une Region d’eau, il est automatiquement placé à sa **hauteur de nage**.
