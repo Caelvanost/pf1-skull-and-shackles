@@ -2,7 +2,7 @@
   "id": "pf1-skull-and-shackles",
   "title": "PF1 — Skull & Shackles",
   "description": "Complément Pathfinder 1 pour Skull & Shackles : navigation et combat naval, zones d’eau compatibles Levels avec nage/élévation automatiques et flag underwater générique, vie à bord, abordages, équipage, relations, quarts et fatigue.",
-  "version": "1.24.2",
+  "version": "1.24.3",
   "authors": [
     {
       "name": "Gélik"
@@ -42,7 +42,7 @@
   ],
   "url": "https://github.com/Caelvanost/pf1-skull-and-shackles",
   "manifest": "https://raw.githubusercontent.com/Caelvanost/pf1-skull-and-shackles/main/module.json",
-  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.24.2/pf1-skull-and-shackles-v1.24.2.zip",
+  "download": "https://github.com/Caelvanost/pf1-skull-and-shackles/releases/download/v1.24.3/pf1-skull-and-shackles-v1.24.3.zip",
   "readme": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/README.md",
   "changelog": "https://github.com/Caelvanost/pf1-skull-and-shackles/blob/main/CHANGELOG.md",
   "bugs": "https://github.com/Caelvanost/pf1-skull-and-shackles/issues"
