@@ -108,13 +108,6 @@ function isFlyingMovement(token) {
   return String(token?.movementAction ?? "").toLowerCase() === "fly";
 }
 
-function validMovementAction(action) {
-  if (action == null || action === "") return null;
-  const key = String(action);
-  return CONFIG?.Token?.movement?.actions?.[key] ? key : null;
-}
-
-
 function normalizeLabel(value) {
   return String(value ?? "")
     .trim()
@@ -183,10 +176,9 @@ async function setNativeSwimmingStatus(token, active, { onlyIfManaged = false } 
  * - S'il est déjà plus profond, son élévation est conservée.
  * - Dans l'eau, une tentative de remonter au-dessus de la hauteur de nage
  *   est limitée à cette hauteur.
- * - Le mode natif Foundry devient "swim".
+ * - Le module ne modifie jamais TokenDocument.movementAction : PF1AE gère le
+ *   type de mouvement.
  * - "fly" désactive totalement ces contraintes.
- * - En quittant l'eau, l'ancien mode de mouvement est restauré si le module
- *   avait lui-même imposé "swim".
  */
 export async function syncTokenWaterMovement(token, { force = false } = {}) {
   if (!token || !canPersistTokenState(token)) return null;
@@ -199,19 +191,14 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
 
   if (flying) {
     // Un token en vol traverse librement une zone d'eau sans être happé
-    // par la surface et sans basculer en nage.
-    if (wasInWater || stored.forcedSwim) {
+    // par la surface. Le type de mouvement est géré exclusivement par PF1AE.
+    if (wasInWater || stored.forcedStatus) {
       WATER_MOVEMENT_UPDATES.add(token.uuid);
       try {
         if (stored.forcedStatus) {
           await setNativeSwimmingStatus(token, false, { onlyIfManaged: true });
         }
-        await token.setFlag(MODULE_ID, WATER_MOVEMENT_FLAG, {
-          inWater: Boolean(region),
-          forcedSwim: false,
-          forcedStatus: false,
-          previousAction: stored.previousAction ?? null
-        });
+        await token.unsetFlag(MODULE_ID, WATER_MOVEMENT_FLAG);
       } finally {
         WATER_MOVEMENT_UPDATES.delete(token.uuid);
       }
@@ -224,18 +211,10 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
   }
 
   if (!region) {
-    if (!wasInWater && !stored.forcedSwim) return { inWater: false, flying: false };
-
-    const update = {};
-    const currentAction = String(token.movementAction ?? "");
-    if (stored.forcedSwim && currentAction === "swim") {
-      const previous = validMovementAction(stored.previousAction);
-      update.movementAction = previous ?? CONFIG?.Token?.movement?.defaultAction ?? "walk";
-    }
+    if (!wasInWater && !stored.forcedStatus) return { inWater: false, flying: false };
 
     WATER_MOVEMENT_UPDATES.add(token.uuid);
     try {
-      if (Object.keys(update).length) await token.update(update);
       if (stored.forcedStatus) {
         await setNativeSwimmingStatus(token, false, { onlyIfManaged: true });
       }
@@ -258,14 +237,6 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     update.elevation = swimElevation;
   }
 
-  const currentAction = String(token.movementAction ?? "");
-  const forcedSwim = currentAction !== "swim";
-  if (forcedSwim) update.movementAction = "swim";
-
-  const previousAction = entering
-    ? (validMovementAction(currentAction) ?? null)
-    : (stored.previousAction ?? null);
-
   const nativeStatusId = nativeSwimmingStatusId();
   const statusAlreadyActive = actorHasStatus(token.actor, nativeStatusId);
   let forcedStatus = Boolean(stored.forcedStatus);
@@ -276,9 +247,7 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
 
   const nextStored = {
     inWater: true,
-    forcedSwim: Boolean(stored.forcedSwim || forcedSwim),
     forcedStatus,
-    previousAction,
     regionId: region.id,
     surface: getWaterRegionData(region).surface,
     swimElevation
@@ -297,8 +266,7 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     flying: false,
     region,
     swimElevation,
-    elevation: Object.hasOwn(update, "elevation") ? update.elevation : currentElevation,
-    movementAction: update.movementAction ?? currentAction
+    elevation: Object.hasOwn(update, "elevation") ? update.elevation : currentElevation
   };
 }
 
