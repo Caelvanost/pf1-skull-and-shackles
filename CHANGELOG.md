@@ -1,3 +1,10 @@
+# 1.24.2 — Type de mouvement délégué à PF1AE
+
+- Skull & Shackles ne modifie plus jamais `TokenDocument.movementAction` lors de l’entrée dans l’eau ou de la sortie.
+- La sélection/restauration du type de mouvement (`swim`, `walk`, etc.) est désormais entièrement laissée à **PF1 Automation Engine**.
+- La détection de `fly` reste en lecture seule afin qu’un token volant ne soit pas automatiquement contraint à la hauteur de nage.
+- La hauteur de nage automatique, la plongée libre, le statut PF1 natif **« Nager »** et le flag `flags.world.underwater` restent inchangés.
+
 # 1.24.1 — Effet PF1 natif « Nager »
 
 - Lorsqu’un token passe automatiquement en mode de mouvement `swim`, Skull & Shackles active également l’effet/statut **PF1 natif « Nager »**.
