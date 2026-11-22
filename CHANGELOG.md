@@ -1,3 +1,16 @@
+# 1.25.0 — Profondeur des étendues d’eau et appui sur le fond
+
+- Les Regions d’eau peuvent désormais recevoir une **profondeur** en plus de leur niveau de surface.
+- Le fond physique est calculé avec la formule `fond = surface − profondeur`.
+- Un token ne peut jamais descendre sous l’altitude du fond.
+- Si la profondeur est inférieure à la moitié de la hauteur physique du token, sa posture de surface est automatiquement calée sur le fond : il **a pied** et ne reçoit pas l’état PF1 natif **« Nager »**.
+- Un token entièrement immergé mais posé sur le fond est également considéré comme **ayant pied** et l’état **« Nager »** est retiré.
+- Un token entre le fond et sa hauteur de nage reste considéré comme nageant.
+- L’état aquatique exposé par l’API contient désormais `standing`, `depth` et `bottomElevation`.
+- L’API `waterAutomation` expose aussi `getBottomElevation(region)` et `hasFooting(token, region, elevation)`.
+- Skull & Shackles continue de ne jamais modifier `TokenDocument.movementAction` : PF1AE reste responsable du choix marche/nage.
+- Pour compatibilité avec les Regions existantes, une profondeur laissée vide signifie **aucun fond limité**.
+
 # 1.24.3 — Retrait automatique de l’état « Nager »
 
 - L’état PF1 natif **« Nager »** est désormais retiré systématiquement dès qu’un token quitte une Region d’eau.
