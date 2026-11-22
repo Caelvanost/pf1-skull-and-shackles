@@ -3,6 +3,8 @@ import { MODULE_ID } from "./ship-data.mjs";
 const WATER_REGION_FLAG = "waterRegion";
 const UNDERWATER_SCOPE = "world";
 const UNDERWATER_KEY = "underwater";
+const WATER_MOVEMENT_FLAG = "waterMovement";
+const WATER_MOVEMENT_UPDATES = new Set();
 
 function n(value, fallback = 0) {
   return Number.isFinite(Number(value)) ? Number(value) : fallback;
@@ -66,6 +68,161 @@ function tokenInsideWaterRegion2D(token, region) {
     console.warn(`${MODULE_ID} | Impossible de tester la Region d'eau ${region.name}`, error);
     return false;
   }
+}
+
+export function getTokenPhysicalHeight(token) {
+  const scene = token?.parent ?? canvas?.scene;
+  const gridDistance = n(scene?.grid?.distance, 0);
+  if (gridDistance <= 0) return 0;
+
+  // PF1AE uses the same convention for 3D token bodies:
+  // the vertical body height equals the larger horizontal grid footprint.
+  const footprint = Math.max(n(token?.width, 1), n(token?.height, 1));
+  return Math.max(0, footprint * gridDistance);
+}
+
+export function getTokenSwimElevation(token, region) {
+  const data = getWaterRegionData(region);
+  const height = getTokenPhysicalHeight(token);
+  return data.surface - height / 2;
+}
+
+function waterRegionAtToken2D(token) {
+  const scene = token?.parent;
+  if (!scene) return null;
+
+  const candidates = [...(scene.regions ?? [])]
+    .filter(isWaterRegion)
+    .filter(region => tokenInsideWaterRegion2D(token, region));
+
+  if (!candidates.length) return null;
+
+  // If overlapping water regions exist, use the highest surface the token
+  // physically occupies. This matches the first water surface encountered.
+  return candidates.sort((a, b) =>
+    getWaterRegionData(b).surface - getWaterRegionData(a).surface
+  )[0] ?? null;
+}
+
+function isFlyingMovement(token) {
+  return String(token?.movementAction ?? "").toLowerCase() === "fly";
+}
+
+function validMovementAction(action) {
+  if (action == null || action === "") return null;
+  const key = String(action);
+  return CONFIG?.Token?.movement?.actions?.[key] ? key : null;
+}
+
+/**
+ * Gère la posture de nage d'un Token.
+ *
+ * - À l'entrée dans une zone d'eau, un token non volant est placé au plus
+ *   à la hauteur de nage (moitié de son corps immergée).
+ * - S'il est déjà plus profond, son élévation est conservée.
+ * - Dans l'eau, une tentative de remonter au-dessus de la hauteur de nage
+ *   est limitée à cette hauteur.
+ * - Le mode natif Foundry devient "swim".
+ * - "fly" désactive totalement ces contraintes.
+ * - En quittant l'eau, l'ancien mode de mouvement est restauré si le module
+ *   avait lui-même imposé "swim".
+ */
+export async function syncTokenWaterMovement(token, { force = false } = {}) {
+  if (!token || !canPersistTokenState(token)) return null;
+  if (WATER_MOVEMENT_UPDATES.has(token.uuid)) return null;
+
+  const region = waterRegionAtToken2D(token);
+  const stored = token.getFlag(MODULE_ID, WATER_MOVEMENT_FLAG) ?? {};
+  const wasInWater = Boolean(stored.inWater);
+  const flying = isFlyingMovement(token);
+
+  if (flying) {
+    // Un token en vol traverse librement une zone d'eau sans être happé
+    // par la surface et sans basculer en nage.
+    if (wasInWater || stored.forcedSwim) {
+      WATER_MOVEMENT_UPDATES.add(token.uuid);
+      try {
+        await token.setFlag(MODULE_ID, WATER_MOVEMENT_FLAG, {
+          inWater: Boolean(region),
+          forcedSwim: false,
+          previousAction: stored.previousAction ?? null
+        });
+      } finally {
+        WATER_MOVEMENT_UPDATES.delete(token.uuid);
+      }
+    }
+    return {
+      inWater: Boolean(region),
+      flying: true,
+      swimElevation: region ? getTokenSwimElevation(token, region) : null
+    };
+  }
+
+  if (!region) {
+    if (!wasInWater && !stored.forcedSwim) return { inWater: false, flying: false };
+
+    const update = {};
+    const currentAction = String(token.movementAction ?? "");
+    if (stored.forcedSwim && currentAction === "swim") {
+      const previous = validMovementAction(stored.previousAction);
+      update.movementAction = previous ?? CONFIG?.Token?.movement?.defaultAction ?? "walk";
+    }
+
+    WATER_MOVEMENT_UPDATES.add(token.uuid);
+    try {
+      if (Object.keys(update).length) await token.update(update);
+      await token.unsetFlag(MODULE_ID, WATER_MOVEMENT_FLAG);
+    } finally {
+      WATER_MOVEMENT_UPDATES.delete(token.uuid);
+    }
+    return { inWater: false, flying: false };
+  }
+
+  const swimElevation = getTokenSwimElevation(token, region);
+  const currentElevation = n(token.elevation, 0);
+  const entering = !wasInWater;
+  const update = {};
+
+  // À l'entrée, on ne remonte jamais un token qui est déjà plus profond.
+  // Ensuite, toute altitude <= swimElevation reste libre.
+  if (currentElevation > swimElevation + 1e-6 ||
+      (entering && currentElevation >= swimElevation - 1e-6)) {
+    update.elevation = swimElevation;
+  }
+
+  const currentAction = String(token.movementAction ?? "");
+  const forcedSwim = currentAction !== "swim";
+  if (forcedSwim) update.movementAction = "swim";
+
+  const previousAction = entering
+    ? (validMovementAction(currentAction) ?? null)
+    : (stored.previousAction ?? null);
+
+  const nextStored = {
+    inWater: true,
+    forcedSwim: Boolean(stored.forcedSwim || forcedSwim),
+    previousAction,
+    regionId: region.id,
+    surface: getWaterRegionData(region).surface,
+    swimElevation
+  };
+
+  WATER_MOVEMENT_UPDATES.add(token.uuid);
+  try {
+    if (Object.keys(update).length) await token.update(update);
+    await token.setFlag(MODULE_ID, WATER_MOVEMENT_FLAG, nextStored);
+  } finally {
+    WATER_MOVEMENT_UPDATES.delete(token.uuid);
+  }
+
+  return {
+    inWater: true,
+    flying: false,
+    region,
+    swimElevation,
+    elevation: Object.hasOwn(update, "elevation") ? update.elevation : currentElevation,
+    movementAction: update.movementAction ?? currentAction
+  };
 }
 
 export function getTokenWaterState(token) {
@@ -214,6 +371,7 @@ export async function syncSceneUnderwaterFlags(scene = canvas?.scene) {
 
   for (const token of scene.tokens ?? []) {
     try {
+      await syncTokenWaterMovement(token);
       await syncTokenUnderwaterFlag(token);
     } catch (error) {
       console.warn(`${MODULE_ID} | Impossible de synchroniser underwater pour ${token.name}`, error);
@@ -289,23 +447,27 @@ export async function clearSelectedWaterRegions() {
 
 export function registerWaterRegionHooks() {
   Hooks.on("updateToken", async (token, changes) => {
-    const movementChanged = ["x", "y", "elevation", "width", "height"].some((key) =>
+    const movementChanged = ["x", "y", "elevation", "width", "height", "movementAction"].some((key) =>
       Object.prototype.hasOwnProperty.call(changes ?? {}, key)
     );
 
-    // Ignore nos propres écritures de flags afin d'éviter une boucle.
-    if (!movementChanged) return;
+    if (!movementChanged || WATER_MOVEMENT_UPDATES.has(token.uuid)) return;
 
     try {
+      await syncTokenWaterMovement(token);
       await syncTokenUnderwaterFlag(token);
     } catch (error) {
-      console.warn(`${MODULE_ID} | Erreur de mise à jour underwater pour ${token.name}`, error);
+      console.warn(`${MODULE_ID} | Erreur de mise à jour de l'état aquatique pour ${token.name}`, error);
     }
   });
 
   Hooks.on("createToken", async (token) => {
-    try { await syncTokenUnderwaterFlag(token, { force: true }); }
-    catch (error) { console.warn(`${MODULE_ID} | Erreur d'initialisation underwater`, error); }
+    try {
+      await syncTokenWaterMovement(token, { force: true });
+      await syncTokenUnderwaterFlag(token, { force: true });
+    } catch (error) {
+      console.warn(`${MODULE_ID} | Erreur d'initialisation aquatique`, error);
+    }
   });
 
   const resyncScene = async (region) => {
@@ -349,6 +511,9 @@ export const WATER_AUTOMATION = Object.freeze({
   flagKey: UNDERWATER_KEY,
   getState: getTokenWaterState,
   isUnderwater: isTokenUnderwater,
+  getTokenPhysicalHeight,
+  getSwimElevation: getTokenSwimElevation,
+  syncMovement: syncTokenWaterMovement,
   measureProjectileWaterDistance,
   syncToken: syncTokenUnderwaterFlag,
   syncScene: syncSceneUnderwaterFlags,
