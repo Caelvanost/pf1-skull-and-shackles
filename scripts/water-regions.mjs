@@ -145,7 +145,7 @@ function actorHasStatus(actor, statusId) {
     [...(actor.effects ?? [])].some((effect) => effect.statuses?.has?.(statusId));
 }
 
-async function setNativeSwimmingStatus(token, active, { onlyIfManaged = false } = {}) {
+async function setNativeSwimmingStatus(token, active) {
   const actor = token?.actor;
   const statusId = nativeSwimmingStatusId();
   if (!actor || !statusId || typeof actor.toggleStatusEffect !== "function") {
@@ -153,9 +153,6 @@ async function setNativeSwimmingStatus(token, active, { onlyIfManaged = false } 
   }
 
   const wasActive = actorHasStatus(actor, statusId);
-  if (onlyIfManaged && !active && !wasActive) {
-    return { available: true, statusId, changed: false, wasActive };
-  }
   if (wasActive === active) {
     return { available: true, statusId, changed: false, wasActive };
   }
@@ -179,6 +176,8 @@ async function setNativeSwimmingStatus(token, active, { onlyIfManaged = false } 
  * - Le module ne modifie jamais TokenDocument.movementAction : PF1AE gère le
  *   type de mouvement.
  * - "fly" désactive totalement ces contraintes.
+ * - Le statut PF1 natif "Nager" est retiré systématiquement dès que le token
+ *   quitte la zone d'eau ou passe en vol.
  */
 export async function syncTokenWaterMovement(token, { force = false } = {}) {
   if (!token || !canPersistTokenState(token)) return null;
@@ -192,12 +191,10 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
   if (flying) {
     // Un token en vol traverse librement une zone d'eau sans être happé
     // par la surface. Le type de mouvement est géré exclusivement par PF1AE.
-    if (wasInWater || stored.forcedStatus) {
+    if (wasInWater) {
       WATER_MOVEMENT_UPDATES.add(token.uuid);
       try {
-        if (stored.forcedStatus) {
-          await setNativeSwimmingStatus(token, false, { onlyIfManaged: true });
-        }
+        await setNativeSwimmingStatus(token, false);
         await token.unsetFlag(MODULE_ID, WATER_MOVEMENT_FLAG);
       } finally {
         WATER_MOVEMENT_UPDATES.delete(token.uuid);
@@ -211,13 +208,11 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
   }
 
   if (!region) {
-    if (!wasInWater && !stored.forcedStatus) return { inWater: false, flying: false };
+    if (!wasInWater) return { inWater: false, flying: false };
 
     WATER_MOVEMENT_UPDATES.add(token.uuid);
     try {
-      if (stored.forcedStatus) {
-        await setNativeSwimmingStatus(token, false, { onlyIfManaged: true });
-      }
+      await setNativeSwimmingStatus(token, false);
       await token.unsetFlag(MODULE_ID, WATER_MOVEMENT_FLAG);
     } finally {
       WATER_MOVEMENT_UPDATES.delete(token.uuid);
@@ -239,15 +234,12 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
 
   const nativeStatusId = nativeSwimmingStatusId();
   const statusAlreadyActive = actorHasStatus(token.actor, nativeStatusId);
-  let forcedStatus = Boolean(stored.forcedStatus);
   if (!statusAlreadyActive) {
-    const statusResult = await setNativeSwimmingStatus(token, true);
-    forcedStatus = Boolean(statusResult.changed);
+    await setNativeSwimmingStatus(token, true);
   }
 
   const nextStored = {
     inWater: true,
-    forcedStatus,
     regionId: region.id,
     surface: getWaterRegionData(region).surface,
     swimElevation
