@@ -345,6 +345,10 @@ function quickReferencePages() {
         <li>Saisis l’altitude de la surface avec la même unité et la même référence que Levels.</li>
         <li>Lorsqu’un token est dans l’emprise 2D de cette Region et que son élévation est strictement inférieure à la surface, il reçoit automatiquement <code>flags.world.underwater = true</code>.</li>
         <li>Quand le token remonte à la surface ou quitte la Region, le flag repasse à <code>false</code>.</li>
+        <li>À l'entrée dans une zone d'eau, un token non volant est automatiquement placé à la <strong>hauteur de nage</strong> : le bas du token se trouve une demi-hauteur de créature sous la surface.</li>
+        <li>La hauteur physique suit la convention PF1AE : le plus grand côté du gabarit du token × la distance de grille (1×1 = 1,5 m sur une grille PF1 standard).</li>
+        <li>Une fois dans l'eau, le token peut descendre librement sous cette hauteur ; il ne peut pas remonter au-dessus de la hauteur de nage tant qu'il reste dans la zone.</li>
+        <li>Le mode de mouvement natif Foundry passe automatiquement à <strong>Nage / swim</strong>. Le mode <strong>Vol / fly</strong> désactive l'ajustement de hauteur et le passage automatique en nage.</li>
       </ol>
       <p>Le flag est volontairement générique : PF1 Automation Engine peut le lire avec <code>token.document.getFlag("world", "underwater")</code> sans dépendre du nom de ce module.</p>
       <p>Le bouton <strong>Retirer le niveau de l’eau</strong> supprime la configuration d’eau de la ou des Regions sélectionnées et resynchronise les tokens.</p>
