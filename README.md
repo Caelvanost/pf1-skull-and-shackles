@@ -1,6 +1,10 @@
-# PF1 — Skull & Shackles v1.23.1
+# PF1 — Skull & Shackles v1.24.0
 
 ## Nouveautés v1.23 — Zones d’eau & Levels
+### Hauteur de nage automatique
+
+Un token non volant qui entre dans une Region d’eau est placé à `surface − hauteur/2`, puis son mode de mouvement natif passe à **Nage (`swim`)**. Il peut plonger librement sous cette altitude, mais ne remonte pas au-dessus de la hauteur de nage tant qu’il reste dans l’eau. Un token en **Vol (`fly`)** n’est pas contraint par cette logique.
+
 ### Trajet immergé des projectiles
 
 L’API publique `waterAutomation.measureProjectileWaterDistance({ source, target })` mesure la longueur 3D du trajet située réellement sous la surface des Regions d’eau. Elle est destinée notamment à PF1 Automation Engine pour automatiser les malus de tir sous l’eau.
