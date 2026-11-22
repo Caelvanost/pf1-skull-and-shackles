@@ -1,3 +1,10 @@
+# 1.24.3 — Retrait automatique de l’état « Nager »
+
+- L’état PF1 natif **« Nager »** est désormais retiré systématiquement dès qu’un token quitte une Region d’eau.
+- Le retrait ne dépend plus du fait que Skull & Shackles ait lui-même appliqué l’état auparavant.
+- Le même retrait s’applique lorsqu’un token qui était dans l’eau passe en mode de mouvement `fly`.
+- Le module continue de ne jamais modifier `TokenDocument.movementAction` ; le type de mouvement reste entièrement géré par PF1AE.
+
 # 1.24.2 — Type de mouvement délégué à PF1AE
 
 - Skull & Shackles ne modifie plus jamais `TokenDocument.movementAction` lors de l’entrée dans l’eau ou de la sortie.
