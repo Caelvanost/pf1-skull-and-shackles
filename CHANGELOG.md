@@ -1,3 +1,15 @@
+# 1.24.0 — Hauteur et mode de nage automatiques
+
+- Lorsqu’un token non volant entre dans une Region d’eau, il est automatiquement placé à sa **hauteur de nage**.
+- Hauteur de nage : `surface de l’eau − hauteur physique du token / 2`, de sorte que la moitié du token soit immergée.
+- La hauteur physique utilise la même convention 3D que PF1AE : le plus grand côté du gabarit × la distance de grille.
+- Un token déjà plus profond que sa hauteur de nage n’est jamais remonté automatiquement.
+- Tant qu’il reste dans la zone d’eau, il peut descendre librement mais une tentative de remonter au-dessus de sa hauteur de nage est limitée à cette hauteur.
+- Le `TokenDocument.movementAction` natif Foundry v13 passe automatiquement à **`swim`**.
+- En quittant l’eau, le mode de mouvement précédent est restauré si Skull & Shackles avait imposé `swim`.
+- Un token dont le mode de mouvement est **`fly`** est totalement exempté du positionnement automatique et du passage en nage.
+- L’API `waterAutomation` expose désormais `getTokenPhysicalHeight`, `getSwimElevation` et `syncMovement`.
+
 # 1.23.1 — Trajet immergé des projectiles
 
 - L’API `waterAutomation` expose désormais `measureProjectileWaterDistance({ source, target })`.
