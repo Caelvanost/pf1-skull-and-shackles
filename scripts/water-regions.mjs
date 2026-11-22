@@ -30,10 +30,21 @@ function selectedRegionDocuments() {
 
 export function getWaterRegionData(region) {
   const raw = region?.getFlag?.(MODULE_ID, WATER_REGION_FLAG) ?? {};
+  const rawDepth = raw?.depth;
+  const parsedDepth = rawDepth === null || rawDepth === undefined || rawDepth === ""
+    ? null
+    : Number(rawDepth);
+
   return {
     enabled: Boolean(raw?.enabled),
-    surface: n(raw?.surface, 0)
+    surface: n(raw?.surface, 0),
+    depth: Number.isFinite(parsedDepth) && parsedDepth >= 0 ? parsedDepth : null
   };
+}
+
+export function getWaterBottomElevation(region) {
+  const data = getWaterRegionData(region);
+  return data.depth === null ? null : data.surface - data.depth;
 }
 
 export function isWaterRegion(region) {
@@ -85,6 +96,13 @@ export function getTokenSwimElevation(token, region) {
   const data = getWaterRegionData(region);
   const height = getTokenPhysicalHeight(token);
   return data.surface - height / 2;
+}
+
+export function tokenHasFooting(token, region, elevation = n(token?.elevation, 0)) {
+  if (!token || !region) return false;
+  const bottom = getWaterBottomElevation(region);
+  if (bottom === null) return false;
+  return elevation <= bottom + 1e-6;
 }
 
 function waterRegionAtToken2D(token) {
@@ -170,9 +188,14 @@ async function setNativeSwimmingStatus(token, active) {
  *
  * - À l'entrée dans une zone d'eau, un token non volant est placé au plus
  *   à la hauteur de nage (moitié de son corps immergée).
- * - S'il est déjà plus profond, son élévation est conservée.
+ * - Si une profondeur est définie, le fond vaut surface - profondeur et
+ *   constitue une limite physique que le token ne peut pas franchir.
+ * - S'il est déjà plus profond que la hauteur de nage, son élévation est
+ *   conservée tant qu'elle reste au-dessus du fond.
  * - Dans l'eau, une tentative de remonter au-dessus de la hauteur de nage
  *   est limitée à cette hauteur.
+ * - Un token posé sur le fond a pied : il ne reçoit pas l'état "Nager",
+ *   même s'il est entièrement immergé.
  * - Le module ne modifie jamais TokenDocument.movementAction : PF1AE gère le
  *   type de mouvement.
  * - "fly" désactive totalement ces contraintes.
@@ -220,28 +243,43 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     return { inWater: false, flying: false };
   }
 
+  const water = getWaterRegionData(region);
   const swimElevation = getTokenSwimElevation(token, region);
+  const bottomElevation = getWaterBottomElevation(region);
   const currentElevation = n(token.elevation, 0);
   const entering = !wasInWater;
   const update = {};
 
-  // À l'entrée, on ne remonte jamais un token qui est déjà plus profond.
-  // Ensuite, toute altitude <= swimElevation reste libre.
-  if (currentElevation > swimElevation + 1e-6 ||
-      (entering && currentElevation >= swimElevation - 1e-6)) {
-    update.elevation = swimElevation;
+  // Si un fond est défini, il constitue une limite absolue.
+  // La posture de surface ne peut jamais placer la base du token sous ce fond.
+  const surfacePostureElevation = bottomElevation === null
+    ? swimElevation
+    : Math.max(swimElevation, bottomElevation);
+
+  let effectiveElevation = currentElevation;
+
+  if (bottomElevation !== null && currentElevation < bottomElevation - 1e-6) {
+    effectiveElevation = bottomElevation;
+    update.elevation = bottomElevation;
+  } else if (currentElevation > surfacePostureElevation + 1e-6 ||
+      (entering && currentElevation >= surfacePostureElevation - 1e-6)) {
+    effectiveElevation = surfacePostureElevation;
+    update.elevation = surfacePostureElevation;
   }
 
-  const nativeStatusId = nativeSwimmingStatusId();
-  const statusAlreadyActive = actorHasStatus(token.actor, nativeStatusId);
-  if (!statusAlreadyActive) {
-    await setNativeSwimmingStatus(token, true);
-  }
+  const standing = tokenHasFooting(token, region, effectiveElevation);
+
+  // Dans l'eau, "Nager" décrit uniquement un token qui ne prend pas appui
+  // sur le fond. Un token ayant pied peut rester totalement immergé.
+  await setNativeSwimmingStatus(token, !standing);
 
   const nextStored = {
     inWater: true,
+    standing,
     regionId: region.id,
-    surface: getWaterRegionData(region).surface,
+    surface: water.surface,
+    depth: water.depth,
+    bottomElevation,
     swimElevation
   };
 
@@ -257,31 +295,65 @@ export async function syncTokenWaterMovement(token, { force = false } = {}) {
     inWater: true,
     flying: false,
     region,
+    standing,
+    surface: water.surface,
+    depth: water.depth,
+    bottomElevation,
     swimElevation,
-    elevation: Object.hasOwn(update, "elevation") ? update.elevation : currentElevation
+    elevation: effectiveElevation
   };
 }
 
 export function getTokenWaterState(token) {
   const scene = token?.parent;
-  if (!scene) return { underwater: false, region: null, surface: null, elevation: n(token?.elevation, 0) };
-
   const elevation = n(token?.elevation, 0);
-  const waterRegions = [...(scene.regions ?? [])].filter(isWaterRegion);
 
-  for (const region of waterRegions) {
-    const data = getWaterRegionData(region);
-    if (!tokenInsideWaterRegion2D(token, region)) continue;
-
-    // Un token dont la base est strictement sous la surface est considéré dans l'eau.
-    // À l'altitude exacte de surface il reste hors de l'état underwater, ce qui permet
-    // par exemple à un pont situé exactement au niveau de l'eau de ne pas être marqué.
-    if (elevation < data.surface) {
-      return { underwater: true, region, surface: data.surface, elevation };
-    }
+  if (!scene) {
+    return {
+      inWater: false,
+      underwater: false,
+      standing: false,
+      region: null,
+      surface: null,
+      depth: null,
+      bottomElevation: null,
+      elevation
+    };
   }
 
-  return { underwater: false, region: null, surface: null, elevation };
+  const waterRegions = [...(scene.regions ?? [])]
+    .filter(isWaterRegion)
+    .filter(region => tokenInsideWaterRegion2D(token, region))
+    .sort((a, b) => getWaterRegionData(b).surface - getWaterRegionData(a).surface);
+
+  const region = waterRegions[0] ?? null;
+  if (!region) {
+    return {
+      inWater: false,
+      underwater: false,
+      standing: false,
+      region: null,
+      surface: null,
+      depth: null,
+      bottomElevation: null,
+      elevation
+    };
+  }
+
+  const data = getWaterRegionData(region);
+  const bottomElevation = getWaterBottomElevation(region);
+  const standing = tokenHasFooting(token, region, elevation);
+
+  return {
+    inWater: true,
+    underwater: elevation < data.surface,
+    standing,
+    region,
+    surface: data.surface,
+    depth: data.depth,
+    bottomElevation,
+    elevation
+  };
 }
 
 function sceneDistance2D(scene, a, b) {
@@ -429,14 +501,22 @@ export async function configureSelectedWaterRegions() {
     window: { title: "Skull & Shackles — Niveau de l’eau" },
     content: `
       <div class="standard-form">
-        <p>La Region sélectionnée sera considérée comme une zone d’eau. Un token situé dans cette zone avec une élévation <strong>strictement inférieure</strong> au niveau de surface recevra <code>flags.world.underwater = true</code>.</p>
+        <p>La Region sélectionnée sera considérée comme une zone d’eau. Le niveau de surface et la profondeur utilisent la même unité que la grille de la scène.</p>
         <div class="form-group">
           <label>Niveau de la surface</label>
           <div class="form-fields">
             <input name="surface" type="number" step="0.1" value="${first.surface}">
             <span class="units">${foundry.utils.escapeHTML(canvas?.scene?.grid?.units ?? "")}</span>
           </div>
-          <p class="hint">Utilise la même unité et la même référence d’élévation que Levels.</p>
+          <p class="hint">Utilise la même référence d’élévation que Levels.</p>
+        </div>
+        <div class="form-group">
+          <label>Profondeur</label>
+          <div class="form-fields">
+            <input name="depth" type="number" min="0" step="0.1" value="${first.depth ?? ""}" placeholder="Sans fond défini">
+            <span class="units">${foundry.utils.escapeHTML(canvas?.scene?.grid?.units ?? "")}</span>
+          </div>
+          <p class="hint">Le fond est calculé à surface − profondeur. Laisse vide pour conserver une étendue sans fond limité.</p>
         </div>
       </div>
     `,
@@ -444,9 +524,16 @@ export async function configureSelectedWaterRegions() {
       label: "Définir comme zone d’eau",
       icon: "fa-solid fa-water",
       callback: (_event, button) => {
-        const value = Number(button.form.elements.surface.value);
-        if (!Number.isFinite(value)) throw new Error("Le niveau de l’eau doit être un nombre.");
-        return value;
+        const surface = Number(button.form.elements.surface.value);
+        const depthRaw = String(button.form.elements.depth.value ?? "").trim();
+        const depth = depthRaw === "" ? null : Number(depthRaw);
+
+        if (!Number.isFinite(surface)) throw new Error("Le niveau de l’eau doit être un nombre.");
+        if (depth !== null && (!Number.isFinite(depth) || depth < 0)) {
+          throw new Error("La profondeur doit être un nombre positif ou nul.");
+        }
+
+        return { surface, depth };
       }
     },
     rejectClose: false,
@@ -458,12 +545,14 @@ export async function configureSelectedWaterRegions() {
   for (const region of regions) {
     await region.setFlag(MODULE_ID, WATER_REGION_FLAG, {
       enabled: true,
-      surface: Number(result)
+      surface: Number(result.surface),
+      depth: result.depth
     });
   }
 
   await syncSceneUnderwaterFlags(canvas?.scene);
-  ui.notifications.info(`${regions.length} zone(s) d’eau configurée(s) à l’élévation ${result}.`);
+  const depthLabel = result.depth === null ? "sans fond limité" : `profondeur ${result.depth}`;
+  ui.notifications.info(`${regions.length} zone(s) d’eau configurée(s) : surface ${result.surface}, ${depthLabel}.`);
 }
 
 export async function clearSelectedWaterRegions() {
@@ -549,7 +638,9 @@ export const WATER_AUTOMATION = Object.freeze({
   getState: getTokenWaterState,
   isUnderwater: isTokenUnderwater,
   getTokenPhysicalHeight,
+  getBottomElevation: getWaterBottomElevation,
   getSwimElevation: getTokenSwimElevation,
+  hasFooting: tokenHasFooting,
   getNativeSwimmingStatusId: nativeSwimmingStatusId,
   syncMovement: syncTokenWaterMovement,
   measureProjectileWaterDistance,
